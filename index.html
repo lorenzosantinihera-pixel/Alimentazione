@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f13">
+<title>Meal Plan · Lorenzo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { font-size: 16px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+         background: #0f0f13; color: #e8e6f0; min-height: 100vh; }
+  button { font-family: inherit; }
+  .header { background: linear-gradient(135deg,#1a1a2e,#16213e 60%,#0f3460);
+            padding: 52px 18px 20px; border-bottom: 1px solid #1e2d45; }
+  .header-inner { max-width: 720px; margin: 0 auto; }
+  .badge { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+           color: #60a5fa; background: #1e3a5f; padding: 3px 9px; border-radius: 4px; }
+  h1 { font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: #f1f5f9; margin: 6px 0 4px; }
+  .target-line { font-size: 11px; color: #64748b; }
+  .container { max-width: 720px; margin: 0 auto; padding: 18px 14px 40px; }
+  .btn-main { width: 100%; padding: 15px; border-radius: 12px; border: none;
+              background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff;
+              font-size: 15px; font-weight: 700; cursor: pointer;
+              box-shadow: 0 4px 20px rgba(37,99,235,.35); margin-bottom: 18px;
+              transition: opacity .15s; }
+  .btn-main:active { opacity: .85; }
+  .callout { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 10px;
+             padding: 12px 14px; margin-bottom: 16px; font-size: 12px;
+             color: #94a3b8; line-height: 1.6; }
+  .summary-box { background: #15151f; border: 1px solid #1e2030; border-radius: 12px;
+                 padding: 14px 16px; margin-bottom: 14px; }
+  .summary-label { font-size: 11px; color: #64748b; font-weight: 700;
+                   text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  .summary-bars { display: flex; gap: 12px; }
+  .days-ok { margin-top: 10px; font-size: 12px; font-weight: 700; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 9px; border-radius: 8px; border: none; font-size: 13px;
+         font-weight: 600; cursor: pointer; transition: background .15s; }
+  .tab-active { background: #1e3a5f; color: #60a5fa; border-bottom: 2px solid #2563eb; }
+  .tab-inactive { background: #1a1a2e; color: #64748b; border-bottom: 2px solid transparent; }
+  .btn-copy { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid #1e3a5f;
+              background: #0f1923; color: #60a5fa; font-size: 13px; font-weight: 600;
+              cursor: pointer; margin-bottom: 16px; transition: background .15s, color .15s; }
+  .btn-copy.copied { background: #052e16; color: #4ade80; }
+  .btn-pdf { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid #3f2d1e;
+              background: #19130f; color: #fb923c; font-size: 13px; font-weight: 600;
+              cursor: pointer; margin-bottom: 16px; transition: background .15s, color .15s; }
+  .btn-pdf:hover { background: #1f1711; }
+  .export-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .export-row .btn-copy, .export-row .btn-pdf { margin-bottom: 0; }
+  /* Day card */
+  .day-card { background: #15151f; border: 1px solid #1e2030; border-radius: 14px;
+              margin-bottom: 14px; overflow: hidden; }
+  .day-card.warn { border-color: #7f3a1a; }
+  .day-header { background: #0f1923; padding: 12px 15px; border-bottom: 1px solid #1e2030; }
+  .day-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .day-name { font-weight: 800; font-size: 15px; color: #f1f5f9; }
+  .day-ok { font-size: 11px; font-weight: 700; color: #22c55e; }
+  .day-warn { font-size: 11px; font-weight: 700; color: #f59e0b; }
+  .day-bars { display: flex; gap: 10px; }
+  .day-body { padding: 13px 15px; }
+  /* Meal sections */
+  .meal-bf { background: #0d1a2e; border: 1px solid #312e51; border-radius: 8px;
+             padding: 9px 12px; margin-bottom: 10px; }
+  .meal-snack { background: #0d1f15; border: 1px solid #14532d; border-radius: 8px;
+                padding: 9px 12px; margin-bottom: 10px; }
+  .meal-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: .08em; }
+  .meal-name { font-size: 14px; font-weight: 800; color: #f1f5f9; margin-top: 5px; letter-spacing: -.01em; }
+  .tag-row { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  /* Clickable ingredient tag */
+  .tag-green { font-size: 11px; background: #1a2e1a; color: #86efac;
+               padding: 2px 7px; border-radius: 4px; cursor: pointer;
+               transition: background .12s; border: 1px solid transparent; }
+  .tag-green:hover { background: #1e3d1e; border-color: #4ade80; }
+  /* Lunch/Dinner */
+  .meal-heading { display: flex; align-items: center; justify-content: space-between;
+                  margin-bottom: 7px; flex-wrap: wrap; gap: 4px; }
+  .meal-heading-left { display: flex; align-items: center; gap: 6px; }
+  .meal-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                letter-spacing: .1em; color: #64748b; }
+  .meal-title { font-size: 14px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
+  .protein-badge { font-size: 10px; font-weight: 700; padding: 2px 6px;
+                   border-radius: 4px; }
+  .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 7px; }
+  .ing-cell { background: #0f1923; border-radius: 6px; padding: 5px 9px; font-size: 11px;
+              display: flex; justify-content: space-between; align-items: center;
+              cursor: pointer; transition: background .12s; border: 1px solid transparent; }
+  .ing-cell:hover { background: #131c2e; border-color: #2563eb44; }
+  .ing-name { color: #cbd5e1; }
+  .ing-g-blue { color: #60a5fa; font-weight: 700; }
+  .ing-g-purple { color: #a78bfa; font-weight: 700; }
+  .contorno-box { background: #0a1628; border: 1px solid #1e3a5f; border-radius: 7px;
+                  padding: 7px 11px; }
+  .contorno-title { font-size: 10px; font-weight: 700; color: #3b82f6; margin-bottom: 4px;
+                    text-transform: uppercase; letter-spacing: .08em; }
+  .contorno-items { display: flex; gap: 5px; flex-wrap: wrap; }
+  .contorno-item { font-size: 11px; color: #94a3b8; cursor: pointer; padding: 1px 4px;
+                   border-radius: 3px; border: 1px solid transparent; transition: background .12s; }
+  .contorno-item:hover { background: #131c2e; border-color: #2563eb44; }
+  .dinner-wrap { border-top: 1px solid #1e2030; padding-top: 10px; }
+  /* Macro pill */
+  .macro-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .macro-pill { font-size: 10px; font-weight: 700; background: #1e2030;
+                padding: 2px 7px; border-radius: 4px; }
+  /* Macro bar */
+  .macro-bar { flex: 1; min-width: 0; }
+  .macro-bar-label { font-size: 9px; color: #64748b; font-weight: 700;
+                     text-transform: uppercase; margin-bottom: 3px; }
+  .macro-bar-track { height: 5px; background: #1e2030; border-radius: 3px;
+                     overflow: hidden; margin-bottom: 3px; }
+  .macro-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+  .macro-bar-val { font-size: 11px; font-weight: 700; }
+  /* Shopping */
+  .shop-cat { background: #15151f; border: 1px solid #1e2030; border-radius: 12px;
+              margin-bottom: 11px; overflow: hidden; }
+  .shop-cat-header { background: #0f1923; padding: 10px 14px;
+                     display: flex; align-items: center; justify-content: space-between; }
+  .shop-cat-left { display: flex; align-items: center; gap: 7px; }
+  .shop-cat-icon { font-size: 16px; }
+  .shop-cat-name { font-weight: 700; font-size: 13px; color: #f1f5f9; }
+  .shop-cat-count { font-size: 11px; font-weight: 600; }
+  .shop-items { padding: 7px 14px 11px; }
+  .shop-item { display: flex; align-items: center; gap: 9px; padding: 7px 0;
+               cursor: pointer; }
+  .shop-item + .shop-item { border-top: 1px solid #1e2030; }
+  .shop-item.checked { opacity: .4; }
+  .checkbox { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+              display: flex; align-items: center; justify-content: center;
+              font-size: 9px; font-weight: 900; color: #fff; }
+  .checkbox-on { background: #2563eb; border: 2px solid #2563eb; }
+  .checkbox-off { background: transparent; border: 2px solid #334155; }
+  .shop-item-text { flex: 1; display: flex; justify-content: space-between; align-items: baseline; }
+  .shop-item-name { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .shop-item-name.line-through { text-decoration: line-through; }
+  .shop-item-qty { font-size: 12px; font-weight: 700; color: #60a5fa; }
+  /* Empty state */
+  .empty { text-align: center; padding: 44px 0; }
+  .empty-icon { font-size: 42px; margin-bottom: 9px; }
+  .empty-text { font-size: 14px; font-weight: 500; color: #475569; }
+  .empty-sub { font-size: 11px; color: #334155; margin-top: 5px; }
+  /* Colazione varieties badge */
+  .bf-badge { font-size: 10px; color: #a5b4fc; background: #1e1a3a; padding: 2px 6px; border-radius: 4px; }
+
+  /* ── DISPENSA ── */
+  .pantry-add-row { display: flex; gap: 7px; margin-bottom: 14px; align-items: center; }
+  .pantry-name-input { flex: 2; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
+                        color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
+                        font-family: inherit; min-width: 0; }
+  .pantry-qty-input  { flex: 1; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
+                        color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
+                        font-family: inherit; min-width: 0; }
+  .pantry-name-input:focus, .pantry-qty-input:focus { border-color: #2563eb; }
+  .pantry-name-input::placeholder, .pantry-qty-input::placeholder { color: #334155; }
+  .pantry-add-btn { padding: 9px 13px; border-radius: 8px; border: none;
+                     background: #1e3a5f; color: #60a5fa; font-size: 18px; font-weight: 700;
+                     cursor: pointer; flex-shrink: 0; line-height: 1; }
+  .pantry-list { background: #15151f; border: 1px solid #1e2030; border-radius: 12px;
+                  overflow: hidden; margin-bottom: 12px; }
+  .pantry-list-header { background: #0f1923; padding: 9px 14px;
+                         display: flex; justify-content: space-between; align-items: center; }
+  .pantry-list-title { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: .08em; color: #64748b; }
+  .pantry-count { font-size: 12px; font-weight: 700; color: #22c55e; }
+  .pantry-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+                 border-top: 1px solid #1e2030; }
+  .pantry-row-name { flex: 1; font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .pantry-row-qty  { font-size: 12px; font-weight: 700; color: #60a5fa; min-width: 48px; text-align: right; }
+  .pantry-del-btn  { background: none; border: none; color: #334155; font-size: 15px;
+                      cursor: pointer; padding: 2px 4px; border-radius: 4px;
+                      transition: color .12s; flex-shrink: 0; }
+  .pantry-del-btn:hover { color: #f87171; }
+  .pantry-clear-btn { width: 100%; margin-top: 4px; padding: 9px; border-radius: 8px;
+                       border: 1px solid #3f1515; background: #1a0f0f; color: #f87171;
+                       font-size: 12px; font-weight: 600; cursor: pointer; }
+  .pantry-empty { text-align: center; padding: 32px 0 24px; color: #334155; font-size: 13px; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.72);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 1000; padding: 0 0 0 0;
+    animation: fadeIn .15s ease;
+  }
+  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  .modal-sheet {
+    background: #15151f; border: 1px solid #1e2030;
+    border-radius: 18px 18px 0 0; width: 100%; max-width: 520px;
+    padding: 20px 18px 34px;
+    animation: slideUp .2s ease;
+    max-height: 90vh; overflow-y: auto;
+  }
+  @keyframes slideUp { from { transform: translateY(60px); opacity:0 } to { transform: translateY(0); opacity:1 } }
+  .modal-handle { width: 36px; height: 4px; background: #2a2a3e; border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 14px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
+  .modal-subtitle { font-size: 11px; color: #64748b; margin-bottom: 14px; }
+  .modal-macro-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .modal-macro-card { flex: 1; background: #0f1923; border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .modal-macro-val { font-size: 16px; font-weight: 800; }
+  .modal-macro-lbl { font-size: 9px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+  .modal-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                         letter-spacing: .08em; color: #64748b; margin-bottom: 8px; }
+  /* Alternative cards */
+  .alt-card { background: #0f1923; border: 1px solid #1e2030; border-radius: 10px;
+              padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+              transition: border-color .12s, background .12s; }
+  .alt-card:hover { border-color: #2563eb; background: #111927; }
+  .alt-card-name { font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+  .alt-card-macros { display: flex; gap: 6px; flex-wrap: wrap; }
+  .alt-pill { font-size: 10px; font-weight: 700; background: #1e2030; padding: 2px 6px; border-radius: 4px; }
+  .alt-note { font-size: 10px; color: #64748b; margin-top: 4px; }
+  /* Manual replacement form */
+  .manual-form { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 10px; padding: 12px 14px; margin-top: 8px; }
+  .manual-form-title { font-size: 11px; font-weight: 700; color: #60a5fa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .06em; }
+  .manual-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .manual-fields-wide { grid-template-columns: 1fr; }
+  .field-group { display: flex; flex-direction: column; gap: 3px; }
+  .field-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .field-input { background: #15151f; border: 1px solid #1e2030; border-radius: 7px;
+                 color: #f1f5f9; font-size: 13px; padding: 7px 10px; outline: none;
+                 transition: border-color .12s; font-family: inherit; }
+  .field-input:focus { border-color: #2563eb; }
+  .btn-apply { width: 100%; padding: 10px; border-radius: 8px; border: none;
+               background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff;
+               font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s; }
+  .btn-apply:hover { opacity: .9; }
+  .btn-modal-close { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #1e2030;
+                     background: transparent; color: #64748b; font-size: 13px; font-weight: 600;
+                     cursor: pointer; margin-top: 8px; }
+  .divider { height: 1px; background: #1e2030; margin: 14px 0; }
+  /* Modified tag */
+  .modified-dot { display: inline-block; width: 6px; height: 6px; background: #f59e0b; border-radius: 50%; margin-left: 4px; vertical-align: middle; }
+  /* Editable meal name */
+  .editable-name { cursor: pointer; }
+  .edit-icon { opacity: .4; font-size: .85em; margin-left: 4px; transition: opacity .12s; }
+  .editable-name:hover .edit-icon { opacity: 1; }
+
+  /* ─── PDF EXPORT (print) — lista minimale da cucina ───────────────────── */
+  #printArea { display: none; }
+
+  @media print {
+    @page { size: A4; margin: 8mm; }
+    html, body { background: #fff !important; color: #111 !important; font-size: 10px; }
+
+    /* Nascondi tutta l'app, mostra solo la vista di stampa */
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; }
+
+    #printArea .p-title { font-size: 15px; font-weight: 800; color: #111; margin: 0 0 1px; line-height: 1.1; }
+    #printArea .p-sub { font-size: 9px; color: #555; margin-bottom: 7px; line-height: 1.1; }
+
+    #printArea .p-day { break-inside: avoid; page-break-inside: avoid; margin-bottom: 5px; }
+    #printArea .p-day + .p-day { border-top: 1px solid #ccc; padding-top: 4px; }
+    #printArea .p-day-head { display: flex; justify-content: space-between; align-items: baseline;
+                              border-bottom: 1.2px solid #111; padding-bottom: 1px; margin-bottom: 3px; }
+    #printArea .p-day-name { font-size: 12px; font-weight: 800; text-transform: uppercase;
+                              letter-spacing: .03em; color: #111; line-height: 1.1; }
+    #printArea .p-day-tot { font-size: 9.5px; font-weight: 700; color: #333; line-height: 1.1; }
+
+    #printArea .p-meal { break-inside: avoid; margin-bottom: 2px; }
+    #printArea .p-meal-head { display: flex; align-items: baseline;
+                               gap: 6px; margin-bottom: 0; line-height: 1.15; }
+    #printArea .p-meal-label { font-size: 8px; font-weight: 800; text-transform: uppercase;
+                                letter-spacing: .05em; color: #555; white-space: nowrap; }
+    #printArea .p-meal-name { font-size: 10px; font-weight: 700; color: #111; flex: 1; }
+    #printArea .p-meal-macro { font-size: 8px; color: #555; white-space: nowrap; }
+
+    /* Ingredienti su 2 colonne per risparmiare altezza */
+    #printArea .p-ings { font-size: 9.5px; color: #222; margin: 0 0 2px;
+                          display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+    #printArea .p-ing { display: flex; justify-content: space-between;
+                         border-bottom: 1px dotted #ddd; padding: 0.5px 0; line-height: 1.3; }
+    #printArea .p-ing-name { padding-right: 5px; }
+    #printArea .p-ing-g { font-weight: 700; white-space: nowrap; }
+
+    #printArea .p-side-label { font-size: 8px; font-weight: 700; color: #444;
+                                margin: 1px 0 1px 6px; }
+    #printArea .p-side .p-ings { margin-left: 6px; }
+
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+      <span style="font-size:24px">🏋️</span>
+      <span class="badge">Elite Coach</span>
+    </div>
+    <h1>Meal Plan Generator</h1>
+    <p class="target-line">
+      Target: <strong style="color:#fbbf24">2700 kcal</strong> ·
+      <strong style="color:#60a5fa">130g P</strong> ·
+      <strong style="color:#4ade80">310g C</strong> ·
+      <strong style="color:#f87171">75g G</strong>
+    </p>
+  </div>
+</div>
+
+<div class="container">
+  <button class="btn-main" id="btnGenerate">⚡ Genera Piano Settimanale</button>
+
+  <div class="callout">
+    <span style="font-weight:700;color:#60a5fa">📊 Fabbisogno stimato (74kg, CF+corsa 4×/week):</span>
+    TDEE ~2600 kcal · surplus massa +100 kcal →
+    <strong style="color:#fbbf24">Target 2700 kcal</strong>.
+    Spuntino proteico incluso per garantire ≥130g P/giorno.
+    <br><span style="color:#4ade80;font-weight:700">💡 Clicca su qualsiasi alimento per vedere i macro o sostituirlo.</span>
+  </div>
+
+  <div id="planContent"></div>
+</div>
+
+<!-- VISTA STAMPA: lista minimale per cucina, generata solo al click su "Esporta PDF" -->
+<div id="printArea"></div>
+
+<!-- MODAL -->
+<div id="modalOverlay" class="modal-overlay" style="display:none" onclick="closeModalOutside(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-subtitle" id="modalSubtitle"></div>
+    <div class="modal-macro-row" id="modalMacroRow"></div>
+
+    <div class="divider"></div>
+    <div class="modal-section-label">🔄 Alternative suggerite</div>
+    <div id="modalAlternatives"></div>
+
+    <div class="divider"></div>
+    <div class="modal-section-label">✏️ Sostituisci manualmente</div>
+    <div class="manual-form">
+      <div class="manual-form-title">Inserisci alimento personalizzato</div>
+      <div class="manual-fields">
+        <div class="field-group" style="grid-column:1/-1">
+          <div class="field-label">Nome alimento</div>
+          <input class="field-input" id="mfName" type="text" placeholder="es. Petto di tacchino">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Grammi (g)</div>
+          <input class="field-input" id="mfGrams" type="number" min="1" placeholder="150">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Kcal (per 100g)</div>
+          <input class="field-input" id="mfKcal" type="number" min="0" placeholder="165">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Proteine g/100g</div>
+          <input class="field-input" id="mfP" type="number" min="0" placeholder="31">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Carboidrati g/100g</div>
+          <input class="field-input" id="mfC" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Grassi g/100g</div>
+          <input class="field-input" id="mfF" type="number" min="0" placeholder="3.6">
+        </div>
+      </div>
+      <button class="btn-apply" onclick="applyManualReplacement()">✅ Applica sostituzione</button>
+    </div>
+    <button class="btn-modal-close" onclick="closeModal()">Chiudi</button>
+  </div>
+</div>
+
+<!-- MEAL NAME / TEMPLATE MODAL -->
+<div id="mealModalOverlay" class="modal-overlay" style="display:none" onclick="closeMealModalOutside(event)">
+  <div class="modal-sheet" id="mealModalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifica pasto</div>
+    <div class="modal-subtitle" id="mealModalSubtitle"></div>
+
+    <div class="field-group" style="margin-bottom:14px">
+      <div class="field-label">Nome pasto</div>
+      <input class="field-input" id="mealNameInput" type="text" placeholder="Nome del pasto">
+    </div>
+    <button class="btn-apply" onclick="applyMealNameChange()">✅ Salva nome</button>
+
+    <div id="templateSaveSection">
+      <div class="divider"></div>
+      <div class="modal-section-label">⭐ Pasti possibili</div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">
+        Salva questo pasto, con nome e alimenti attuali, tra i pasti possibili: potrà essere riproposto nei prossimi piani generati.
+      </div>
+      <button class="btn-apply" id="btnSaveTemplate" style="background:linear-gradient(135deg,#059669,#10b981)" onclick="saveMealAsTemplate()">⭐ Salva tra i pasti possibili</button>
+    </div>
+
+    <div id="bfAltSection" style="display:none">
+      <div class="divider"></div>
+      <div class="modal-section-label">🔄 Cambia colazione oggi</div>
+      <div id="bfAltList"></div>
+    </div>
+
+    <button class="btn-modal-close" onclick="closeMealModal()">Chiudi</button>
+  </div>
+</div>
+
+
+<script>
+// ─── TARGETS ─────────────────────────────────────────────────────────────────
+const TARGETS = { kcal: 2700, protein: 130, carbs: 310, fat: 75 };
+
+// ─── MACRO DB (per 100g) ─────────────────────────────────────────────────────
+const MACRO_PER100 = {
+  "petto di pollo":        { kcal:165, p:31, c:0,   f:3.6 },
+  "coscia di pollo":       { kcal:215, p:26, c:0,   f:12  },
+  "petto di pollo a striscioline": { kcal:165, p:31, c:0, f:3.6 },
+  "tacchino a fette":      { kcal:135, p:30, c:0,   f:1.5 },
+  "tacchino macinato":     { kcal:150, p:28, c:0,   f:3   },
+  "tonno in acqua (sgocciolato)":  { kcal:116, p:26, c:0, f:0.5 },
+  "filetto di salmone":    { kcal:208, p:20, c:0,   f:13  },
+  "salmone affumicato":    { kcal:117, p:18, c:0,   f:4.3 },
+  "filetto di merluzzo":   { kcal:82,  p:18, c:0,   f:0.7 },
+  "sgombro al naturale (sgocciolato)": { kcal:139, p:20, c:0, f:6.5 },
+  "orata al forno":        { kcal:121, p:22, c:0,   f:3.5 },
+  "gamberetti":            { kcal:99,  p:21, c:0.9, f:1.1 },
+  "sarde al naturale":     { kcal:150, p:21, c:0,   f:7   },
+  "uova intere":           { kcal:155, p:13, c:1.1, f:11  },
+  "uova":                  { kcal:155, p:13, c:1.1, f:11  },
+  "ricotta vaccina":       { kcal:174, p:11, c:3,   f:13  },
+  "feta":                  { kcal:264, p:14, c:4,   f:21  },
+  "scamorza":              { kcal:334, p:25, c:1,   f:26  },
+  "parmigiano":            { kcal:392, p:33, c:0,   f:28  },
+  "mozzarella light":      { kcal:180, p:19, c:0,   f:11  },
+  "mozzarella proteica":   { kcal:131, p:20, c:3.5, f:5   },
+  "lenticchie rosse (crude)":  { kcal:352, p:25, c:60, f:1.1 },
+  "lenticchie verdi (crude)":  { kcal:352, p:25, c:60, f:1.1 },
+  "ceci in scatola (sgocciolati)": { kcal:121, p:7, c:20, f:2  },
+  "fagioli cannellini (sgocciolati)": { kcal:97, p:7, c:18, f:0.5 },
+  "fagioli neri (sgocciolati)": { kcal:91, p:7, c:16, f:0.5 },
+  "edamame":               { kcal:122, p:11, c:10,  f:5   },
+  "hummus":                { kcal:177, p:8,  c:14,  f:11  },
+  "tofu sodo":             { kcal:76,  p:8,  c:1.9, f:4.2 },
+  // Carboidrati
+  "riso basmati (crudo)":  { kcal:356, p:7,  c:78,  f:0.6 },
+  "riso integrale (crudo)":{ kcal:356, p:7,  c:77,  f:2   },
+  "pasta integrale (cruda)":{ kcal:335, p:13, c:65, f:2.5 },
+  "pasta di kamut (cruda)":{ kcal:330, p:13, c:66,  f:2   },
+  "spaghetti di grano saraceno": { kcal:340, p:12, c:68, f:1.8 },
+  "farro perlato (crudo)": { kcal:338, p:14, c:69,  f:2.5 },
+  "cous cous (crudo)":     { kcal:356, p:12, c:73,  f:1.9 },
+  "quinoa (cruda)":        { kcal:368, p:14, c:64,  f:6   },
+  "orzo perlato (crudo)":  { kcal:354, p:9,  c:74,  f:1.5 },
+  "patate":                { kcal:77,  p:2,  c:17,  f:0.1 },
+  "patate dolci":          { kcal:86,  p:1.6,c:20,  f:0.1 },
+  "piadina integrale":     { kcal:290, p:9,  c:52,  f:6   },
+  "pane di segale":        { kcal:259, p:8,  c:48,  f:3.3 },
+  "pane integrale":        { kcal:247, p:9,  c:45,  f:3   },
+  "avena (fiocchi)":       { kcal:389, p:17, c:66,  f:7   },
+  "fette biscottate integrali": { kcal:370, p:10, c:72, f:5 },
+  "pane bauletto":         { kcal:265, p:9,  c:50,  f:3.5 },
+  "burro d'arachidi":      { kcal:588, p:25, c:20,  f:50  },
+  // Latticini
+  "yogurt greco 0%":       { kcal:57,  p:10, c:4,   f:0.2 },
+  "yogurt greco 2%":       { kcal:73,  p:10, c:4,   f:2   },
+  "muesli":                { kcal:370, p:9,  c:65,  f:7   },
+  "latte di cocco light":  { kcal:45,  p:0.5,c:4,   f:3   },
+  // Verdure
+  "zucchine":              { kcal:17,  p:1.2,c:3.1, f:0.3 },
+  "spinacino":             { kcal:23,  p:2.9,c:3.6, f:0.4 },
+  "spinaci freschi":       { kcal:23,  p:2.9,c:3.6, f:0.4 },
+  "pomodorini":            { kcal:18,  p:0.9,c:3.9, f:0.2 },
+  "pomodori":              { kcal:18,  p:0.9,c:3.9, f:0.2 },
+  "pomodori ramati":       { kcal:18,  p:0.9,c:3.9, f:0.2 },
+  "pomodori pelati":       { kcal:24,  p:1.1,c:5,   f:0.2 },
+  "pomodoro a cubetti":    { kcal:18,  p:0.9,c:3.9, f:0.2 },
+  "carote":                { kcal:41,  p:0.9,c:10,  f:0.2 },
+  "broccoli":              { kcal:34,  p:2.8,c:7,   f:0.4 },
+  "cavolfiore":            { kcal:25,  p:1.9,c:5,   f:0.3 },
+  "cavolo riccio (kale)":  { kcal:49,  p:4.3,c:9,   f:0.9 },
+  "fagiolini":             { kcal:31,  p:1.8,c:7,   f:0.1 },
+  "asparagi":              { kcal:20,  p:2.2,c:3.9, f:0.1 },
+  "peperone rosso":        { kcal:31,  p:1,  c:6,   f:0.3 },
+  "peperone giallo":       { kcal:27,  p:1,  c:5,   f:0.2 },
+  "peperoni misti":        { kcal:31,  p:1,  c:6,   f:0.3 },
+  "peperoni":              { kcal:31,  p:1,  c:6,   f:0.3 },
+  "funghi champignon":     { kcal:22,  p:3.1,c:3.3, f:0.3 },
+  "funghi misti":          { kcal:22,  p:3.1,c:3.3, f:0.3 },
+  "bietola":               { kcal:19,  p:1.8,c:3.6, f:0.2 },
+  "melanzane":             { kcal:25,  p:1,  c:5.7, f:0.2 },
+  "finocchio":             { kcal:31,  p:1.2,c:7,   f:0.2 },
+  "misticanza":            { kcal:20,  p:2,  c:3,   f:0.3 },
+  "lattuga iceberg":       { kcal:14,  p:0.9,c:2.9, f:0.1 },
+  "rucola":                { kcal:25,  p:2.6,c:3.6, f:0.7 },
+  "ravanelli":             { kcal:16,  p:0.7,c:3.4, f:0.1 },
+  "cetriolo":              { kcal:16,  p:0.7,c:3.6, f:0.1 },
+  "cipolla":               { kcal:40,  p:1.1,c:9.3, f:0.1 },
+  "cipolla rossa":         { kcal:40,  p:1.1,c:9.3, f:0.1 },
+  "sedano":                { kcal:16,  p:0.7,c:3,   f:0.2 },
+  "aglio":                 { kcal:149, p:6.4,c:33,  f:0.5 },
+  "zucca":                 { kcal:26,  p:1,  c:6.5, f:0.1 },
+  "avocado":               { kcal:160, p:2,  c:9,   f:15  },
+  "mais in scatola":       { kcal:86,  p:3.2,c:18,  f:1.2 },
+  // Condimenti
+  "olio evo":              { kcal:884, p:0,  c:0,   f:100 },
+  "olio di sesamo":        { kcal:884, p:0,  c:0,   f:100 },
+  "olive nere":            { kcal:145, p:1,  c:3.8, f:15  },
+  "olive taggiasche":      { kcal:145, p:1,  c:3.8, f:15  },
+  "capperi":               { kcal:23,  p:2.4,c:5,   f:0.9 },
+  "salsa di soia":         { kcal:53,  p:8,  c:5,   f:0.6 },
+  "zenzero fresco":        { kcal:80,  p:1.8,c:18,  f:0.8 },
+  "tahini":                { kcal:595, p:17, c:21,  f:54  },
+  "aceto balsamico":       { kcal:88,  p:0.5,c:17,  f:0   },
+  "senape":                { kcal:60,  p:3.7,c:5.4, f:3.3 },
+};
+
+// ─── MACRO PERSONALIZZATI (alimenti aggiunti manualmente) ────────────────────
+const BASE_MACRO_KEYS = new Set(Object.keys(MACRO_PER100));
+const CUSTOM_MACROS_KEY = "mealplan_custom_macros_v1";
+try {
+  const cm = JSON.parse(localStorage.getItem(CUSTOM_MACROS_KEY) || "{}");
+  Object.assign(MACRO_PER100, cm);
+} catch(e) {}
+function persistCustomMacros() {
+  const custom = {};
+  for (const k in MACRO_PER100) if (!BASE_MACRO_KEYS.has(k)) custom[k] = MACRO_PER100[k];
+  try { localStorage.setItem(CUSTOM_MACROS_KEY, JSON.stringify(custom)); } catch(e) {}
+}
+
+
+// ─── ALTERNATIVES DB ─────────────────────────────────────────────────────────
+// Per ciascun alimento: lista di alternative con nome, grammi suggeriti, note
+const ALTERNATIVES = {
+  "petto di pollo":    [
+    { item:"Tacchino a fette", grams:180, note:"Proteina magra simile, gusto più delicato" },
+    { item:"Filetto di merluzzo", grams:200, note:"Pesce bianco magro, ottimo al forno" },
+    { item:"Tofu sodo", grams:220, note:"Opzione plant-based, marinare bene" },
+  ],
+  "coscia di pollo":   [
+    { item:"Petto di pollo", grams:220, note:"Più magro, meno saporito" },
+    { item:"Tacchino a fette", grams:220, note:"Simile, leggermente più proteico" },
+    { item:"Filetto di salmone", grams:200, note:"Più grassi buoni, omega-3" },
+  ],
+  "tacchino a fette":  [
+    { item:"Petto di pollo", grams:180, note:"Classico sostituto lean" },
+    { item:"Filetto di merluzzo", grams:200, note:"Opzione pesce bianco" },
+    { item:"Tofu sodo", grams:220, note:"Plant-based, proteina completa con soia" },
+  ],
+  "tacchino macinato": [
+    { item:"Petto di pollo", grams:180, note:"Tritato o a pezzi" },
+    { item:"Lenticchie verdi (crude)", grams:120, note:"Versione legumi, più carboidrati" },
+    { item:"Tofu sodo", grams:200, note:"Sbriciolato in padella" },
+  ],
+  "tonno in acqua (sgocciolato)": [
+    { item:"Filetto di salmone", grams:160, note:"Più grassi, omega-3 elevati" },
+    { item:"Sgombro al naturale (sgocciolato)", grams:150, note:"Simile al tonno, più omega-3" },
+    { item:"Gamberetti", grams:180, note:"Leggeri, molto proteici" },
+  ],
+  "filetto di salmone":[
+    { item:"Tonno in acqua (sgocciolato)", grams:160, note:"Molto più magro" },
+    { item:"Sgombro al naturale (sgocciolato)", grams:150, note:"Simile profilo omega-3" },
+    { item:"Orata al forno", grams:200, note:"Pesce bianco saporito" },
+  ],
+  "filetto di merluzzo":[
+    { item:"Petto di pollo", grams:180, note:"Simili calorie, più versatile" },
+    { item:"Gamberetti", grams:180, note:"Proteina magra alternativa" },
+    { item:"Tonno in acqua (sgocciolato)", grams:150, note:"Comodità conserva" },
+  ],
+  "uova intere":       [
+    { item:"Tofu sodo", grams:200, note:"Plant-based, texture simile in cottura" },
+    { item:"Ricotta vaccina", grams:180, note:"Meno grassi saturi, più cremosa" },
+    { item:"Yogurt greco 0%", grams:200, note:"Per preparazioni fredde/dolci" },
+  ],
+  "ricotta vaccina":   [
+    { item:"Yogurt greco 0%", grams:200, note:"Più proteico, meno grassi" },
+    { item:"Tofu sodo", grams:180, note:"Plant-based con texture simile" },
+    { item:"Feta", grams:80, note:"Più saporita, ridurre quantità" },
+  ],
+  "riso basmati (crudo)":[
+    { item:"Quinoa (cruda)", grams:80, note:"Più proteica, tutti gli aminoacidi" },
+    { item:"Farro perlato (crudo)", grams:85, note:"Più fibre, indice glicemico minore" },
+    { item:"Riso integrale (crudo)", grams:85, note:"Stessa quantità, più fibre" },
+  ],
+  "riso integrale (crudo)":[
+    { item:"Riso basmati (crudo)", grams:85, note:"Indice glicemico leggermente più alto" },
+    { item:"Farro perlato (crudo)", grams:85, note:"Più fibre e proteine" },
+    { item:"Quinoa (cruda)", grams:80, note:"Più proteica" },
+  ],
+  "pasta integrale (cruda)":[
+    { item:"Pasta di kamut (cruda)", grams:90, note:"Simile, gusto più ricco" },
+    { item:"Spaghetti di grano saraceno", grams:90, note:"Senza glutine, più proteici" },
+    { item:"Farro perlato (crudo)", grams:85, note:"Cereale intero, più versatile" },
+  ],
+  "patate":            [
+    { item:"Patate dolci", grams:200, note:"Più vitamina A, IG leggermente più basso" },
+    { item:"Riso integrale (crudo)", grams:85, note:"Alternativa cereale" },
+    { item:"Farro perlato (crudo)", grams:80, note:"Più fibre e proteine" },
+  ],
+  "patate dolci":      [
+    { item:"Patate", grams:200, note:"Gusto neutro, simili calorie" },
+    { item:"Zucca", grams:250, note:"Meno calorie, molto digeribile" },
+    { item:"Riso integrale (crudo)", grams:80, note:"Alternativa cereale compatta" },
+  ],
+  "avena (fiocchi)":   [
+    { item:"Fette biscottate integrali", grams:50, note:"Comoda in viaggio" },
+    { item:"Muesli", grams:50, note:"Variante con frutta secca" },
+    { item:"Quinoa (cruda)", grams:70, note:"Più proteica, cottura simile" },
+  ],
+  "yogurt greco 0%":   [
+    { item:"Yogurt greco 2%", grams:150, note:"Più grasso, più saporito" },
+    { item:"Ricotta vaccina", grams:150, note:"Meno proteine, più cremosa" },
+    { item:"Tofu sodo", grams:180, note:"Plant-based frullato" },
+  ],
+  "yogurt greco 2%":   [
+    { item:"Yogurt greco 0%", grams:150, note:"Meno grassi" },
+    { item:"Ricotta vaccina", grams:150, note:"Alternativa latticini" },
+  ],
+  "ceci in scatola (sgocciolati)":[
+    { item:"Fagioli cannellini (sgocciolati)", grams:200, note:"Gusto delicato, simili macro" },
+    { item:"Lenticchie rosse (crude)", grams:100, note:"Più proteiche, cottura rapida" },
+    { item:"Edamame", grams:180, note:"Più proteici e versatili" },
+  ],
+  "lenticchie rosse (crude)":[
+    { item:"Lenticchie verdi (crude)", grams:120, note:"Stesse macro, mantengono forma" },
+    { item:"Ceci in scatola (sgocciolati)", grams:200, note:"Comodità, pronto all'uso" },
+    { item:"Fagioli neri (sgocciolati)", grams:200, note:"Sapore deciso, ricchi di antiossidanti" },
+  ],
+  "lenticchie verdi (crude)":[
+    { item:"Lenticchie rosse (crude)", grams:120, note:"Cottura più rapida, si disfano" },
+    { item:"Ceci in scatola (sgocciolati)", grams:200, note:"Comodità conserva" },
+    { item:"Fagioli cannellini (sgocciolati)", grams:220, note:"Gusto delicato" },
+  ],
+  "fagioli cannellini (sgocciolati)":[
+    { item:"Ceci in scatola (sgocciolati)", grams:200, note:"Sapore più deciso" },
+    { item:"Fagioli neri (sgocciolati)", grams:200, note:"Più antiossidanti" },
+    { item:"Lenticchie verdi (crude)", grams:110, note:"Più proteiche" },
+  ],
+  "broccoli":          [
+    { item:"Cavolfiore", grams:180, note:"Stessa famiglia, neutro" },
+    { item:"Fagiolini", grams:180, note:"Più leggeri, veloci da cuocere" },
+    { item:"Zucchine", grams:200, note:"Versatili, pochi calorie" },
+  ],
+  "zucchine":          [
+    { item:"Melanzane", grams:180, note:"Più saporite al forno" },
+    { item:"Broccoli", grams:160, note:"Più nutrienti" },
+    { item:"Cavolfiore", grams:180, note:"Neutro, assorbe i condimenti" },
+  ],
+  "spinaci freschi":   [
+    { item:"Spinacino", grams:100, note:"Praticamente identico" },
+    { item:"Bietola", grams:180, note:"Più dolce, più ferro" },
+    { item:"Cavolo riccio (kale)", grams:100, note:"Più nutriente, gusto deciso" },
+  ],
+  "olio evo":          [
+    { item:"Olio di sesamo", grams:10, note:"Buono per saltati orientali" },
+  ],
+};
+
+function getMacros(item, grams) {
+  const key = item.toLowerCase().trim();
+  const m = MACRO_PER100[key] || { kcal:30, p:1, c:4, f:1 };
+  const f = grams / 100;
+  return { kcal: Math.round(m.kcal*f), p: Math.round(m.p*f*10)/10, c: Math.round(m.c*f*10)/10, f: Math.round(m.f*f*10)/10 };
+}
+function getMacroPer100(item) {
+  const key = item.toLowerCase().trim();
+  return MACRO_PER100[key] || null;
+}
+function sumMacros(ings) {
+  return ings.reduce((a,i) => {
+    const m = getMacros(i.item, i.grams);
+    return { kcal:a.kcal+m.kcal, p:a.p+m.p, c:a.c+m.c, f:a.f+m.f };
+  }, { kcal:0, p:0, c:0, f:0 });
+}
+
+// ─── COLAZIONI VARIABILI ─────────────────────────────────────────────────────
+const BREAKFASTS = [
+  { name: "Yogurt greco + muesli",
+    ingredients: [{ item:"Yogurt greco 0%", grams:100 }, { item:"Muesli", grams:100 }] },
+  { name: "Porridge di avena",
+    ingredients: [{ item:"Avena (fiocchi)", grams:150 }, { item:"Yogurt greco 0%", grams:70 }] },
+  { name: "Yogurt greco + fette biscottate",
+    ingredients: [{ item:"Yogurt greco 2%", grams:135 }, { item:"Fette biscottate integrali", grams:85 }] },
+  { name: "Uova strapazzate con pane integrale",
+    ingredients: [{ item:"Uova intere", grams:210 }, { item:"Pane integrale", grams:130 }] },
+  { name: "Yogurt greco + muesli (extra)",
+    ingredients: [{ item:"Yogurt greco 0%", grams:135 }, { item:"Muesli", grams:85 }] },
+  { name: "Toast con avocado e uova",
+    ingredients: [{ item:"Pane integrale", grams:130 }, { item:"Avocado", grams:55 }, { item:"Uova intere", grams:140 }] },
+  { name: "Pane integrale con salmone affumicato e avocado",
+    ingredients: [{ item:"Pane integrale", grams:105 }, { item:"Salmone affumicato", grams:40 }, { item:"Avocado", grams:45 }] },
+];
+
+// ─── ALTERNATIVE COLAZIONI (sostituzione pasto intero) ───────────────────────
+const BREAKFAST_ALTERNATIVES = [
+  { name: "Pane bauletto con burro d'arachidi",
+    ingredients: [{ item:"Pane bauletto", grams:80 }, { item:"Burro d'arachidi", grams:30 }],
+    note: "Ottimo per giornate di allenamento intenso — grassi buoni + carboidrati rapidi" },
+  { name: "Porridge di avena",
+    ingredients: [{ item:"Avena (fiocchi)", grams:150 }, { item:"Yogurt greco 0%", grams:70 }],
+    note: "Alto apporto di carboidrati, ideale pre-workout" },
+  { name: "Yogurt greco + fette biscottate",
+    ingredients: [{ item:"Yogurt greco 2%", grams:135 }, { item:"Fette biscottate integrali", grams:85 }],
+    note: "Alternativa bilanciata, più pratica" },
+  { name: "Uova strapazzate con pane integrale",
+    ingredients: [{ item:"Uova intere", grams:210 }, { item:"Pane integrale", grams:130 }],
+    note: "Proteica, saziante, ottima nei giorni di riposo" },
+  { name: "Toast con avocado e uova",
+    ingredients: [{ item:"Pane integrale", grams:130 }, { item:"Avocado", grams:55 }, { item:"Uova intere", grams:140 }],
+    note: "Grassi buoni + proteine complete" },
+];
+
+
+const SNACKS = [
+  { name: "Yogurt greco + muesli",
+    ingredients: [{ item:"Yogurt greco 0%", grams:115 }, { item:"Muesli", grams:45 }],
+    note: "Post-allenamento o metà pomeriggio" },
+  { name: "Ricotta con fette biscottate",
+    ingredients: [{ item:"Ricotta vaccina", grams:140 }, { item:"Fette biscottate integrali", grams:60 }],
+    note: "Spuntino proteico" },
+  { name: "Uova sode",
+    ingredients: [{ item:"Uova intere", grams:170 }],
+    note: "Pre o post allenamento" },
+  { name: "Yogurt greco con avena",
+    ingredients: [{ item:"Yogurt greco 2%", grams:100 }, { item:"Avena (fiocchi)", grams:60 }],
+    note: "Metà mattina o pomeriggio" },
+  { name: "Ricotta con pane integrale",
+    ingredients: [{ item:"Ricotta vaccina", grams:165 }, { item:"Pane integrale", grams:85 }],
+    note: "Post-allenamento" },
+  { name: "Mozzarella proteica con pomodorini",
+    ingredients: [{ item:"Mozzarella proteica", grams:100 }, { item:"Pomodori pelati", grams:150 }],
+    note: "Spuntino proteico leggero" },
+  { name: "Toast con avocado",
+    ingredients: [{ item:"Pane integrale", grams:105 }, { item:"Avocado", grams:65 }],
+    note: "Spuntino con grassi buoni" },
+];
+
+// ─── TAG PESCE ────────────────────────────────────────────────────────────────
+const FISH_SOURCES = ["Tonno","Salmone","Merluzzo","Sgombro"];
+
+// ─── PRANZI ──────────────────────────────────────────────────────────────────
+const LUNCHES = [
+  { name:"Riso con petto di pollo e zucchine", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:100},{item:"Riso basmati (crudo)",grams:190},{item:"Zucchine",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Spinacino e pomodorini",ingredients:[{item:"Spinacino",grams:115},{item:"Pomodorini",grams:150},{item:"Olio EVO",grams:5}]}},
+  { name:"Wrap di pollo con hummus e verdure", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:100},{item:"Piadina integrale",grams:170},{item:"Hummus",grams:55},{item:"Lattuga iceberg",grams:95},{item:"Peperone rosso",grams:150}],
+    side:{name:"Finocchio crudo",ingredients:[{item:"Finocchio",grams:245}]}},
+  { name:"Farro con petto di pollo e peperoni", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:100},{item:"Farro perlato (crudo)",grams:170},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Misticanza",ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}]}},
+  { name:"Riso integrale con pollo e broccoli", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:100},{item:"Riso integrale (crudo)",grams:180},{item:"Broccoli",grams:305},{item:"Olio EVO",grams:10}],
+    side:{name:"Pomodori e cetriolo",ingredients:[{item:"Pomodori",grams:190},{item:"Cetriolo",grams:150}]}},
+  { name:"Orzo con tacchino e peperoni", protein_source:"Tacchino",
+    ingredients:[{item:"Tacchino a fette",grams:100},{item:"Orzo perlato (crudo)",grams:180},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Misticanza",ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}]}},
+  { name:"Patate con pollo a pezzi e funghi", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo a striscioline",grams:100},{item:"Patate",grams:425},{item:"Funghi champignon",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Insalata verde",ingredients:[{item:"Lattuga iceberg",grams:150},{item:"Olio EVO",grams:5}]}},
+  { name:"Cous cous con tacchino e zucchine", protein_source:"Tacchino",
+    ingredients:[{item:"Tacchino a fette",grams:100},{item:"Cous cous (crudo)",grams:190},{item:"Zucchine",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Carote crude",ingredients:[{item:"Carote",grams:230}]}},
+  { name:"Frittata con patate dolci e peperoni", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:280},{item:"Feta",grams:45},{item:"Patate dolci",grams:425},{item:"Peperone rosso",grams:190},{item:"Olio EVO",grams:10}],
+    side:{name:"Cetriolo fresco",ingredients:[{item:"Cetriolo",grams:285}]}},
+  { name:"Uova e ceci con pane integrale", protein_source:"Uova + Ceci",
+    ingredients:[{item:"Uova intere",grams:225},{item:"Ceci in scatola (sgocciolati)",grams:320},{item:"Pomodorini",grams:190},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}],
+    side:{name:"Rucola",ingredients:[{item:"Rucola",grams:115},{item:"Olio EVO",grams:5}]}},
+  { name:"Pasta integrale con ceci e pomodorini", protein_source:"Ceci",
+    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:425},{item:"Pasta integrale (cruda)",grams:190},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:10}],
+    side:{name:"Rucola",ingredients:[{item:"Rucola",grams:115},{item:"Parmigiano",grams:10},{item:"Olio EVO",grams:5}]}},
+  { name:"Lenticchie rosse con riso integrale", protein_source:"Lenticchie",
+    ingredients:[{item:"Lenticchie rosse (crude)",grams:260},{item:"Riso integrale (crudo)",grams:170},{item:"Cipolla",grams:115},{item:"Carote",grams:150},{item:"Olio EVO",grams:5}],
+    side:{name:"Broccoli al vapore",ingredients:[{item:"Broccoli",grams:305},{item:"Olio EVO",grams:5}]}},
+  { name:"Pasta di kamut con ricotta e pomodorini", protein_source:"Ricotta",
+    ingredients:[{item:"Ricotta vaccina",grams:185},{item:"Pasta di kamut (cruda)",grams:190},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:10}],
+    side:{name:"Rucola con parmigiano",ingredients:[{item:"Rucola",grams:95},{item:"Parmigiano",grams:15},{item:"Olio EVO",grams:5}]}},
+  { name:"Fagioli cannellini con quinoa e verdure", protein_source:"Fagioli",
+    ingredients:[{item:"Fagioli cannellini (sgocciolati)",grams:470},{item:"Quinoa (cruda)",grams:170},{item:"Peperoni misti",grams:245},{item:"Olio EVO",grams:10}],
+    side:{name:"Cetriolo e cipolla rossa",ingredients:[{item:"Cetriolo",grams:190},{item:"Cipolla rossa",grams:75}]}},
+  { name:"Cous cous con ceci e verdure grigliate", protein_source:"Ceci",
+    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:425},{item:"Cous cous (crudo)",grams:180},{item:"Zucchine",grams:230},{item:"Melanzane",grams:190},{item:"Olio EVO",grams:10}],
+    side:{name:"Spinacino",ingredients:[{item:"Spinacino",grams:115}]}},
+  { name:"Pasta integrale con tonno e pomodorini", protein_source:"Tonno",
+    ingredients:[{item:"Tonno in acqua (sgocciolato)",grams:95},{item:"Pasta integrale (cruda)",grams:190},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:10}],
+    side:{name:"Carote crude",ingredients:[{item:"Carote",grams:230}]}},
+  { name:"Riso basmati con salmone e fagiolini", protein_source:"Salmone",
+    ingredients:[{item:"Filetto di salmone",grams:95},{item:"Riso basmati (crudo)",grams:180},{item:"Fagiolini",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Misticanza",ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}]}},
+  { name:"Pane integrale con salmone affumicato e avocado", protein_source:"Salmone",
+    ingredients:[{item:"Salmone affumicato",grams:80},{item:"Pane integrale",grams:170},{item:"Avocado",grams:70},{item:"Olio EVO",grams:5}],
+    side:{name:"Pomodorini e rucola",ingredients:[{item:"Pomodorini",grams:190},{item:"Rucola",grams:75}]}},
+  { name:"Farro con mozzarella proteica e pomodorini", protein_source:"Mozzarella proteica",
+    ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Farro perlato (crudo)",grams:180},{item:"Pomodorini",grams:285},{item:"Olio EVO",grams:10}],
+    side:{name:"Basilico e rucola",ingredients:[{item:"Rucola",grams:95},{item:"Olio EVO",grams:5}]}},
+];
+
+// ─── CENE ────────────────────────────────────────────────────────────────────
+const DINNERS = [
+  { name:"Pollo al forno con patate e rosmarino", protein_source:"Pollo",
+    ingredients:[{item:"Coscia di pollo",grams:145},{item:"Patate",grams:425},{item:"Olio EVO",grams:10}]},
+  { name:"Petto di pollo con broccoli al forno", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:130},{item:"Broccoli",grams:380},{item:"Olio EVO",grams:10}]},
+  { name:"Pollo al forno con zucchine e peperoni", protein_source:"Pollo",
+    ingredients:[{item:"Coscia di pollo",grams:145},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
+  { name:"Petto di pollo con fagiolini e patate dolci", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:130},{item:"Fagiolini",grams:340},{item:"Patate dolci",grams:320},{item:"Olio EVO",grams:10}]},
+  { name:"Tacchino al forno con cavolfiore e patate", protein_source:"Tacchino",
+    ingredients:[{item:"Tacchino a fette",grams:130},{item:"Cavolfiore",grams:380},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}]},
+  { name:"Pollo a pezzi con pomodori e peperoni", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo a striscioline",grams:115},{item:"Pomodori pelati",grams:340},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
+  { name:"Tacchino in padella con funghi e spinaci", protein_source:"Tacchino",
+    ingredients:[{item:"Tacchino a fette",grams:130},{item:"Funghi champignon",grams:340},{item:"Spinaci freschi",grams:230},{item:"Olio EVO",grams:10}]},
+  { name:"Omelette con funghi e scamorza", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:310},{item:"Funghi champignon",grams:285},{item:"Scamorza",grams:35},{item:"Olio EVO",grams:10}]},
+  { name:"Frittata di uova con spinaci e ricotta", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:310},{item:"Spinaci freschi",grams:285},{item:"Ricotta vaccina",grams:70},{item:"Olio EVO",grams:10}]},
+  { name:"Uova al forno con pomodori e feta", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:280},{item:"Pomodori pelati",grams:285},{item:"Feta",grams:45},{item:"Olio EVO",grams:10}]},
+  { name:"Lenticchie con carote e pane di segale", protein_source:"Lenticchie",
+    ingredients:[{item:"Lenticchie verdi (crude)",grams:275},{item:"Carote",grams:190},{item:"Sedano",grams:150},{item:"Pane di segale",grams:130},{item:"Olio EVO",grams:10}]},
+  { name:"Ceci con bietola e uova", protein_source:"Ceci + Uova",
+    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:380},{item:"Bietola",grams:380},{item:"Uova intere",grams:170},{item:"Aglio",grams:5},{item:"Olio EVO",grams:10}]},
+  { name:"Ricotta con verdure grigliate e pane integrale", protein_source:"Ricotta",
+    ingredients:[{item:"Ricotta vaccina",grams:200},{item:"Melanzane",grams:340},{item:"Peperoni",grams:285},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}]},
+  { name:"Fagioli cannellini con cipolla e pane integrale", protein_source:"Fagioli",
+    ingredients:[{item:"Fagioli cannellini (sgocciolati)",grams:425},{item:"Cipolla rossa",grams:115},{item:"Pomodorini",grams:230},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}]},
+  { name:"Tonno con fagioli cannellini e cipolla", protein_source:"Tonno",
+    ingredients:[{item:"Tonno in acqua (sgocciolato)",grams:95},{item:"Fagioli cannellini (sgocciolati)",grams:380},{item:"Cipolla rossa",grams:115},{item:"Olio EVO",grams:10}]},
+  { name:"Salmone al forno con broccoli e patate", protein_source:"Salmone",
+    ingredients:[{item:"Filetto di salmone",grams:115},{item:"Broccoli",grams:340},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}]},
+  { name:"Insalatona con salmone affumicato e avocado", protein_source:"Salmone",
+    ingredients:[{item:"Salmone affumicato",grams:80},{item:"Avocado",grams:70},{item:"Misticanza",grams:190},{item:"Pomodorini",grams:190},{item:"Olio EVO",grams:5}]},
+  { name:"Mozzarella proteica con verdure grigliate", protein_source:"Mozzarella proteica",
+    ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
+];
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function shuffle(arr, seed) {
+  const a = [...arr]; let s = seed;
+  for (let i = a.length-1; i > 0; i--) {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    const j = Math.abs(s) % (i+1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function categorize(item) {
+  const s = item.toLowerCase();
+  if (/(pollo|tacchino|salmone|tonno|merluzzo|sgombro|uov)/.test(s)) return "Proteine";
+  if (/(riso|pasta|farro|cous|quinoa|orzo|pane|piadina|patate|kamut|avena|fette biscottate)/.test(s)) return "Carboidrati";
+  if (/(ceci|lenticchie|fagioli|cannellini|bietola|zucchine|spinaci|carote|fagiolini|broccoli|cavolfiore|peperone|peperoni|pomodor|funghi|asparagi|melanzane|finocchio|cipolla|cetriolo|lattuga|rucola|misticanza|ravanelli|sedano|aglio|avocado)/.test(s)) return "Verdure & Legumi";
+  if (/(ricotta|feta|parmigiano|scamorza|mozzarella|hummus|yogurt|muesli)/.test(s)) return "Latticini & Uova";
+  return "Condimenti & Altro";
+}
+
+function formatQty(name, grams) {
+  const s = name.toLowerCase();
+  if (/(riso|farro|cous|quinoa|orzo|kamut)/.test(s)) return `${Math.ceil(grams/500)*500}g`;
+  if (/pasta|avena|fette biscottate/.test(s)) return `${Math.ceil(grams/500)*500}g`;
+  if (/pollo|salmone|merluzzo|tacchino/.test(s)) return `${Math.ceil(grams/100)*100}g`;
+  if (/tonno|sgombro/.test(s)) return `${Math.ceil(grams/80)} scatolette`;
+  if (/uov/.test(s)) return `${Math.ceil(grams/60)} uova`;
+  if (/ceci|fagioli|lenticchie/.test(s)) return `${Math.ceil(grams/400)} barattoli`;
+  if (/ricotta/.test(s)) return `${Math.ceil(grams/250)*250}g`;
+  if (/mozzarella/.test(s)) return `${Math.ceil(grams/125)*125}g`;
+  if (/avocado/.test(s)) return `${Math.ceil(grams/150)} avocado`;
+  if (/yogurt/.test(s)) return `${Math.ceil(grams/500)*500}g`;
+  if (/muesli/.test(s)) return `500g (1 conf.)`;
+  if (grams >= 200) return `~${Math.ceil(grams/50)*50}g`;
+  return `~${grams}g`;
+}
+
+function isFish(src) { return FISH_SOURCES.some(f => (src||"").includes(f)); }
+const MEAT_SOURCES = ["Pollo","Tacchino"];
+function isMeat(src) { return MEAT_SOURCES.some(m => (src||"").includes(m)); }
+
+// ─── SELEZIONE GIORNI/PASTI CON CARNE ────────────────────────────────────────
+// Vincoli: max 4 pasti a carne/settimana (su 10 slot: 5 pranzi + 5 cene),
+// max 1 pasto a carne per giorno, distribuiti il più possibile non consecutivi
+// (con 5 giorni e fino a 4 giorni-carne, l'assenza totale di consecutivi non è
+// sempre matematicamente possibile: si privilegia il numero massimo di pasti,
+// minimizzando comunque le coppie di giorni-carne adiacenti).
+const MAX_MEAT_MEALS_PER_WEEK = 4;
+
+function pickMeatDayPattern(seed) {
+  // Pattern di 5 giorni-carne (1 pasto/giorno) che minimizzano le adiacenze,
+  // dal migliore (0 giorni adiacenti) al peggiore, per ogni possibile conteggio.
+  // Vengono provati più pattern con lo stesso numero di giorni-carne e si sceglie
+  // pseudo-casualmente (in base al seed) tra quelli ottimali.
+  const PATTERNS_BY_COUNT = {
+    4: [[0,1,2,4],[0,1,3,4],[0,2,3,4]],   // ognuno ha esattamente 2 coppie adiacenti (minimo possibile con 4/5)
+    3: [[0,2,4],[0,1,3],[1,3,4]],          // [0,2,4] ha 0 adiacenze (ottimale)
+    2: [[0,2],[0,3],[0,4],[1,3],[1,4],[2,4]], // tutte senza adiacenze
+  };
+  const candidates = PATTERNS_BY_COUNT[MAX_MEAT_MEALS_PER_WEEK] || PATTERNS_BY_COUNT[3];
+  const idx = Math.abs(seed) % candidates.length;
+  return candidates[idx]; // array di indici giorno (0-4) che avranno un pasto a carne
+}
+
+// Colazione fissa: sempre yogurt greco + muesli
+const FIXED_BREAKFAST = { name: "Yogurt greco + muesli",
+  ingredients: [{ item:"Yogurt greco 0%", grams:100 }, { item:"Muesli", grams:100 }] };
+
+function generatePlan(seed) {
+  const DAYS = ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì"];
+  const sSN = shuffle([...SNACKS, ...customMeals.snack], seed + 555);
+  const sL  = shuffle([...LUNCHES, ...customMeals.lunch], seed);
+  const sD  = shuffle([...DINNERS, ...customMeals.dinner], seed + 777);
+
+  // Giorni che avranno un pasto a carne (pranzo O cena, deciso sotto)
+  const meatDayIdxs = new Set(pickMeatDayPattern(seed));
+  // Per ciascun giorno-carne, decido se va a pranzo o cena (alternando in base al seed)
+  const meatAtLunch = new Set();
+  [...meatDayIdxs].forEach((dayIdx, k) => {
+    const goesLunch = ((seed + dayIdx) % 2 === 0);
+    if (goesLunch) meatAtLunch.add(dayIdx);
+  });
+
+  const lunchMeat    = sL.filter(l => isMeat(l.protein_source));
+  const lunchNoMeat  = sL.filter(l => !isMeat(l.protein_source));
+  const dinnerMeat   = sD.filter(d => isMeat(d.protein_source));
+  const dinnerNoMeat = sD.filter(d => !isMeat(d.protein_source));
+
+  const lunches = [];
+  let lastLunchP = "", fishL = 0, mIdxL = 0, nmIdxL = 0;
+  for (let i = 0; i < 5; i++) {
+    const wantsMeat = meatDayIdxs.has(i) && meatAtLunch.has(i);
+    const pool = wantsMeat ? lunchMeat : lunchNoMeat;
+    let chosen = null;
+    for (let tries = 0; tries < pool.length; tries++) {
+      const idx = wantsMeat ? (mIdxL + tries) % pool.length : (nmIdxL + tries) % pool.length;
+      const cand = pool[idx];
+      if (cand.protein_source === lastLunchP) continue;
+      if (isFish(cand.protein_source) && fishL >= 1) continue;
+      chosen = cand;
+      if (wantsMeat) mIdxL = idx + 1; else nmIdxL = idx + 1;
+      break;
+    }
+    if (!chosen) chosen = pool[(wantsMeat ? mIdxL : nmIdxL) % pool.length] || sL[i % sL.length];
+    if (isFish(chosen.protein_source)) fishL++;
+    lastLunchP = chosen.protein_source;
+    lunches.push(chosen);
+  }
+
+  const dinners = [];
+  let fishD = 0, mIdxD = 0, nmIdxD = 0;
+  for (let i = 0; i < 5; i++) {
+    const wantsMeat = meatDayIdxs.has(i) && !meatAtLunch.has(i);
+    const pool = wantsMeat ? dinnerMeat : dinnerNoMeat;
+    let chosen = null;
+    for (let tries = 0; tries < pool.length; tries++) {
+      const idx = wantsMeat ? (mIdxD + tries) % pool.length : (nmIdxD + tries) % pool.length;
+      const cand = pool[idx];
+      if (isFish(cand.protein_source) && fishD >= 1) continue;
+      chosen = cand;
+      if (wantsMeat) mIdxD = idx + 1; else nmIdxD = idx + 1;
+      break;
+    }
+    if (!chosen) chosen = pool[(wantsMeat ? mIdxD : nmIdxD) % pool.length] || sD[i % sD.length];
+    if (isFish(chosen.protein_source)) fishD++;
+    dinners.push(chosen);
+  }
+
+  const meal_plan = DAYS.map((day, i) => {
+    const bf    = FIXED_BREAKFAST;
+    const snack = sSN[i % sSN.length];
+    const lunch = { ...lunches[i], side_dish: lunches[i].side };
+    const dinner = dinners[i];
+    const bfMacros    = sumMacros(bf.ingredients);
+    const snackMacros = sumMacros(snack.ingredients);
+    const lMacros     = sumMacros([...lunch.ingredients, ...lunch.side_dish.ingredients]);
+    const dMacros     = sumMacros(dinner.ingredients);
+    const total = {
+      kcal: bfMacros.kcal + lMacros.kcal + dMacros.kcal + snackMacros.kcal,
+      p:  Math.round((bfMacros.p + lMacros.p + dMacros.p + snackMacros.p)*10)/10,
+      c:  Math.round((bfMacros.c + lMacros.c + dMacros.c + snackMacros.c)*10)/10,
+      f:  Math.round((bfMacros.f + lMacros.f + dMacros.f + snackMacros.f)*10)/10,
+    };
+    return { day, bf, snack, lunch, dinner, bfMacros, snackMacros, lMacros, dMacros, total };
+  });
+
+  const items = {};
+  const add = (name, grams) => {
+    const k = name.toLowerCase();
+    if (!items[k]) items[k] = { name, grams:0, cat: categorize(name) };
+    items[k].grams += grams;
+  };
+  meal_plan.forEach(d => {
+    d.bf.ingredients.forEach(i => add(i.item, i.grams));
+    d.snack.ingredients.forEach(i => add(i.item, i.grams));
+    [...d.lunch.ingredients, ...d.lunch.side_dish.ingredients, ...d.dinner.ingredients].forEach(i => add(i.item, i.grams));
+  });
+
+  const cats = ["Proteine","Carboidrati","Verdure & Legumi","Latticini & Uova","Condimenti & Altro"];
+  const shopping_list = cats.map(cat => ({
+    category: cat,
+    items: Object.values(items).filter(i => i.cat===cat).map(i => ({ name: i.name, quantity: formatQty(i.name, i.grams) }))
+  })).filter(c => c.items.length > 0);
+
+  return { meal_plan, shopping_list };
+}
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "mealplan_v3";
+function savePlan(plan, checked, activeTab, overrides, nameOverrides) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ plan, checked, activeTab, overrides, nameOverrides, ts: Date.now() })); }
+  catch(e) {}
+}
+function loadSaved() {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; }
+  catch(e) { return null; }
+}
+
+// ─── PASTI PERSONALIZZATI SALVATI ────────────────────────────────────────────
+const CUSTOM_MEALS_KEY = "mealplan_custom_meals_v1";
+function loadCustomMeals() {
+  try {
+    const r = localStorage.getItem(CUSTOM_MEALS_KEY);
+    const parsed = r ? JSON.parse(r) : {};
+    return { bf: parsed.bf||[], snack: parsed.snack||[], lunch: parsed.lunch||[], dinner: parsed.dinner||[] };
+  } catch(e) { return { bf:[], snack:[], lunch:[], dinner:[] }; }
+}
+function saveCustomMeals(custom) {
+  try { localStorage.setItem(CUSTOM_MEALS_KEY, JSON.stringify(custom)); } catch(e) {}
+}
+let customMeals = loadCustomMeals();
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = { plan: null, checked: {}, activeTab: "plan", overrides: {}, nameOverrides: {} };
+// overrides: { "dayIdx:mealType:ingIdx": { item, grams, macrosPer100 } }
+// nameOverrides: { "dayIdx:mealType": "Nuovo nome pasto" }
+// mealType: "bf","snack","lunch","dinner","side"
+
+// ─── DISPENSA ────────────────────────────────────────────────────────────────
+const PANTRY_KEY = "mealplan_pantry_v2";
+// struttura: [{ name: "Petto di pollo", qty: "500g" }, ...]
+
+function loadPantry() {
+  try { return JSON.parse(localStorage.getItem(PANTRY_KEY) || "[]"); } catch(e) { return []; }
+}
+function savePantry(p) {
+  try { localStorage.setItem(PANTRY_KEY, JSON.stringify(p)); } catch(e) {}
+}
+let pantryState = loadPantry();
+
+function addPantryItem() {
+  const nameEl = document.getElementById("pantryNameInput");
+  const qtyEl  = document.getElementById("pantryQtyInput");
+  const name = (nameEl.value || "").trim();
+  if (!name) { nameEl.focus(); return; }
+  const qty = (qtyEl.value || "").trim();
+  pantryState.push({ name, qty });
+  savePantry(pantryState);
+  nameEl.value = "";
+  qtyEl.value  = "";
+  nameEl.focus();
+  render();
+}
+function removePantryItem(idx) {
+  pantryState.splice(idx, 1);
+  savePantry(pantryState);
+  render();
+}
+function clearPantry() {
+  pantryState = [];
+  savePantry(pantryState);
+  render();
+}
+
+const saved = loadSaved();
+if (saved && saved.plan) {
+  state.plan      = saved.plan;
+  state.checked   = saved.checked   || {};
+  state.activeTab = saved.activeTab || "plan";
+  state.overrides = saved.overrides || {};
+  state.nameOverrides = saved.nameOverrides || {};
+}
+
+// ─── HELPER: NOME PASTO (con eventuale override) ─────────────────────────────
+function getMealName(dayIdx, mealType, defaultName) {
+  const key = `${dayIdx}:${mealType}`;
+  return (state.nameOverrides[key] !== undefined) ? state.nameOverrides[key] : defaultName;
+}
+
+// ─── HELPER: normalizza un ingrediente per salvarlo in un template pasto ─────
+// Se l'ingrediente ha macro personalizzati e non sono ancora in DB, li registra
+// in modo che vengano calcolati correttamente anche nei piani futuri.
+function normalizeIng(ing) {
+  if (ing._macrosPer100) {
+    const key = (ing.item||"").toLowerCase().trim();
+    if (key && !MACRO_PER100[key]) {
+      MACRO_PER100[key] = { ...ing._macrosPer100 };
+      persistCustomMacros();
+    }
+  }
+  return { item: ing.item, grams: ing.grams };
+}
+
+
+// ─── INGREDIENT OVERRIDE HELPERS ─────────────────────────────────────────────
+function getIngWithOverrides(dayIdx, mealType, ingredients) {
+  return ingredients.map((ing, ingIdx) => {
+    const key = `${dayIdx}:${mealType}:${ingIdx}`;
+    if (state.overrides[key]) {
+      return { ...state.overrides[key], _modified: true };
+    }
+    return ing;
+  });
+}
+
+function getMacrosForIng(ing) {
+  if (ing._macrosPer100) {
+    const f = ing.grams / 100;
+    return {
+      kcal: Math.round(ing._macrosPer100.kcal * f),
+      p: Math.round(ing._macrosPer100.p * f * 10) / 10,
+      c: Math.round(ing._macrosPer100.c * f * 10) / 10,
+      f: Math.round(ing._macrosPer100.f * f * 10) / 10,
+    };
+  }
+  return getMacros(ing.item, ing.grams);
+}
+
+function sumMacrosWithOverrides(ings) {
+  return ings.reduce((a, i) => {
+    const m = getMacrosForIng(i);
+    return { kcal: a.kcal + m.kcal, p: a.p + m.p, c: a.c + m.c, f: a.f + m.f };
+  }, { kcal: 0, p: 0, c: 0, f: 0 });
+}
+
+function recomputeDay(dayIdx) {
+  const day = state.plan.meal_plan[dayIdx];
+  const bfIngs    = getIngWithOverrides(dayIdx, "bf",     day.bf.ingredients);
+  const snackIngs = getIngWithOverrides(dayIdx, "snack",  day.snack.ingredients);
+  const lIngs     = getIngWithOverrides(dayIdx, "lunch",  day.lunch.ingredients);
+  const sideIngs  = getIngWithOverrides(dayIdx, "side",   day.lunch.side_dish.ingredients);
+  const dIngs     = getIngWithOverrides(dayIdx, "dinner", day.dinner.ingredients);
+
+  const bfMacros    = sumMacrosWithOverrides(bfIngs);
+  const snackMacros = sumMacrosWithOverrides(snackIngs);
+  const lMacros     = sumMacrosWithOverrides([...lIngs, ...sideIngs]);
+  const dMacros     = sumMacrosWithOverrides(dIngs);
+  const total = {
+    kcal: bfMacros.kcal + snackMacros.kcal + lMacros.kcal + dMacros.kcal,
+    p:  Math.round((bfMacros.p + snackMacros.p + lMacros.p + dMacros.p) * 10) / 10,
+    c:  Math.round((bfMacros.c + snackMacros.c + lMacros.c + dMacros.c) * 10) / 10,
+    f:  Math.round((bfMacros.f + snackMacros.f + lMacros.f + dMacros.f) * 10) / 10,
+  };
+  return { bfMacros, snackMacros, lMacros, dMacros, total };
+}
+
+// ─── MODAL STATE ─────────────────────────────────────────────────────────────
+let modalCtx = null; // { dayIdx, mealType, ingIdx, item, grams }
+
+function openIngredientModal(dayIdx, mealType, ingIdx) {
+  const day = state.plan.meal_plan[dayIdx];
+  let sourceIngs;
+  if (mealType === "bf")     sourceIngs = day.bf.ingredients;
+  else if (mealType === "snack") sourceIngs = day.snack.ingredients;
+  else if (mealType === "lunch") sourceIngs = day.lunch.ingredients;
+  else if (mealType === "side")  sourceIngs = day.lunch.side_dish.ingredients;
+  else if (mealType === "dinner") sourceIngs = day.dinner.ingredients;
+
+  const overrideKey = `${dayIdx}:${mealType}:${ingIdx}`;
+  let ing;
+  if (state.overrides[overrideKey]) {
+    ing = { ...state.overrides[overrideKey] };
+  } else {
+    ing = { ...sourceIngs[ingIdx] };
+  }
+
+  modalCtx = { dayIdx, mealType, ingIdx, item: ing.item, grams: ing.grams, _macrosPer100: ing._macrosPer100 };
+
+  // Compute macros for this ingredient
+  let m;
+  if (ing._macrosPer100) {
+    const f = ing.grams / 100;
+    m = {
+      kcal: Math.round(ing._macrosPer100.kcal * f),
+      p: Math.round(ing._macrosPer100.p * f * 10) / 10,
+      c: Math.round(ing._macrosPer100.c * f * 10) / 10,
+      f: Math.round(ing._macrosPer100.f * f * 10) / 10,
+    };
+  } else {
+    m = getMacros(ing.item, ing.grams);
+  }
+  const p100 = ing._macrosPer100 || getMacroPer100(ing.item);
+
+  document.getElementById("modalTitle").textContent = ing.item;
+  document.getElementById("modalSubtitle").textContent = `${ing.grams}g · Giorno ${day.day}`;
+
+  document.getElementById("modalMacroRow").innerHTML = `
+    <div class="modal-macro-card"><div class="modal-macro-val" style="color:#fbbf24">${m.kcal}</div><div class="modal-macro-lbl">kcal</div></div>
+    <div class="modal-macro-card"><div class="modal-macro-val" style="color:#60a5fa">${m.p}g</div><div class="modal-macro-lbl">proteine</div></div>
+    <div class="modal-macro-card"><div class="modal-macro-val" style="color:#4ade80">${m.c}g</div><div class="modal-macro-lbl">carbo</div></div>
+    <div class="modal-macro-card"><div class="modal-macro-val" style="color:#f87171">${m.f}g</div><div class="modal-macro-lbl">grassi</div></div>
+    ${p100 ? `<div class="modal-macro-card" style="grid-column:1/-1;text-align:center"><div style="font-size:10px;color:#64748b">Per 100g: ${p100.kcal} kcal · P ${p100.p}g · C ${p100.c}g · G ${p100.f}g</div></div>` : ""}
+  `;
+
+  // Alternatives
+  const alts = ALTERNATIVES[ing.item.toLowerCase()] || [];
+  const altContainer = document.getElementById("modalAlternatives");
+  if (alts.length === 0) {
+    altContainer.innerHTML = `<div style="font-size:11px;color:#64748b;padding:6px 0">Nessuna alternativa salvata per questo alimento. Usa la sostituzione manuale.</div>`;
+  } else {
+    altContainer.innerHTML = alts.map((alt, ai) => {
+      const am = getMacros(alt.item, alt.grams);
+      return `<div class="alt-card" onclick="applyAltReplacement(${ai})">
+        <div class="alt-card-name">${alt.item} <span style="color:#64748b;font-weight:400;font-size:11px">${alt.grams}g</span></div>
+        <div class="alt-card-macros">
+          <span class="alt-pill" style="color:#fbbf24">${am.kcal} kcal</span>
+          <span class="alt-pill" style="color:#60a5fa">P ${am.p}g</span>
+          <span class="alt-pill" style="color:#4ade80">C ${am.c}g</span>
+          <span class="alt-pill" style="color:#f87171">G ${am.f}g</span>
+        </div>
+        ${alt.note ? `<div class="alt-note">💡 ${alt.note}</div>` : ""}
+      </div>`;
+    }).join("");
+  }
+
+  // Pre-fill manual form with current values
+  document.getElementById("mfName").value  = ing.item;
+  document.getElementById("mfGrams").value = ing.grams;
+  if (p100) {
+    document.getElementById("mfKcal").value = p100.kcal;
+    document.getElementById("mfP").value    = p100.p;
+    document.getElementById("mfC").value    = p100.c;
+    document.getElementById("mfF").value    = p100.f;
+  } else {
+    document.getElementById("mfKcal").value = "";
+    document.getElementById("mfP").value    = "";
+    document.getElementById("mfC").value    = "";
+    document.getElementById("mfF").value    = "";
+  }
+
+  document.getElementById("modalOverlay").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").style.display = "none";
+  modalCtx = null;
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById("modalOverlay")) closeModal();
+}
+
+function applyAltReplacement(altIdx) {
+  if (!modalCtx) return;
+  const day = state.plan.meal_plan[modalCtx.dayIdx];
+  let sourceIngs;
+  if (modalCtx.mealType === "bf")     sourceIngs = day.bf.ingredients;
+  else if (modalCtx.mealType === "snack") sourceIngs = day.snack.ingredients;
+  else if (modalCtx.mealType === "lunch") sourceIngs = day.lunch.ingredients;
+  else if (modalCtx.mealType === "side")  sourceIngs = day.lunch.side_dish.ingredients;
+  else if (modalCtx.mealType === "dinner") sourceIngs = day.dinner.ingredients;
+
+  const origItem = sourceIngs[modalCtx.ingIdx].item;
+  const alts = ALTERNATIVES[origItem.toLowerCase()] || [];
+  const alt  = alts[altIdx];
+  if (!alt) return;
+
+  const p100 = getMacroPer100(alt.item);
+  const key  = `${modalCtx.dayIdx}:${modalCtx.mealType}:${modalCtx.ingIdx}`;
+  state.overrides[key] = { item: alt.item, grams: alt.grams, _macrosPer100: p100 };
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  closeModal();
+  render();
+}
+
+function applyManualReplacement() {
+  if (!modalCtx) return;
+  const name  = document.getElementById("mfName").value.trim();
+  const grams = parseFloat(document.getElementById("mfGrams").value);
+  const kcal  = parseFloat(document.getElementById("mfKcal").value);
+  const p     = parseFloat(document.getElementById("mfP").value);
+  const c     = parseFloat(document.getElementById("mfC").value);
+  const f     = parseFloat(document.getElementById("mfF").value);
+
+  if (!name || isNaN(grams) || grams <= 0) {
+    const btn = document.querySelector('#modalSheet .btn-apply');
+    if (btn) { btn.style.background='#7f1d1d'; setTimeout(()=>btn.style.background='',800); }
+    document.getElementById("mfName").focus();
+    return;
+  }
+
+  let macrosPer100 = null;
+  if (!isNaN(kcal) && !isNaN(p) && !isNaN(c) && !isNaN(f)) {
+    macrosPer100 = { kcal, p, c, f };
+  } else {
+    // Try DB lookup
+    macrosPer100 = getMacroPer100(name);
+  }
+
+  const key = `${modalCtx.dayIdx}:${modalCtx.mealType}:${modalCtx.ingIdx}`;
+  state.overrides[key] = { item: name, grams, _macrosPer100: macrosPer100 };
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  closeModal();
+  render();
+}
+
+// ─── MEAL NAME MODAL ─────────────────────────────────────────────────────────
+let mealModalCtx = null; // { dayIdx, mealType }
+
+function getMealRef(dayIdx, mealType) {
+  const day = state.plan.meal_plan[dayIdx];
+  if (mealType === "bf")     return day.bf;
+  if (mealType === "snack")  return day.snack;
+  if (mealType === "lunch")  return day.lunch;
+  if (mealType === "dinner") return day.dinner;
+  if (mealType === "side")   return day.lunch.side_dish;
+  return null;
+}
+
+function openMealModal(dayIdx, mealType) {
+  const day  = state.plan.meal_plan[dayIdx];
+  const meal = getMealRef(dayIdx, mealType);
+  if (!meal) return;
+
+  mealModalCtx = { dayIdx, mealType };
+
+  const labels = { bf:"🌅 Colazione", snack:"🍎 Spuntino", lunch:"🍱 Pranzo", dinner:"🍽️ Cena", side:"🥗 Contorno" };
+  document.getElementById("mealModalSubtitle").textContent = `${labels[mealType]||""} · Giorno ${day.day}`;
+  document.getElementById("mealNameInput").value = getMealName(dayIdx, mealType, meal.name);
+
+  // Il contorno è parte del pranzo: non si salva come pasto "possibile" a sé stante
+  document.getElementById("templateSaveSection").style.display = (mealType === "side") ? "none" : "block";
+
+  // Alternative colazione
+  const bfAltSection = document.getElementById("bfAltSection");
+  const bfAltList    = document.getElementById("bfAltList");
+  if (mealType === "bf") {
+    const currentName = getMealName(dayIdx, "bf", day.bf.name).toLowerCase();
+    const alts = BREAKFAST_ALTERNATIVES.filter(a => a.name.toLowerCase() !== currentName);
+    if (alts.length > 0) {
+      bfAltList.innerHTML = alts.map((alt) => {
+        const m = sumMacros(alt.ingredients);
+        const ingStr = alt.ingredients.map(i => `${i.item} ${i.grams}g`).join(" · ");
+        return `<div class="alt-card" onclick="applyBreakfastAltByName(${JSON.stringify(alt.name)},${JSON.stringify(dayIdx)})">
+          <div class="alt-card-name">${alt.name}</div>
+          <div class="alt-card-macros">
+            <span class="alt-pill" style="color:#fbbf24">${m.kcal} kcal</span>
+            <span class="alt-pill" style="color:#60a5fa">P ${m.p}g</span>
+            <span class="alt-pill" style="color:#4ade80">C ${m.c}g</span>
+            <span class="alt-pill" style="color:#f87171">G ${m.f}g</span>
+          </div>
+          <div class="alt-note">${ingStr}</div>
+          ${alt.note ? `<div class="alt-note" style="margin-top:3px">💡 ${alt.note}</div>` : ""}
+        </div>`;
+      }).join("");
+      bfAltSection.style.display = "block";
+    } else {
+      bfAltSection.style.display = "none";
+    }
+  } else {
+    bfAltSection.style.display = "none";
+  }
+
+  document.getElementById("mealModalOverlay").style.display = "flex";
+}
+
+function closeMealModal() {
+  document.getElementById("mealModalOverlay").style.display = "none";
+  mealModalCtx = null;
+}
+
+function closeMealModalOutside(e) {
+  if (e.target === document.getElementById("mealModalOverlay")) closeMealModal();
+}
+
+function applyMealNameChange() {
+  if (!mealModalCtx) return;
+  const newName = document.getElementById("mealNameInput").value.trim();
+  if (!newName) {
+    const inp = document.getElementById("mealNameInput");
+    inp.style.borderColor = '#f87171';
+    inp.focus();
+    setTimeout(() => inp.style.borderColor = '', 800);
+    return;
+  }
+
+  const key = `${mealModalCtx.dayIdx}:${mealModalCtx.mealType}`;
+  state.nameOverrides[key] = newName;
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  closeMealModal();
+  render();
+}
+
+// ─── SALVA PASTO TRA QUELLI POSSIBILI ────────────────────────────────────────
+function saveMealAsTemplate() {
+  if (!mealModalCtx) return;
+  const { dayIdx, mealType } = mealModalCtx;
+  if (mealType === "side") return;
+
+  const day = state.plan.meal_plan[dayIdx];
+  let template;
+
+  if (mealType === "bf") {
+    template = {
+      name: getMealName(dayIdx, "bf", day.bf.name),
+      ingredients: getIngWithOverrides(dayIdx, "bf", day.bf.ingredients).map(normalizeIng),
+    };
+  } else if (mealType === "snack") {
+    template = {
+      name: getMealName(dayIdx, "snack", day.snack.name),
+      ingredients: getIngWithOverrides(dayIdx, "snack", day.snack.ingredients).map(normalizeIng),
+      note: day.snack.note || "",
+    };
+  } else if (mealType === "lunch") {
+    template = {
+      name: getMealName(dayIdx, "lunch", day.lunch.name),
+      protein_source: day.lunch.protein_source,
+      ingredients: getIngWithOverrides(dayIdx, "lunch", day.lunch.ingredients).map(normalizeIng),
+      side: {
+        name: getMealName(dayIdx, "side", day.lunch.side_dish.name),
+        ingredients: getIngWithOverrides(dayIdx, "side", day.lunch.side_dish.ingredients).map(normalizeIng),
+      },
+    };
+  } else if (mealType === "dinner") {
+    template = {
+      name: getMealName(dayIdx, "dinner", day.dinner.name),
+      protein_source: day.dinner.protein_source,
+      ingredients: getIngWithOverrides(dayIdx, "dinner", day.dinner.ingredients).map(normalizeIng),
+    };
+  } else {
+    return;
+  }
+
+  const pool = customMeals[mealType];
+  const dupIdx = pool.findIndex(m => m.name.trim().toLowerCase() === template.name.trim().toLowerCase());
+  if (dupIdx !== -1) {
+    pool[dupIdx] = template;
+  } else {
+    pool.push(template);
+  }
+
+  saveCustomMeals(customMeals);
+  closeMealModal();
+  render();
+}
+
+// ─── SOSTITUISCI COLAZIONE INTERA ────────────────────────────────────────────
+function applyBreakfastAltByName(altName, dayIdx) {
+  const alt = BREAKFAST_ALTERNATIVES.find(a => a.name === altName);
+  if (!alt || dayIdx === undefined) return;
+
+  // Rimuove eventuali override ingrediente precedenti sulla colazione
+  const day = state.plan.meal_plan[dayIdx];
+  day.bf.ingredients.forEach((_, ingIdx) => {
+    delete state.overrides[`${dayIdx}:bf:${ingIdx}`];
+  });
+
+  // Sostituisce il pasto colazione nel piano
+  state.plan.meal_plan[dayIdx].bf = {
+    name: alt.name,
+    ingredients: alt.ingredients.map(i => ({ ...i })),
+  };
+
+  // Rimuove eventuale name override sulla colazione
+  delete state.nameOverrides[`${dayIdx}:bf`];
+
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  closeMealModal();
+  render();
+}
+
+function deleteCustomMeal(mealType, idx) {
+  const meal = customMeals[mealType] && customMeals[mealType][idx];
+  if (!meal) return;
+  customMeals[mealType].splice(idx, 1);
+  saveCustomMeals(customMeals);
+  render();
+}
+
+
+const proteinColor = src => {
+  const s = (src||"").toLowerCase();
+  if (s.includes("pollo"))  return "#ef4444";
+  if (s.includes("tacchino")) return "#f97316";
+  if (["tonno","salmone","merluzzo","sgombro","orata","gamber","sard"].some(x=>s.includes(x))) return "#3b82f6";
+  if (s.includes("uov"))    return "#f59e0b";
+  if (["ricotta","feta","scamorza","mozzarella"].some(x=>s.includes(x))) return "#8b5cf6";
+  if (["ceci","lenticch","fagioli","edamame"].some(x=>s.includes(x))) return "#10b981";
+  if (s.includes("tofu"))   return "#06b6d4";
+  return "#6b7280";
+};
+
+const CAT_ICON = { "Proteine":"🥩","Carboidrati":"🌾","Verdure & Legumi":"🥦","Latticini & Uova":"🥚","Condimenti & Altro":"🫙" };
+
+function macroBar(label, value, target, color, unit="g") {
+  const pct = Math.min((value/target)*100, 100);
+  const ok  = value >= target * 0.92;
+  return `<div class="macro-bar">
+    <div class="macro-bar-label">${label}</div>
+    <div class="macro-bar-track"><div class="macro-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div class="macro-bar-val" style="color:${ok?color:'#f59e0b'}">${Math.round(value)}${unit}</div>
+  </div>`;
+}
+
+function macroPills(m) {
+  return `<div class="macro-pills">
+    <span class="macro-pill" style="color:#fbbf24">kcal ${Math.round(m.kcal)}</span>
+    <span class="macro-pill" style="color:#60a5fa">P ${Math.round(m.p)}g</span>
+    <span class="macro-pill" style="color:#4ade80">C ${Math.round(m.c)}g</span>
+    <span class="macro-pill" style="color:#f87171">G ${Math.round(m.f)}g</span>
+  </div>`;
+}
+
+function renderIngGrid(ings, colorClass, dayIdx, mealType) {
+  return `<div class="ing-grid">` + ings.map((i, ingIdx) => {
+    const key = `${dayIdx}:${mealType}:${ingIdx}`;
+    const isModified = !!state.overrides[key];
+    return `<div class="ing-cell" onclick="openIngredientModal(${dayIdx},'${mealType}',${ingIdx})">
+      <span class="ing-name">${i.item}${isModified ? '<span class="modified-dot" title="Modificato"></span>' : ''}</span>
+      <span class="${colorClass}">${i.grams}g</span>
+    </div>`;
+  }).join("") + `</div>`;
+}
+
+function renderTagRow(ings, dayIdx, mealType) {
+  return `<div class="tag-row">` + ings.map((i, ingIdx) => {
+    const key = `${dayIdx}:${mealType}:${ingIdx}`;
+    const isModified = !!state.overrides[key];
+    return `<span class="tag-green" onclick="openIngredientModal(${dayIdx},'${mealType}',${ingIdx})">${i.item} ${i.grams}g${isModified ? '●' : ''}</span>`;
+  }).join("") + `</div>`;
+}
+
+function renderContornoItems(ings, dayIdx) {
+  return ings.map((i, ingIdx) => {
+    const key = `${dayIdx}:side:${ingIdx}`;
+    const isModified = !!state.overrides[key];
+    return `<span class="contorno-item" onclick="openIngredientModal(${dayIdx},'side',${ingIdx})">${i.item} <strong style="color:#60a5fa">${i.grams}g</strong>${isModified ? '<span class="modified-dot"></span>' : ''}</span>`;
+  }).join("");
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────────────────────
+// ─── Giorni "vivi" (con override applicati) — usato sia da render() che dalla stampa ──
+function getLiveDays() {
+  if (!state.plan) return [];
+  return state.plan.meal_plan.map((day, di) => {
+    const computed = recomputeDay(di);
+    return { ...day, ...computed, _idx: di };
+  });
+}
+
+function render() {
+  const { plan, checked, activeTab } = state;
+  const btn = document.getElementById("btnGenerate");
+  btn.textContent = plan ? "🔄 Rigenera Piano Diverso" : "⚡ Genera Piano Settimanale";
+
+  if (!plan) {
+    document.getElementById("planContent").innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🍱</div>
+        <p class="empty-text">Premi il pulsante per generare il piano</p>
+        <p class="empty-sub">4 pasti/giorno · macro calcolate · target ${TARGETS.kcal} kcal · ${TARGETS.protein}g P</p>
+      </div>`;
+    return;
+  }
+
+  // Compute live totals with overrides
+  const liveDays = getLiveDays();
+
+  const avgKcal = Math.round(liveDays.reduce((s,d)=>s+d.total.kcal,0)/5);
+  const avgP    = Math.round(liveDays.reduce((s,d)=>s+d.total.p,0)/5);
+  const avgC    = Math.round(liveDays.reduce((s,d)=>s+d.total.c,0)/5);
+  const avgF    = Math.round(liveDays.reduce((s,d)=>s+d.total.f,0)/5);
+  const daysOk  = liveDays.filter(d=>d.total.p>=TARGETS.protein).length;
+
+  let html = `
+  <div class="summary-box">
+    <div class="summary-label">Media Settimanale</div>
+    <div class="summary-bars">
+      ${macroBar("kcal",avgKcal,TARGETS.kcal,"#fbbf24","")}
+      ${macroBar("Proteine",avgP,TARGETS.protein,"#60a5fa")}
+      ${macroBar("Carbs",avgC,TARGETS.carbs,"#4ade80")}
+      ${macroBar("Grassi",avgF,TARGETS.fat,"#f87171")}
+    </div>
+    <div class="days-ok" style="color:${daysOk===5?"#22c55e":"#f59e0b"}">
+      ${daysOk===5?"✅":"⚠️"} ${daysOk}/5 giorni raggiungono target proteico
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab ${activeTab==="plan"?"tab-active":"tab-inactive"}" onclick="setTab('plan')">📅 Piano</button>
+    <button class="tab ${activeTab==="shopping"?"tab-active":"tab-inactive"}" onclick="setTab('shopping')">🛒 Spesa</button>
+    <button class="tab ${activeTab==="pantry"?"tab-active":"tab-inactive"}" onclick="setTab('pantry')">🏠 Dispensa</button>
+    <button class="tab ${activeTab==="favorites"?"tab-active":"tab-inactive"}" onclick="setTab('favorites')">⭐ Salvati</button>
+  </div>
+  ${activeTab !== "favorites" && activeTab !== "pantry" ? `<div class="export-row">
+    <button class="btn-copy" id="btnCopy" onclick="copyMd()">📋 Copia Markdown</button>
+    <button class="btn-pdf" id="btnPdf" onclick="exportPdf()">📄 Esporta PDF</button>
+  </div>` : ""}`;
+
+  if (activeTab === "plan") {
+    liveDays.forEach((day, di) => {
+      const pOk    = day.total.p    >= TARGETS.protein;
+      const kcalOk = day.total.kcal >= TARGETS.kcal * 0.92;
+      const pc     = proteinColor(day.lunch.protein_source);
+      const dc     = proteinColor(day.dinner.protein_source);
+
+      // Get overridden ingredients for render
+      const bfIngs    = getIngWithOverrides(di, "bf",     day.bf.ingredients);
+      const snackIngs = getIngWithOverrides(di, "snack",  day.snack.ingredients);
+      const lIngs     = getIngWithOverrides(di, "lunch",  day.lunch.ingredients);
+      const sideIngs  = getIngWithOverrides(di, "side",   day.lunch.side_dish.ingredients);
+      const dIngs     = getIngWithOverrides(di, "dinner", day.dinner.ingredients);
+
+      html += `
+      <div class="day-card ${(!pOk||!kcalOk)?"warn":""}">
+        <div class="day-header">
+          <div class="day-title-row">
+            <span class="day-name">${day.day}</span>
+            <span class="${pOk&&kcalOk?"day-ok":"day-warn"}">
+              ${pOk&&kcalOk?"✅":"⚠️"} ${day.total.kcal} kcal · ${day.total.p}g P
+            </span>
+          </div>
+          <div class="day-bars">
+            ${macroBar("kcal",day.total.kcal,TARGETS.kcal,"#fbbf24","")}
+            ${macroBar("P",day.total.p,TARGETS.protein,"#60a5fa")}
+            ${macroBar("C",day.total.c,TARGETS.carbs,"#4ade80")}
+            ${macroBar("G",day.total.f,TARGETS.fat,"#f87171")}
+          </div>
+        </div>
+        <div class="day-body">
+          <!-- Colazione -->
+          <div class="meal-bf">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span class="meal-section-title" style="color:#a5b4fc">🌅 Colazione</span>
+              ${macroPills(day.bfMacros)}
+            </div>
+            <div class="meal-name editable-name" onclick="openMealModal(${di},'bf')">${getMealName(di,'bf',day.bf.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:bf`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</div>
+            ${renderTagRow(bfIngs, di, "bf")}
+          </div>
+          <!-- Spuntino -->
+          <div class="meal-snack">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span class="meal-section-title" style="color:#4ade80">🍎 Spuntino</span>
+              ${macroPills(day.snackMacros)}
+            </div>
+            <div class="meal-name editable-name" onclick="openMealModal(${di},'snack')">${getMealName(di,'snack',day.snack.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:snack`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}${day.snack.note?` <span style="color:#4ade80;font-size:10px">· ${day.snack.note}</span>`:''}</div>
+            ${renderTagRow(snackIngs, di, "snack")}
+          </div>
+          <!-- Pranzo -->
+          <div style="margin-bottom:10px">
+            <div class="meal-heading">
+              <div class="meal-heading-left">
+                <span class="meal-label">🍱 Pranzo</span>
+                <span class="meal-title editable-name" onclick="openMealModal(${di},'lunch')">${getMealName(di,'lunch',day.lunch.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:lunch`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</span>
+                <span class="protein-badge" style="background:${pc}22;color:${pc};border:1px solid ${pc}44">${day.lunch.protein_source}</span>
+              </div>
+              ${macroPills(day.lMacros)}
+            </div>
+            ${renderIngGrid(lIngs, "ing-g-blue", di, "lunch")}
+            <div class="contorno-box">
+              <div class="contorno-title editable-name" onclick="openMealModal(${di},'side')">🥗 Contorno — ${getMealName(di,'side',day.lunch.side_dish.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:side`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</div>
+              <div class="contorno-items">
+                ${renderContornoItems(sideIngs, di)}
+              </div>
+            </div>
+          </div>
+          <!-- Cena -->
+          <div class="dinner-wrap">
+            <div class="meal-heading">
+              <div class="meal-heading-left">
+                <span class="meal-label">🍽️ Cena</span>
+                <span class="meal-title editable-name" onclick="openMealModal(${di},'dinner')">${getMealName(di,'dinner',day.dinner.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:dinner`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</span>
+                <span class="protein-badge" style="background:${dc}22;color:${dc};border:1px solid ${dc}44">${day.dinner.protein_source}</span>
+              </div>
+              ${macroPills(day.dMacros)}
+            </div>
+            ${renderIngGrid(dIngs, "ing-g-purple", di, "dinner")}
+          </div>
+        </div>
+      </div>`;
+    });
+  } else if (activeTab === "shopping") {
+    plan.shopping_list.forEach((cat, ci) => {
+      const checkedCount = cat.items.filter((_,ii)=>checked[`${ci}-${ii}`]).length;
+      html += `
+      <div class="shop-cat">
+        <div class="shop-cat-header">
+          <div class="shop-cat-left">
+            <span class="shop-cat-icon">${CAT_ICON[cat.category]||"📦"}</span>
+            <span class="shop-cat-name">${cat.category}</span>
+          </div>
+          <span class="shop-cat-count" style="color:${checkedCount===cat.items.length?"#4ade80":"#64748b"}">${checkedCount}/${cat.items.length}</span>
+        </div>
+        <div class="shop-items">
+          ${cat.items.map((item,ii)=>{
+            const k=`${ci}-${ii}`, isChecked=!!checked[k];
+            return `<div class="shop-item ${isChecked?"checked":""}" onclick="toggleCheck('${k}')">
+              <div class="checkbox ${isChecked?"checkbox-on":"checkbox-off"}">${isChecked?"✓":""}</div>
+              <div class="shop-item-text">
+                <span class="shop-item-name ${isChecked?"line-through":""}">${item.name}</span>
+                <span class="shop-item-qty">${item.quantity}</span>
+              </div>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+    });
+  } else if (activeTab === "pantry") {
+    const n = pantryState.length;
+    html += `
+    <div style="font-size:11px;color:#64748b;line-height:1.6;margin-bottom:12px">
+      Tieni traccia di quello che hai già in casa. Puoi indicare anche la quantità disponibile.
+    </div>
+    <div class="pantry-add-row">
+      <input class="pantry-name-input" id="pantryNameInput" type="text" placeholder="Alimento…"
+             onkeydown="if(event.key==='Enter')document.getElementById('pantryQtyInput').focus()">
+      <input class="pantry-qty-input"  id="pantryQtyInput"  type="text" placeholder="Qtà (es. 500g)"
+             onkeydown="if(event.key==='Enter')addPantryItem()">
+      <button class="pantry-add-btn" onclick="addPantryItem()">+</button>
+    </div>`;
+
+    if (n === 0) {
+      html += `<div class="pantry-empty">🏠 La dispensa è vuota.<br>Aggiungi i prodotti che hai in casa.</div>`;
+    } else {
+      html += `<div class="pantry-list">
+        <div class="pantry-list-header">
+          <span class="pantry-list-title">In dispensa</span>
+          <span class="pantry-count">${n} prodott${n===1?"o":"i"}</span>
+        </div>
+        ${pantryState.map((item, idx) => `
+        <div class="pantry-row">
+          <span class="pantry-row-name">${item.name}</span>
+          <span class="pantry-row-qty">${item.qty || ""}</span>
+          <button class="pantry-del-btn" onclick="removePantryItem(${idx})" title="Rimuovi">✕</button>
+        </div>`).join("")}
+      </div>
+      <button class="pantry-clear-btn" onclick="this.dataset.armed==='1'?clearPantry():(this.dataset.armed='1',this.textContent='⚠️ Tocca ancora per svuotare',setTimeout(()=>{if(this.dataset.armed){this.dataset.armed='';this.textContent='🗑️ Svuota dispensa';}},3000))">🗑️ Svuota dispensa</button>`;
+    }
+
+  } else if (activeTab === "favorites") {
+    const sections = [
+      { key:"bf",     label:"🌅 Colazioni", list: customMeals.bf },
+      { key:"snack",  label:"🍎 Spuntini",   list: customMeals.snack },
+      { key:"lunch",  label:"🍱 Pranzi",     list: customMeals.lunch },
+      { key:"dinner", label:"🍽️ Cene",       list: customMeals.dinner },
+    ];
+    const any = sections.some(s => s.list.length > 0);
+    if (!any) {
+      html += `
+      <div class="empty">
+        <div class="empty-icon">⭐</div>
+        <p class="empty-text">Nessun pasto salvato</p>
+        <p class="empty-sub">Tocca ✏️ su un pasto, modificalo come preferisci e salvalo tra i pasti possibili per vederlo qui</p>
+      </div>`;
+    } else {
+      sections.forEach(sec => {
+        if (sec.list.length === 0) return;
+        html += `<div class="modal-section-label" style="margin:16px 0 8px">${sec.label}</div>`;
+        sec.list.forEach((m, mi) => {
+          const allIngs = [...m.ingredients, ...(m.side ? m.side.ingredients : [])];
+          const macros = sumMacros(allIngs);
+          const ingList = allIngs.map(i => `${i.item} ${i.grams}g`).join(" · ");
+          html += `<div class="alt-card" style="cursor:default">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+              <div class="alt-card-name">${m.name}${m.side ? ` <span style="color:#64748b;font-weight:400">+ ${m.side.name}</span>` : ""}</div>
+              <span style="cursor:pointer;font-size:14px;flex-shrink:0" onclick="deleteCustomMeal('${sec.key}',${mi})" title="Elimina">🗑️</span>
+            </div>
+            <div class="alt-card-macros" style="margin-top:6px">
+              <span class="alt-pill" style="color:#fbbf24">${macros.kcal} kcal</span>
+              <span class="alt-pill" style="color:#60a5fa">P ${macros.p}g</span>
+              <span class="alt-pill" style="color:#4ade80">C ${macros.c}g</span>
+              <span class="alt-pill" style="color:#f87171">G ${macros.f}g</span>
+            </div>
+            <div class="alt-note">${ingList}${m.note ? ` · ${m.note}` : ""}</div>
+          </div>`;
+        });
+      });
+    }
+  }
+
+  document.getElementById("planContent").innerHTML = html;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function setTab(tab) {
+  state.activeTab = tab;
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  render();
+}
+
+function toggleCheck(k) {
+  state.checked = { ...state.checked, [k]: !state.checked[k] };
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  render();
+}
+
+function exportMd() {
+  if (!state.plan) return "";
+  let md = `# 🏋️ Piano Settimanale Meal Prep\n_Lorenzo · 74kg · CrossFit+Corsa 4×/week_\n_Target: ${TARGETS.kcal} kcal · ${TARGETS.protein}g P · ${TARGETS.carbs}g C · ${TARGETS.fat}g G_\n\n`;
+  state.plan.meal_plan.forEach((day, di) => {
+    const computed = recomputeDay(di);
+    const bfIngs    = getIngWithOverrides(di, "bf",     day.bf.ingredients);
+    const snackIngs = getIngWithOverrides(di, "snack",  day.snack.ingredients);
+    const lIngs     = getIngWithOverrides(di, "lunch",  day.lunch.ingredients);
+    const sideIngs  = getIngWithOverrides(di, "side",   day.lunch.side_dish.ingredients);
+    const dIngs     = getIngWithOverrides(di, "dinner", day.dinner.ingredients);
+
+    md += `## ${day.day} — ${computed.total.kcal} kcal · ${computed.total.p}g P\n`;
+    md += `**🌅 Colazione** — ${getMealName(di,'bf',day.bf.name)} (${computed.bfMacros.kcal} kcal · ${computed.bfMacros.p}g P)\n`;
+    bfIngs.forEach(i => { md += `- ${i.item}: ${i.grams}g\n`; });
+    md += `\n**🍎 Spuntino** — ${getMealName(di,'snack',day.snack.name)} (${computed.snackMacros.kcal} kcal · ${computed.snackMacros.p}g P)\n`;
+    snackIngs.forEach(i => { md += `- ${i.item}: ${i.grams}g\n`; });
+    md += `\n**🍱 Pranzo** — ${getMealName(di,'lunch',day.lunch.name)} (${computed.lMacros.kcal} kcal · ${computed.lMacros.p}g P)\n`;
+    md += `_Contorno: ${getMealName(di,'side',day.lunch.side_dish.name)}_\n`;
+    [...lIngs, ...sideIngs].forEach(i => { md += `- ${i.item}: ${i.grams}g\n`; });
+    md += `\n**🍽️ Cena** — ${getMealName(di,'dinner',day.dinner.name)} (${computed.dMacros.kcal} kcal · ${computed.dMacros.p}g P)\n`;
+    dIngs.forEach(i => { md += `- ${i.item}: ${i.grams}g\n`; });
+    md += "\n---\n\n";
+  });
+  return md;
+}
+
+function copyMd() {
+  const btn = document.getElementById("btnCopy");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(exportMd()).then(() => {
+      btn.textContent = "✅ Copiato!"; btn.classList.add("copied");
+      setTimeout(()=>{ btn.textContent="📋 Copia Markdown"; btn.classList.remove("copied"); }, 2000);
+    });
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = exportMd(); document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    btn.textContent = "✅ Copiato!"; btn.classList.add("copied");
+    setTimeout(()=>{ btn.textContent="📋 Copia Markdown"; btn.classList.remove("copied"); }, 2000);
+  }
+}
+
+// ─── EXPORT PDF: lista minimale per cucina (giorno → pasto → alimenti) ──────
+function fmtMacro(m) {
+  return `${Math.round(m.kcal)} kcal · ${Math.round(m.p)}g P · ${Math.round(m.c)}g C · ${Math.round(m.f)}g G`;
+}
+
+function printIngList(ings) {
+  return ings.map(i => `
+    <div class="p-ing">
+      <span class="p-ing-name">${i.item}</span>
+      <span class="p-ing-g">${i.grams}g</span>
+    </div>`).join("");
+}
+
+function buildPrintArea() {
+  const liveDays = getLiveDays();
+  if (!liveDays.length) { document.getElementById("printArea").innerHTML = ""; return; }
+
+  const dateStr = new Date().toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
+
+  let html = `
+    <div class="p-title">Piano Alimentare Settimanale</div>
+    <div class="p-sub">Generato il ${dateStr} · Target: ${TARGETS.kcal} kcal · ${TARGETS.protein}g P · ${TARGETS.carbs}g C · ${TARGETS.fat}g G</div>`;
+
+  liveDays.forEach((day) => {
+    const di = day._idx;
+    const bfIngs    = getIngWithOverrides(di, "bf",     day.bf.ingredients);
+    const snackIngs = getIngWithOverrides(di, "snack",  day.snack.ingredients);
+    const lIngs     = getIngWithOverrides(di, "lunch",  day.lunch.ingredients);
+    const sideIngs  = getIngWithOverrides(di, "side",   day.lunch.side_dish.ingredients);
+    const dIngs     = getIngWithOverrides(di, "dinner", day.dinner.ingredients);
+
+    html += `
+    <div class="p-day">
+      <div class="p-day-head">
+        <span class="p-day-name">${day.day}</span>
+        <span class="p-day-tot">${fmtMacro(day.total)}</span>
+      </div>
+
+      <div class="p-meal">
+        <div class="p-meal-head">
+          <span class="p-meal-label">Colazione</span>
+          <span class="p-meal-name">${getMealName(di,'bf',day.bf.name)}</span>
+          <span class="p-meal-macro">${fmtMacro(day.bfMacros)}</span>
+        </div>
+        <div class="p-ings">${printIngList(bfIngs)}</div>
+      </div>
+
+      <div class="p-meal">
+        <div class="p-meal-head">
+          <span class="p-meal-label">Spuntino</span>
+          <span class="p-meal-name">${getMealName(di,'snack',day.snack.name)}</span>
+          <span class="p-meal-macro">${fmtMacro(day.snackMacros)}</span>
+        </div>
+        <div class="p-ings">${printIngList(snackIngs)}</div>
+      </div>
+
+      <div class="p-meal">
+        <div class="p-meal-head">
+          <span class="p-meal-label">Pranzo</span>
+          <span class="p-meal-name">${getMealName(di,'lunch',day.lunch.name)} (${day.lunch.protein_source})</span>
+          <span class="p-meal-macro">${fmtMacro(day.lMacros)}</span>
+        </div>
+        <div class="p-ings">${printIngList(lIngs)}</div>
+        <div class="p-side">
+          <div class="p-side-label">Contorno — ${getMealName(di,'side',day.lunch.side_dish.name)}</div>
+          <div class="p-ings">${printIngList(sideIngs)}</div>
+        </div>
+      </div>
+
+      <div class="p-meal">
+        <div class="p-meal-head">
+          <span class="p-meal-label">Cena</span>
+          <span class="p-meal-name">${getMealName(di,'dinner',day.dinner.name)} (${day.dinner.protein_source})</span>
+          <span class="p-meal-macro">${fmtMacro(day.dMacros)}</span>
+        </div>
+        <div class="p-ings">${printIngList(dIngs)}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("printArea").innerHTML = html;
+}
+
+function exportPdf() {
+  if (!state.plan) return;
+  buildPrintArea();
+  // Piccolo delay per lasciare che il DOM si aggiorni prima di aprire la finestra di stampa
+  setTimeout(() => { window.print(); }, 80);
+}
+
+document.getElementById("btnGenerate").addEventListener("click", () => {
+  state.plan = generatePlan(Date.now() + Math.random() * 1e6 | 0);
+  state.checked   = {};
+  state.overrides = {};
+  state.nameOverrides = {};
+  state.activeTab = "plan";
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
