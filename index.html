@@ -427,6 +427,16 @@ const MACRO_PER100 = {
   "parmigiano":            { kcal:392, p:33, c:0,   f:28  },
   "mozzarella light":      { kcal:180, p:19, c:0,   f:11  },
   "mozzarella proteica":   { kcal:131, p:20, c:3.5, f:5   },
+  // ── Proteine vegetali Vemondo & alternative ──────────────────────────────
+  "burger vegetale classico": { kcal:174, p:15,  c:4.9, f:9.9 },
+  "burger a base di soia":    { kcal:217, p:16,  c:19,  f:7.8 },
+  "nuggets vegetali":         { kcal:233, p:13,  c:21,  f:10  },
+  "burger semi di lino e zucca": { kcal:254, p:13.8, c:18.8, f:12.5 },
+  "tofu naturale":            { kcal:145, p:15,  c:0,   f:9   },
+  "tofu affumicato":          { kcal:160, p:16.5,c:1.5, f:9.5 },
+  "tempeh":                   { kcal:190, p:19,  c:8,   f:10.5},
+  "seitan":                   { kcal:140, p:25,  c:5,   f:1.5 },
+  "affettato vegetale":       { kcal:224, p:27.2,c:5,   f:10  },
   "lenticchie rosse (crude)":  { kcal:352, p:25, c:60, f:1.1 },
   "lenticchie verdi (crude)":  { kcal:352, p:25, c:60, f:1.1 },
   "ceci in scatola (sgocciolati)": { kcal:121, p:7, c:20, f:2  },
@@ -827,6 +837,27 @@ const DINNERS = [
     ingredients:[{item:"Salmone affumicato",grams:80},{item:"Avocado",grams:70},{item:"Misticanza",grams:190},{item:"Pomodorini",grams:190},{item:"Olio EVO",grams:5}]},
   { name:"Mozzarella proteica con verdure grigliate", protein_source:"Mozzarella proteica",
     ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
+  // ── Cene Vemondo / plant-based ───────────────────────────────────────────
+  { name:"Burger vegetale con patate al forno e insalata", protein_source:"Burger vegetale",
+    ingredients:[{item:"Burger vegetale classico",grams:200},{item:"Patate",grams:350},{item:"Olio EVO",grams:10}],
+    side:{name:"Misticanza",ingredients:[{item:"Misticanza",grams:100},{item:"Olio EVO",grams:5}]}},
+  { name:"Burger di soia con riso basmati e zucchine", protein_source:"Burger soia",
+    ingredients:[{item:"Burger a base di soia",grams:200},{item:"Riso basmati (crudo)",grams:150},{item:"Zucchine",grams:250},{item:"Olio EVO",grams:10}]},
+  { name:"Nuggets vegetali con patate dolci e broccoli", protein_source:"Nuggets vegetali",
+    ingredients:[{item:"Nuggets vegetali",grams:200},{item:"Patate dolci",grams:300},{item:"Broccoli",grams:250},{item:"Olio EVO",grams:10}]},
+  { name:"Burger semi di lino con fagiolini e pomodorini", protein_source:"Burger semi lino",
+    ingredients:[{item:"Burger semi di lino e zucca",grams:200},{item:"Fagiolini",grams:300},{item:"Pomodorini",grams:200},{item:"Olio EVO",grams:10}]},
+  { name:"Tofu naturale in padella con riso e verdure", protein_source:"Tofu",
+    ingredients:[{item:"Tofu naturale",grams:200},{item:"Riso basmati (crudo)",grams:150},{item:"Peperoni misti",grams:250},{item:"Salsa di soia",grams:15},{item:"Olio EVO",grams:8}]},
+  { name:"Tofu affumicato con patate e spinaci", protein_source:"Tofu affumicato",
+    ingredients:[{item:"Tofu affumicato",grams:200},{item:"Patate",grams:320},{item:"Spinaci freschi",grams:250},{item:"Olio EVO",grams:10}]},
+  { name:"Tempeh al forno con verdure grigliate e quinoa", protein_source:"Tempeh",
+    ingredients:[{item:"Tempeh",grams:180},{item:"Quinoa (cruda)",grams:120},{item:"Zucchine",grams:250},{item:"Peperoni misti",grams:200},{item:"Olio EVO",grams:10}]},
+  { name:"Seitan in padella con funghi e pane integrale", protein_source:"Seitan",
+    ingredients:[{item:"Seitan",grams:200},{item:"Funghi champignon",grams:300},{item:"Spinaci freschi",grams:200},{item:"Pane integrale",grams:100},{item:"Olio EVO",grams:10}]},
+  { name:"Affettato vegetale con farro e insalata", protein_source:"Affettato vegetale",
+    ingredients:[{item:"Affettato vegetale",grams:160},{item:"Farro perlato (crudo)",grams:150},{item:"Pomodorini",grams:200},{item:"Olio EVO",grams:10}],
+    side:{name:"Rucola",ingredients:[{item:"Rucola",grams:100},{item:"Olio EVO",grams:5}]}},
 ];
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -842,7 +873,7 @@ function shuffle(arr, seed) {
 
 function categorize(item) {
   const s = item.toLowerCase();
-  if (/(pollo|tacchino|salmone|tonno|merluzzo|sgombro|uov)/.test(s)) return "Proteine";
+  if (/(pollo|tacchino|salmone|tonno|merluzzo|sgombro|uov|tofu|tempeh|seitan|burger vegetale|burger a base|burger semi|nuggets vegetali|affettato vegetale)/.test(s)) return "Proteine";
   if (/(riso|pasta|farro|cous|quinoa|orzo|pane|piadina|patate|kamut|avena|fette biscottate)/.test(s)) return "Carboidrati";
   if (/(ceci|lenticchie|fagioli|cannellini|bietola|zucchine|spinaci|carote|fagiolini|broccoli|cavolfiore|peperone|peperoni|pomodor|funghi|asparagi|melanzane|finocchio|cipolla|cetriolo|lattuga|rucola|misticanza|ravanelli|sedano|aglio|avocado)/.test(s)) return "Verdure & Legumi";
   if (/(ricotta|feta|parmigiano|scamorza|mozzarella|hummus|yogurt|muesli)/.test(s)) return "Latticini & Uova";
