@@ -159,17 +159,36 @@
   .train-tab-active   { background: #1e3a5f; color: #60a5fa; border-bottom: 2px solid #2563eb; }
   .train-tab-inactive { background: #1a1a2e; color: #475569; border-bottom: 2px solid transparent; }
 
-  /* ── WEEK STRIP ── */
-  .week-strip { display: flex; gap: 6px; margin-bottom: 18px; }
-  .week-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-              padding: 8px 2px; border-radius: 10px; cursor: pointer; transition: background .13s; }
-  .week-day-label { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; }
-  .week-day-num   { font-size: 14px; font-weight: 800; color: #94a3b8; }
-  .week-day.has-run  { background: #0d1f15; border: 1px solid #15803d; }
-  .week-day.has-cf   { background: #0d1520; border: 1px solid #1d4ed8; }
-  .week-day.has-both { background: #16101a; border: 1px solid #7c3aed; }
-  .week-day.today    { border: 2px solid #fbbf24; }
-  .week-day-dot { font-size: 12px; min-height: 16px; }
+  /* ── CALENDARIO MENSILE ── */
+  .cal-header { display: flex; align-items: center; justify-content: space-between;
+                padding: 10px 14px; background: #0f1923; border-radius: 12px 12px 0 0;
+                cursor: pointer; user-select: none; }
+  .cal-header-title { font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
+  .cal-toggle-icon { font-size: 11px; color: #475569; transition: transform .2s; }
+  .cal-toggle-icon.open { transform: rotate(180deg); }
+  .cal-nav { display: flex; align-items: center; gap: 6px; }
+  .cal-nav-btn { background: #1e3a5f; border: none; color: #60a5fa; font-size: 15px;
+                  width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+                  display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .cal-body { background: #15151f; border: 1px solid #1e2030; border-top: none;
+              border-radius: 0 0 12px 12px; padding: 10px 12px 14px; margin-bottom: 16px; }
+  .cal-day-labels { display: grid; grid-template-columns: repeat(7,1fr);
+                    gap: 2px; margin-bottom: 6px; }
+  .cal-day-lbl { text-align: center; font-size: 9px; font-weight: 700; color: #334155;
+                  text-transform: uppercase; padding: 2px 0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+  .cal-cell { aspect-ratio: 1; border-radius: 7px; display: flex; flex-direction: column;
+              align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+              color: #475569; position: relative; }
+  .cal-cell.cur-month { color: #94a3b8; }
+  .cal-cell.today     { background: #1e2030; color: #fbbf24; border: 1px solid #fbbf24; }
+  .cal-cell.has-run   { background: #0d1f15; color: #4ade80; border: 1px solid #15803d; }
+  .cal-cell.has-cf    { background: #0d1520; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .cal-cell.has-both  { background: #16101a; color: #c4b5fd; border: 1px solid #7c3aed; }
+  .cal-cell-dot { font-size: 7px; line-height: 1; margin-top: 1px; }
+  .cal-legend { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+  .cal-legend-item { font-size: 10px; color: #475569; display: flex; align-items: center; gap: 4px; }
+  .cal-wrapper { margin-bottom: 0; }
 
   /* ── LOG FORM ── */
   .log-card { background: #15151f; border: 1px solid #1e2030; border-radius: 14px;
@@ -1191,7 +1210,10 @@ const TRAIN_KEY  = "mealplan_training_v1";
 const MACRO_KEY2 = "mealplan_macro_v1"; // current macro section
 
 let macroSection = (() => { try { return localStorage.getItem(MACRO_KEY2) || "meal"; } catch(e) { return "meal"; } })();
-let trainTab     = "run"; // "run" | "cf"
+let trainTab      = "run"; // "run" | "cf"
+let calendarOpen  = true;  // calendario mensile visibile
+let calendarYear  = new Date().getFullYear();
+let calendarMonth = new Date().getMonth(); // 0-based
 
 function loadTrainLog()  { try { return JSON.parse(localStorage.getItem(TRAIN_KEY) || "[]"); } catch(e) { return []; } }
 function saveTrainLog(l) { try { localStorage.setItem(TRAIN_KEY, JSON.stringify(l)); } catch(e) {} }
@@ -1270,48 +1292,92 @@ function todayISO() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
+function prevCalMonth() {
+  calendarMonth--;
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  renderTraining();
+}
+function nextCalMonth() {
+  calendarMonth++;
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  renderTraining();
+}
+function toggleCalendar() {
+  calendarOpen = !calendarOpen;
+  renderTraining();
+}
+
 function renderTraining() {
   const el = document.getElementById("trainContent");
   if (!el) return;
 
   const runLog = trainLog.filter(s => s.type === "run");
   const cfLog  = trainLog.filter(s => s.type === "cf");
+  const todayStr = todayISO();
 
-  // ── Week strip (Mon–Sun of current week) ──
-  const today = new Date();
-  const dow   = (today.getDay() + 6) % 7; // Mon=0
-  const weekDays = Array.from({length:7}, (_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() - dow + i);
-    const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    const dayLabels = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+  // ── Calendario mensile ──
+  const MONTH_NAMES = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+                       "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+  const DAY_LABELS  = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+
+  const firstDay = new Date(calendarYear, calendarMonth, 1);
+  const lastDay  = new Date(calendarYear, calendarMonth + 1, 0);
+  // offset: Mon=0
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const totalCells  = Math.ceil((startOffset + lastDay.getDate()) / 7) * 7;
+
+  const calCells = Array.from({ length: totalCells }, (_, i) => {
+    const dayNum = i - startOffset + 1;
+    if (dayNum < 1 || dayNum > lastDay.getDate()) return `<div class="cal-cell"></div>`;
+    const iso = `${calendarYear}-${String(calendarMonth+1).padStart(2,"0")}-${String(dayNum).padStart(2,"0")}`;
     const hasRun = trainLog.some(s => s.type==="run" && s.date===iso);
     const hasCF  = trainLog.some(s => s.type==="cf"  && s.date===iso);
-    const isToday = iso === todayISO();
-    const cls = hasRun && hasCF ? "has-both" : hasRun ? "has-run" : hasCF ? "has-cf" : "";
-    const dot = hasRun && hasCF ? "🟣" : hasRun ? "🟢" : hasCF ? "🔵" : "";
-    return `<div class="week-day ${cls} ${isToday?"today":""}">
-      <div class="week-day-label">${dayLabels[i]}</div>
-      <div class="week-day-num">${d.getDate()}</div>
-      <div class="week-day-dot">${dot}</div>
-    </div>`;
+    const isToday = iso === todayStr;
+    const cls = [
+      "cal-cell cur-month",
+      hasRun && hasCF ? "has-both" : hasRun ? "has-run" : hasCF ? "has-cf" : "",
+      isToday ? "today" : ""
+    ].join(" ");
+    const dot = hasRun && hasCF ? "●" : hasRun ? "●" : hasCF ? "●" : "";
+    return `<div class="${cls}">${dayNum}${dot ? `<div class="cal-cell-dot">${dot}</div>` : ""}</div>`;
   });
 
+  const calendarHtml = `
+  <div class="cal-wrapper">
+    <div class="cal-header" onclick="toggleCalendar()">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="event.stopPropagation();prevCalMonth()">‹</button>
+        <span class="cal-header-title">${MONTH_NAMES[calendarMonth]} ${calendarYear}</span>
+        <button class="cal-nav-btn" onclick="event.stopPropagation();nextCalMonth()">›</button>
+      </div>
+      <span class="cal-toggle-icon ${calendarOpen?"open":""}">▼</span>
+    </div>
+    ${calendarOpen ? `<div class="cal-body">
+      <div class="cal-day-labels">${DAY_LABELS.map(d=>`<div class="cal-day-lbl">${d}</div>`).join("")}</div>
+      <div class="cal-grid">${calCells.join("")}</div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><span style="color:#4ade80">●</span> Corsa</div>
+        <div class="cal-legend-item"><span style="color:#60a5fa">●</span> CrossFit</div>
+        <div class="cal-legend-item"><span style="color:#c4b5fd">●</span> Entrambi</div>
+      </div>
+    </div>` : ""}
+  </div>`;
+
   // ── Tabs ──
-  let html = `
-  <div class="week-strip">${weekDays.join("")}</div>
-  <div style="font-size:10px;color:#334155;margin-bottom:14px;display:flex;gap:12px">
-    <span>🟢 Corsa</span><span>🔵 CrossFit</span><span>🟣 Entrambi</span>
-  </div>
+  let html = calendarHtml + `
   <div class="train-tabs">
     <button class="train-tab ${trainTab==="run"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('run')">🏃 Corsa</button>
     <button class="train-tab ${trainTab==="cf"?"train-tab-active":"train-tab-inactive"}"  onclick="setTrainTab('cf')">🏋️ CrossFit</button>
   </div>`;
 
+  // helper: delete button con doppio tap
+  const delBtn = (id) =>
+    `<button class="session-del" title="Elimina"
+      onclick="const b=this;if(b.dataset.armed==='1'){deleteSession(${id});}else{b.dataset.armed='1';b.textContent='✓?';b.style.color='#f87171';setTimeout(()=>{if(b.dataset.armed){b.dataset.armed='';b.textContent='✕';b.style.color='';}},2500);}">✕</button>`;
+
   // ── RUN TAB ──
   if (trainTab === "run") {
-    // Stats
     const totalKm   = runLog.reduce((s,r) => s + (r.km||0), 0);
-    const avgFeel   = runLog.length ? (runLog.reduce((s,r) => s + parseInt(r.feel||3), 0) / runLog.length).toFixed(1) : "—";
     const bestPace  = runLog.filter(r=>r.pace).sort((a,b) => a.pace.localeCompare(b.pace))[0]?.pace || "—";
     const longestKm = runLog.length ? Math.max(...runLog.map(r=>r.km||0)).toFixed(1) : "—";
 
@@ -1322,13 +1388,12 @@ function renderTraining() {
       <div class="stat-box"><div class="stat-box-val">${longestKm}</div><div class="stat-box-lbl">Uscita più lunga (km)</div></div>
     </div>`;
 
-    // Log form
     html += `<div class="log-card">
       <div class="log-card-title">➕ Registra uscita</div>
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
-          <input class="log-input" id="runDate" type="date" value="${todayISO()}">
+          <input class="log-input" id="runDate" type="date" value="${todayStr}">
         </div>
         <div>
           <div class="log-label">Distanza (km)</div>
@@ -1363,7 +1428,6 @@ function renderTraining() {
       <button class="log-save-btn log-save-run" id="runSaveBtn" onclick="saveRunSession()">✅ Salva uscita</button>
     </div>`;
 
-    // Sessions
     if (runLog.length === 0) {
       html += `<div class="train-empty">🏃 Nessuna uscita registrata.<br>Aggiungi la tua prima sessione.</div>`;
     } else {
@@ -1375,7 +1439,7 @@ function renderTraining() {
               <span class="session-type-badge badge-run">Corsa</span>
               <span class="session-date-str">${s.date}</span>
             </div>
-            <button class="session-del" onclick="deleteSession(${s.id})" title="Elimina">✕</button>
+            ${delBtn(s.id)}
           </div>
           <div class="session-body">
             <div class="session-stats">
@@ -1421,7 +1485,7 @@ function renderTraining() {
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
-          <input class="log-input" id="cfDate" type="date" value="${todayISO()}">
+          <input class="log-input" id="cfDate" type="date" value="${todayStr}">
         </div>
         <div class="log-field-full">
           <div class="log-label">WOD / Allenamento</div>
@@ -1468,7 +1532,7 @@ function renderTraining() {
               <span class="session-type-badge badge-cf">CrossFit</span>
               <span class="session-date-str">${s.date}</span>
             </div>
-            <button class="session-del" onclick="deleteSession(${s.id})" title="Elimina">✕</button>
+            ${delBtn(s.id)}
           </div>
           <div class="session-body">
             <div class="session-stats">
