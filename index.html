@@ -244,6 +244,16 @@
                   letter-spacing: .07em; margin-top: 2px; }
   .train-empty { text-align: center; padding: 28px 0 16px; color: #334155; font-size: 13px; }
 
+  /* ── EXPORT / IMPORT ── */
+  .backup-row { display: flex; gap: 8px; margin-top: 18px; padding-top: 14px;
+                border-top: 1px solid #1e2030; }
+  .backup-btn { flex: 1; padding: 10px 8px; border-radius: 9px; border: none;
+                font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .backup-btn-export { background: #0f2010; color: #4ade80; border: 1px solid #15803d; }
+  .backup-btn-import { background: #0d1520; color: #60a5fa; border: 1px solid #1d4ed8; }
+  .import-feedback { font-size: 11px; text-align: center; margin-top: 7px;
+                      min-height: 16px; transition: opacity .5s; opacity: 0; }
+
   /* ── DISPENSA ── */
   .pantry-add-row { display: flex; gap: 7px; margin-bottom: 14px; align-items: center; }
   .pantry-name-input { flex: 2; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
@@ -424,6 +434,11 @@
   <!-- TRAINING SECTION -->
   <div id="sectionTrain" style="display:none">
     <div id="trainContent"></div>
+    <div class="backup-row">
+      <button class="backup-btn backup-btn-export" onclick="exportTrainingJSON()">⬇️ Esporta backup JSON</button>
+      <button class="backup-btn backup-btn-import" onclick="importTrainingJSON()">⬆️ Importa backup JSON</button>
+    </div>
+    <div class="import-feedback" id="importFeedback"></div>
   </div>
 </div>
 
@@ -2401,8 +2416,72 @@ function buildPrintArea() {
 function exportPdf() {
   if (!state.plan) return;
   buildPrintArea();
-  // Piccolo delay per lasciare che il DOM si aggiorni prima di aprire la finestra di stampa
   setTimeout(() => { window.print(); }, 80);
+}
+
+// ─── EXPORT / IMPORT TRAINING DATA ──────────────────────────────────────────
+function exportTrainingJSON() {
+  const data = {
+    exported_at: new Date().toISOString(),
+    version: 1,
+    training: trainLog,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `training_backup_${todayISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importTrainingJSON() {
+  const input = document.createElement("input");
+  input.type  = "file";
+  input.accept = ".json,application/json";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Accetta sia il formato wrapper { training: [...] } sia un array diretto
+        const sessions = Array.isArray(parsed) ? parsed
+                       : Array.isArray(parsed.training) ? parsed.training
+                       : null;
+        if (!sessions) {
+          showImportFeedback("❌ File non riconosciuto", "#f87171");
+          return;
+        }
+        // Merge: aggiunge solo sessioni con id non già presenti
+        const existingIds = new Set(trainLog.map(s => s.id));
+        const newSessions = sessions.filter(s => s.id && !existingIds.has(s.id));
+        trainLog = [...trainLog, ...newSessions]
+          .sort((a, b) => b.date.localeCompare(a.date));
+        saveTrainLog(trainLog);
+        showImportFeedback(`✅ ${newSessions.length} sessioni importate`, "#4ade80");
+        renderTraining();
+      } catch(err) {
+        showImportFeedback("❌ Errore nella lettura del file", "#f87171");
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
+function showImportFeedback(msg, color) {
+  const el = document.getElementById("importFeedback");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.opacity = "1";
+  setTimeout(() => { el.style.opacity = "0"; }, 3000);
 }
 
 document.getElementById("btnGenerate").addEventListener("click", () => {
