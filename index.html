@@ -125,17 +125,20 @@
   .shop-cat-count { font-size: 11px; font-weight: 600; }
   .shop-items { padding: 7px 14px 11px; }
   .shop-item { display: flex; align-items: center; gap: 9px; padding: 7px 0;
-               cursor: pointer; }
+               cursor: pointer; border-left: 3px solid transparent; margin-left: -14px; padding-left: 11px; }
   .shop-item + .shop-item { border-top: 1px solid #1e2030; }
   .shop-item.checked { opacity: .4; }
+  .shop-item.in-pantry { border-left-color: #15803d; background: #050e07; }
   .checkbox { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
               display: flex; align-items: center; justify-content: center;
               font-size: 9px; font-weight: 900; color: #fff; }
   .checkbox-on { background: #2563eb; border: 2px solid #2563eb; }
   .checkbox-off { background: transparent; border: 2px solid #334155; }
+  .shop-item.in-pantry .checkbox-off { border-color: #15803d; }
   .shop-item-text { flex: 1; display: flex; justify-content: space-between; align-items: baseline; }
   .shop-item-name { font-size: 13px; font-weight: 600; color: #e2e8f0; }
   .shop-item-name.line-through { text-decoration: line-through; }
+  .shop-item.in-pantry .shop-item-name { color: #86efac; }
   .shop-item-qty { font-size: 12px; font-weight: 700; color: #60a5fa; }
   /* Empty state */
   .empty { text-align: center; padding: 44px 0; }
@@ -273,16 +276,31 @@
   .import-feedback { font-size: 11px; text-align: center; margin-top: 7px;
                       min-height: 16px; transition: opacity .5s; opacity: 0; }
 
-  /* ── DISPENSA ── */
-  .pantry-add-row { display: flex; gap: 7px; margin-bottom: 14px; align-items: center; }
-  .pantry-name-input { flex: 2; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
-                        color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
-                        font-family: inherit; min-width: 0; }
+  /* ── DISPENSA ADD ── */
+  .pantry-search-wrap { position: relative; margin-bottom: 10px; }
+  .pantry-search-input { width: 100%; background: #0f1923; border: 1px solid #1e3a5f;
+                          border-radius: 9px; color: #f1f5f9; font-size: 13px; padding: 10px 13px;
+                          outline: none; font-family: inherit; box-sizing: border-box; }
+  .pantry-search-input:focus { border-color: #2563eb; }
+  .pantry-search-input::placeholder { color: #334155; }
+  .pantry-suggestions { position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+                          background: #1a1a2e; border: 1px solid #1e3a5f; border-radius: 9px;
+                          z-index: 100; max-height: 220px; overflow-y: auto;
+                          box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+  .pantry-suggestion { padding: 10px 13px; font-size: 13px; font-weight: 600; color: #e2e8f0;
+                         cursor: pointer; border-bottom: 1px solid #1e2030; }
+  .pantry-suggestion:last-child { border-bottom: none; }
+  .pantry-suggestion:active { background: #1e3a5f; }
+  .pantry-suggestion.manual { color: #60a5fa; font-style: italic; }
+  .pantry-add-row { display: flex; gap: 7px; margin-bottom: 4px; align-items: center; }
   .pantry-qty-input  { flex: 1; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
                         color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
                         font-family: inherit; min-width: 0; }
-  .pantry-name-input:focus, .pantry-qty-input:focus { border-color: #2563eb; }
-  .pantry-name-input::placeholder, .pantry-qty-input::placeholder { color: #334155; }
+  .pantry-qty-input:focus { border-color: #2563eb; }
+  .pantry-qty-input::placeholder { color: #334155; }
+  .pantry-add-btn { padding: 9px 13px; border-radius: 8px; border: none;
+                     background: #1e3a5f; color: #60a5fa; font-size: 18px; font-weight: 700;
+                     cursor: pointer; flex-shrink: 0; line-height: 1; }
   .pantry-add-btn { padding: 9px 13px; border-radius: 8px; border: none;
                      background: #1e3a5f; color: #60a5fa; font-size: 18px; font-weight: 700;
                      cursor: pointer; flex-shrink: 0; line-height: 1; }
@@ -296,7 +314,10 @@
   .pantry-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
                  border-top: 1px solid #1e2030; }
   .pantry-row-name { flex: 1; font-size: 13px; font-weight: 600; color: #e2e8f0; }
-  .pantry-row-qty  { font-size: 12px; font-weight: 700; color: #60a5fa; min-width: 48px; text-align: right; }
+  .pantry-qty-edit { width: 72px; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 6px;
+                      color: #60a5fa; font-size: 12px; font-weight: 700; padding: 5px 7px;
+                      text-align: right; font-family: inherit; outline: none; flex-shrink: 0; }
+  .pantry-qty-edit:focus { border-color: #2563eb; color: #f1f5f9; }
   .pantry-del-btn  { background: none; border: none; color: #334155; font-size: 15px;
                       cursor: pointer; padding: 2px 4px; border-radius: 4px;
                       transition: color .12s; flex-shrink: 0; }
@@ -1245,18 +1266,84 @@ function savePantry(p) {
 }
 let pantryState = loadPantry();
 
-function addPantryItem() {
-  const nameEl = document.getElementById("pantryNameInput");
-  const qtyEl  = document.getElementById("pantryQtyInput");
-  const name = (nameEl.value || "").trim();
-  if (!name) { nameEl.focus(); return; }
-  const qty = (qtyEl.value || "").trim();
-  pantryState.push({ name, qty });
+let _pantryPending = null; // nome selezionato in attesa di qty
+
+function pantrySearchInput(val) {
+  const q = val.trim().toLowerCase();
+  const sugg = document.getElementById("pantrySuggestions");
+  const addRow = document.getElementById("pantryAddRow");
+
+  // Nascondi row di aggiunta se l'utente torna a digitare
+  _pantryPending = null;
+  addRow.style.display = "none";
+
+  if (!q) { sugg.style.display = "none"; return; }
+
+  // Alimenti del DB (chiavi MACRO_PER100) + capitalizza
+  const allKeys = Object.keys(MACRO_PER100);
+  const matches = allKeys
+    .filter(k => k.includes(q))
+    .sort((a, b) => a.indexOf(q) - b.indexOf(q))
+    .slice(0, 8);
+
+  const items = matches.map(k => {
+    const label = k.charAt(0).toUpperCase() + k.slice(1);
+    return `<div class="pantry-suggestion" onclick="pantrySelectItem(${JSON.stringify(label)})">${label}</div>`;
+  });
+
+  // Voce "aggiungi manualmente" se non è già un match esatto
+  const exactMatch = allKeys.some(k => k === q);
+  if (!exactMatch && val.trim().length > 1) {
+    const manualLabel = val.trim().charAt(0).toUpperCase() + val.trim().slice(1);
+    items.push(`<div class="pantry-suggestion manual" onclick="pantrySelectItem(${JSON.stringify(manualLabel)})">➕ Aggiungi "${manualLabel}" manualmente</div>`);
+  }
+
+  if (items.length === 0) {
+    const manualLabel = val.trim().charAt(0).toUpperCase() + val.trim().slice(1);
+    items.push(`<div class="pantry-suggestion manual" onclick="pantrySelectItem(${JSON.stringify(manualLabel)})">➕ Aggiungi "${manualLabel}" manualmente</div>`);
+  }
+
+  sugg.innerHTML = items.join("");
+  sugg.style.display = "block";
+}
+
+function pantrySearchKey(e) {
+  if (e.key === "Escape") {
+    document.getElementById("pantrySuggestions").style.display = "none";
+  }
+}
+
+function pantrySelectItem(name) {
+  _pantryPending = name;
+  document.getElementById("pantrySearchInput").value = name;
+  document.getElementById("pantrySuggestions").style.display = "none";
+  document.getElementById("pantrySelectedName").textContent = name;
+  document.getElementById("pantryAddRow").style.display = "flex";
+  document.getElementById("pantryQtyInput").value = "";
+  document.getElementById("pantryQtyInput").focus();
+}
+
+function confirmPantryAdd() {
+  const name = _pantryPending;
+  if (!name) return;
+  const qty = (document.getElementById("pantryQtyInput").value || "").trim();
+  const idx = findPantryIdx(name);
+  if (idx >= 0) {
+    pantryState[idx].qty = sumQty(pantryState[idx].qty || "", qty);
+  } else {
+    pantryState.push({ name, qty });
+  }
   savePantry(pantryState);
-  nameEl.value = "";
-  qtyEl.value  = "";
-  nameEl.focus();
+  _pantryPending = null;
+  document.getElementById("pantrySearchInput").value = "";
+  document.getElementById("pantryAddRow").style.display = "none";
   render();
+}
+function updatePantryQty(idx, val) {
+  if (!pantryState[idx]) return;
+  pantryState[idx].qty = val.trim();
+  savePantry(pantryState);
+  // Non chiamiamo render() per non perdere il focus sull'input
 }
 function removePantryItem(idx) {
   pantryState.splice(idx, 1);
@@ -2334,11 +2421,19 @@ function render() {
         <div class="shop-items">
           ${cat.items.map((item,ii)=>{
             const k=`${ci}-${ii}`, isChecked=!!checked[k];
-            return `<div class="shop-item ${isChecked?"checked":""}" onclick="toggleCheck('${k}')">
+            const inPantry = findPantryIdx(item.name) >= 0;
+            const pantryQty = inPantry ? pantryState[findPantryIdx(item.name)].qty : "";
+            // Store item ref in global lookup to avoid inline string escaping issues
+            window._shopItems = window._shopItems || {};
+            window._shopItems[k] = { name: item.name, qty: item.quantity };
+            return `<div class="shop-item ${isChecked?"checked":""} ${inPantry&&!isChecked?"in-pantry":""}" onclick="toggleCheck('${k}')">
               <div class="checkbox ${isChecked?"checkbox-on":"checkbox-off"}">${isChecked?"✓":""}</div>
               <div class="shop-item-text">
                 <span class="shop-item-name ${isChecked?"line-through":""}">${item.name}</span>
-                <span class="shop-item-qty">${item.quantity}</span>
+                <span style="display:flex;align-items:baseline;gap:5px">
+                  ${inPantry&&!isChecked&&pantryQty?`<span style="font-size:10px;color:#15803d;font-weight:700">🏠${pantryQty}</span>`:""}
+                  <span class="shop-item-qty">${item.quantity}</span>
+                </span>
               </div>
             </div>`;
           }).join("")}
@@ -2351,12 +2446,20 @@ function render() {
     <div style="font-size:11px;color:#64748b;line-height:1.6;margin-bottom:12px">
       Tieni traccia di quello che hai già in casa. Puoi indicare anche la quantità disponibile.
     </div>
-    <div class="pantry-add-row">
-      <input class="pantry-name-input" id="pantryNameInput" type="text" placeholder="Alimento…"
-             onkeydown="if(event.key==='Enter')document.getElementById('pantryQtyInput').focus()">
-      <input class="pantry-qty-input"  id="pantryQtyInput"  type="text" placeholder="Qtà (es. 500g)"
-             onkeydown="if(event.key==='Enter')addPantryItem()">
-      <button class="pantry-add-btn" onclick="addPantryItem()">+</button>
+
+    <div class="pantry-search-wrap">
+      <input class="pantry-search-input" id="pantrySearchInput" type="text"
+             placeholder="🔍 Cerca alimento o scrivi uno nuovo…"
+             autocomplete="off"
+             oninput="pantrySearchInput(this.value)"
+             onkeydown="pantrySearchKey(event)">
+      <div class="pantry-suggestions" id="pantrySuggestions" style="display:none"></div>
+    </div>
+    <div class="pantry-add-row" id="pantryAddRow" style="display:none">
+      <span id="pantrySelectedName" style="flex:2;font-size:12px;font-weight:700;color:#94a3b8;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <input class="pantry-qty-input" id="pantryQtyInput" type="text" placeholder="Qtà (es. 500g)"
+             onkeydown="if(event.key==='Enter')confirmPantryAdd()">
+      <button class="pantry-add-btn" onclick="confirmPantryAdd()">+</button>
     </div>`;
 
     if (n === 0) {
@@ -2370,7 +2473,10 @@ function render() {
         ${pantryState.map((item, idx) => `
         <div class="pantry-row">
           <span class="pantry-row-name">${item.name}</span>
-          <span class="pantry-row-qty">${item.qty || ""}</span>
+          <input class="pantry-qty-edit" type="text" value="${item.qty||""}" placeholder="—"
+            onchange="updatePantryQty(${idx}, this.value)"
+            onblur="updatePantryQty(${idx}, this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()">
           <button class="pantry-del-btn" onclick="removePantryItem(${idx})" title="Rimuovi">✕</button>
         </div>`).join("")}
       </div>
@@ -2428,8 +2534,55 @@ function setTab(tab) {
   render();
 }
 
+// ─── HELPERS DISPENSA ↔ SPESA ────────────────────────────────────────────────
+// Estrae il valore numerico in grammi da una stringa qty ("350g" → 350, "500g" → 500)
+// Restituisce null per unità non sommabili (barattoli, uova, avocado, conf.)
+function parseGramsFromQty(qty) {
+  if (!qty) return null;
+  const m = qty.match(/^~?(\d+(?:\.\d+)?)\s*g$/i);
+  return m ? parseFloat(m[1]) : null;
+}
+
+// Trova l'indice in pantryState per un nome alimento (case-insensitive)
+function findPantryIdx(name) {
+  const key = name.toLowerCase().trim();
+  return pantryState.findIndex(p => p.name.toLowerCase().trim() === key);
+}
+
+// Somma due qty stringhe se entrambe sono in grammi, altrimenti restituisce la nuova
+function sumQty(existing, incoming) {
+  const a = parseGramsFromQty(existing);
+  const b = parseGramsFromQty(incoming);
+  if (a !== null && b !== null) return `${Math.round(a + b)}g`;
+  // non sommabili: se la unità è la stessa tentiamo comunque
+  if (existing && incoming && existing.replace(/[\d.~]/g,'').trim() === incoming.replace(/[\d.~]/g,'').trim()) {
+    const na = parseFloat(existing); const nb = parseFloat(incoming);
+    if (!isNaN(na) && !isNaN(nb)) return `${Math.round(na+nb)}${existing.replace(/[\d.\s~]/g,'').trim()}`;
+  }
+  // altrimenti concatena
+  return existing ? `${existing} + ${incoming}` : incoming;
+}
+
 function toggleCheck(k) {
-  state.checked = { ...state.checked, [k]: !state.checked[k] };
+  const wasChecked = !!state.checked[k];
+  state.checked = { ...state.checked, [k]: !wasChecked };
+
+  // Quando si SPUNTA (non-checked → checked): aggiungi/aggiorna dispensa
+  if (!wasChecked) {
+    const ref = window._shopItems && window._shopItems[k];
+    const itemName = ref && ref.name;
+    const itemQty  = ref && ref.qty;
+    if (itemName) {
+      const idx = findPantryIdx(itemName);
+      if (idx >= 0) {
+        pantryState[idx].qty = sumQty(pantryState[idx].qty || "", itemQty || "");
+      } else {
+        pantryState.push({ name: itemName, qty: itemQty || "" });
+      }
+      savePantry(pantryState);
+    }
+  }
+
   savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
   render();
 }
@@ -2642,6 +2795,15 @@ document.getElementById("btnGenerate").addEventListener("click", () => {
 
 render();
 setMacro(macroSection);
+
+// Chiudi autocomplete dispensa cliccando fuori
+document.addEventListener("click", (e) => {
+  const sugg = document.getElementById("pantrySuggestions");
+  const inp  = document.getElementById("pantrySearchInput");
+  if (sugg && inp && !inp.contains(e.target) && !sugg.contains(e.target)) {
+    sugg.style.display = "none";
+  }
+});
 </script>
 </body>
 </html>
