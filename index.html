@@ -161,34 +161,42 @@
 
   /* ── CALENDARIO MENSILE ── */
   .cal-header { display: flex; align-items: center; justify-content: space-between;
-                padding: 10px 14px; background: #0f1923; border-radius: 12px 12px 0 0;
-                cursor: pointer; user-select: none; }
+                padding: 9px 12px; background: #0f1923; border-radius: 12px;
+                cursor: pointer; user-select: none; transition: border-radius .15s; }
+  .cal-header.cal-open { border-radius: 12px 12px 0 0; }
   .cal-header-title { font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
-  .cal-toggle-icon { font-size: 11px; color: #475569; transition: transform .2s; }
+  .cal-toggle-icon { font-size: 10px; color: #475569; transition: transform .2s; }
   .cal-toggle-icon.open { transform: rotate(180deg); }
   .cal-nav { display: flex; align-items: center; gap: 6px; }
-  .cal-nav-btn { background: #1e3a5f; border: none; color: #60a5fa; font-size: 15px;
-                  width: 28px; height: 28px; border-radius: 6px; cursor: pointer;
+  .cal-nav-btn { background: #1e3a5f; border: none; color: #60a5fa; font-size: 14px;
+                  width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
                   display: flex; align-items: center; justify-content: center; font-weight: 700; }
   .cal-body { background: #15151f; border: 1px solid #1e2030; border-top: none;
-              border-radius: 0 0 12px 12px; padding: 10px 12px 14px; margin-bottom: 16px; }
-  .cal-day-labels { display: grid; grid-template-columns: repeat(7,1fr);
-                    gap: 2px; margin-bottom: 6px; }
-  .cal-day-lbl { text-align: center; font-size: 9px; font-weight: 700; color: #334155;
-                  text-transform: uppercase; padding: 2px 0; }
+              border-radius: 0 0 12px 12px; padding: 7px 8px 10px; margin-bottom: 14px; }
+  .cal-day-labels { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 4px; }
+  .cal-day-lbl { text-align: center; font-size: 8px; font-weight: 700; color: #334155;
+                  text-transform: uppercase; padding: 1px 0; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-  .cal-cell { aspect-ratio: 1; border-radius: 7px; display: flex; flex-direction: column;
-              align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
-              color: #475569; position: relative; }
-  .cal-cell.cur-month { color: #94a3b8; }
-  .cal-cell.today     { background: #1e2030; color: #fbbf24; border: 1px solid #fbbf24; }
-  .cal-cell.has-run   { background: #0d1f15; color: #4ade80; border: 1px solid #15803d; }
-  .cal-cell.has-cf    { background: #0d1520; color: #60a5fa; border: 1px solid #1d4ed8; }
-  .cal-cell.has-both  { background: #16101a; color: #c4b5fd; border: 1px solid #7c3aed; }
-  .cal-cell-dot { font-size: 7px; line-height: 1; margin-top: 1px; }
-  .cal-legend { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
-  .cal-legend-item { font-size: 10px; color: #475569; display: flex; align-items: center; gap: 4px; }
-  .cal-wrapper { margin-bottom: 0; }
+  .cal-cell { height: 34px; border-radius: 6px; display: flex; flex-direction: column;
+              align-items: center; justify-content: center; gap: 2px;
+              color: #334155; position: relative; }
+  .cal-cell.cur-month { color: #64748b; }
+  .cal-cell.today     { background: #1e2030; border: 1px solid #fbbf24; }
+  .cal-cell.today .cal-num { color: #fbbf24; }
+  .cal-cell.has-run   { background: #0a1f12; border: 1px solid #166534; }
+  .cal-cell.has-run .cal-num { color: #f1f5f9; }
+  .cal-cell.has-cf    { background: #0a1428; border: 1px solid #1e40af; }
+  .cal-cell.has-cf .cal-num { color: #f1f5f9; }
+  .cal-cell.has-both  { background: #150f24; border: 1px solid #6d28d9; }
+  .cal-cell.has-both .cal-num { color: #f1f5f9; }
+  .cal-num  { font-size: 12px; font-weight: 800; line-height: 1; }
+  .cal-dot  { font-size: 6px; line-height: 1; }
+  .cal-dot-run  { color: #4ade80; }
+  .cal-dot-cf   { color: #60a5fa; }
+  .cal-dot-both { color: #c4b5fd; }
+  .cal-legend { display: flex; gap: 12px; margin-top: 9px; justify-content: center; }
+  .cal-legend-item { font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 4px; }
+  .cal-wrapper { margin-bottom: 14px; }
 
   /* ── LOG FORM ── */
   .log-card { background: #15151f; border: 1px solid #1e2030; border-radius: 14px;
@@ -244,7 +252,18 @@
                   letter-spacing: .07em; margin-top: 2px; }
   .train-empty { text-align: center; padding: 28px 0 16px; color: #334155; font-size: 13px; }
 
-  /* ── EXPORT / IMPORT ── */
+  /* ── MEAL PICKER (cambio pasto intero) ── */
+  .meal-picker-list { display: flex; flex-direction: column; gap: 7px; max-height: 320px;
+                       overflow-y: auto; padding-right: 2px; }
+  .meal-picker-item { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 10px;
+                       padding: 10px 12px; cursor: pointer; transition: border-color .13s; }
+  .meal-picker-item:active { border-color: #2563eb; background: #0d1a3f; }
+  .meal-picker-item-name { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 5px; }
+  .meal-picker-macros { display: flex; gap: 7px; flex-wrap: wrap; }
+  .meal-picker-source { font-size: 10px; color: #334155; margin-top: 3px; }
+  .meal-picker-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+                        background: #1e2a1a; color: #4ade80; border: 1px solid #15803d; }
+  .meal-picker-badge-saved { background: #1e1a2a; color: #a78bfa; border: 1px solid #6d28d9; }
   .backup-row { display: flex; gap: 8px; margin-top: 18px; padding-top: 14px;
                 border-top: 1px solid #1e2030; }
   .backup-btn { flex: 1; padding: 10px 8px; border-radius: 9px; border: none;
@@ -519,6 +538,15 @@
       <div class="divider"></div>
       <div class="modal-section-label">🔄 Cambia colazione oggi</div>
       <div id="bfAltList"></div>
+    </div>
+
+    <div id="mealPickerSection" style="display:none">
+      <div class="divider"></div>
+      <div class="modal-section-label">🔄 Scegli un pasto diverso</div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">
+        Sostituisce l'intero pasto di questo giorno con quello selezionato.
+      </div>
+      <div class="meal-picker-list" id="mealPickerList"></div>
     </div>
 
     <button class="btn-modal-close" onclick="closeMealModal()">Chiudi</button>
@@ -796,10 +824,11 @@ function getMacroPer100(item) {
   return MACRO_PER100[key] || null;
 }
 function sumMacros(ings) {
-  return ings.reduce((a,i) => {
+  const r = ings.reduce((a,i) => {
     const m = getMacros(i.item, i.grams);
     return { kcal:a.kcal+m.kcal, p:a.p+m.p, c:a.c+m.c, f:a.f+m.f };
   }, { kcal:0, p:0, c:0, f:0 });
+  return { kcal:Math.round(r.kcal), p:Math.round(r.p*10)/10, c:Math.round(r.c*10)/10, f:Math.round(r.f*10)/10 };
 }
 
 // ─── COLAZIONI VARIABILI ─────────────────────────────────────────────────────
@@ -1359,7 +1388,7 @@ function renderTraining() {
 
   const calendarHtml = `
   <div class="cal-wrapper">
-    <div class="cal-header" onclick="toggleCalendar()">
+    <div class="cal-header ${calendarOpen ? "cal-open" : ""}" onclick="toggleCalendar()">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="event.stopPropagation();prevCalMonth()">‹</button>
         <span class="cal-header-title">${MONTH_NAMES[calendarMonth]} ${calendarYear}</span>
@@ -1621,10 +1650,11 @@ function getMacrosForIng(ing) {
 }
 
 function sumMacrosWithOverrides(ings) {
-  return ings.reduce((a, i) => {
+  const r = ings.reduce((a, i) => {
     const m = getMacrosForIng(i);
     return { kcal: a.kcal + m.kcal, p: a.p + m.p, c: a.c + m.c, f: a.f + m.f };
   }, { kcal: 0, p: 0, c: 0, f: 0 });
+  return { kcal:Math.round(r.kcal), p:Math.round(r.p*10)/10, c:Math.round(r.c*10)/10, f:Math.round(r.f*10)/10 };
 }
 
 function recomputeDay(dayIdx) {
@@ -1855,6 +1885,60 @@ function openMealModal(dayIdx, mealType) {
     bfAltSection.style.display = "none";
   }
 
+  // Picker pasto intero (per snack, lunch, dinner)
+  const mealPickerSection = document.getElementById("mealPickerSection");
+  const mealPickerList    = document.getElementById("mealPickerList");
+  const pickerTypes = ["snack", "lunch", "dinner"];
+  if (pickerTypes.includes(mealType)) {
+    // Pool: pasti built-in + salvati, escluso quello attuale
+    const currentName = getMealName(dayIdx, mealType, meal.name).toLowerCase();
+    let pool = [];
+    if (mealType === "snack") {
+      pool = [
+        ...SNACKS.map(m => ({ ...m, _src: "base" })),
+        ...(customMeals.snack || []).map(m => ({ ...m, _src: "saved" })),
+      ];
+    } else if (mealType === "lunch") {
+      pool = [
+        ...LUNCHES.map(m => ({ ...m, _src: "base" })),
+        ...(customMeals.lunch || []).map(m => ({ ...m, _src: "saved" })),
+      ];
+    } else if (mealType === "dinner") {
+      pool = [
+        ...DINNERS.map(m => ({ ...m, _src: "base" })),
+        ...(customMeals.dinner || []).map(m => ({ ...m, _src: "saved" })),
+      ];
+    }
+    const filtered = pool.filter(m => m.name.toLowerCase() !== currentName);
+    if (filtered.length > 0) {
+      mealPickerList.innerHTML = filtered.map((m, i) => {
+        const ings = mealType === "lunch"
+          ? [...(m.ingredients||[]), ...(m.side_dish?.ingredients||[])]
+          : (m.ingredients || []);
+        const macros = sumMacros(ings);
+        const savedBadge = m._src === "saved"
+          ? `<span class="meal-picker-badge meal-picker-badge-saved">⭐ Preferito</span>`
+          : `<span class="meal-picker-badge">📋 Proposta</span>`;
+        return `<div class="meal-picker-item" onclick="applyMealPick(${i})">
+          <div class="meal-picker-item-name">${m.name} ${savedBadge}</div>
+          <div class="meal-picker-macros">
+            <span class="alt-pill" style="color:#fbbf24">${macros.kcal} kcal</span>
+            <span class="alt-pill" style="color:#60a5fa">P ${macros.p}g</span>
+            <span class="alt-pill" style="color:#4ade80">C ${macros.c}g</span>
+            <span class="alt-pill" style="color:#f87171">G ${macros.f}g</span>
+          </div>
+        </div>`;
+      }).join("");
+      // Store pool in a temp var accessible by applyMealPick
+      window._mealPickerPool = filtered;
+      mealPickerSection.style.display = "block";
+    } else {
+      mealPickerSection.style.display = "none";
+    }
+  } else {
+    mealPickerSection.style.display = "none";
+  }
+
   document.getElementById("mealModalOverlay").style.display = "flex";
 }
 
@@ -1938,7 +2022,49 @@ function saveMealAsTemplate() {
   render();
 }
 
-// ─── SOSTITUISCI COLAZIONE INTERA ────────────────────────────────────────────
+// ─── SOSTITUISCI PASTO INTERO (picker) ───────────────────────────────────────
+function applyMealPick(idx) {
+  if (!mealModalCtx) return;
+  const { dayIdx, mealType } = mealModalCtx;
+  const picked = window._mealPickerPool && window._mealPickerPool[idx];
+  if (!picked) return;
+
+  const day = state.plan.meal_plan[dayIdx];
+
+  // Rimuovi override ingredienti esistenti per questo pasto
+  const clearOverrides = (type) => {
+    const ref = getMealRef(dayIdx, type);
+    if (!ref) return;
+    (ref.ingredients || []).forEach((_, i) => delete state.overrides[`${dayIdx}:${type}:${i}`]);
+  };
+
+  if (mealType === "snack") {
+    clearOverrides("snack");
+    day.snack = { name: picked.name, ingredients: (picked.ingredients||[]).map(i=>({...i})) };
+  } else if (mealType === "lunch") {
+    clearOverrides("lunch");
+    clearOverrides("side");
+    day.lunch = {
+      name: picked.name,
+      ingredients: (picked.ingredients||[]).map(i=>({...i})),
+      side_dish: picked.side_dish
+        ? { name: picked.side_dish.name, ingredients: (picked.side_dish.ingredients||[]).map(i=>({...i})) }
+        : { name: "Insalata mista", ingredients: [{ item:"Misticanza", grams:100 },{ item:"Olio EVO", grams:5 }] },
+    };
+  } else if (mealType === "dinner") {
+    clearOverrides("dinner");
+    day.dinner = { name: picked.name, ingredients: (picked.ingredients||[]).map(i=>({...i})) };
+  }
+
+  // Rimuovi eventuale name override
+  delete state.nameOverrides[`${dayIdx}:${mealType}`];
+
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  closeMealModal();
+  render();
+}
+
+
 function applyBreakfastAltByName(altName, dayIdx) {
   const alt = BREAKFAST_ALTERNATIVES.find(a => a.name === altName);
   if (!alt || dayIdx === undefined) return;
