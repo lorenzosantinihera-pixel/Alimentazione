@@ -618,6 +618,7 @@ const MACRO_PER100 = {
   "fette biscottate integrali": { kcal:370, p:10, c:72, f:5 },
   "pane bauletto":         { kcal:265, p:9,  c:50,  f:3.5 },
   "burro d'arachidi":      { kcal:588, p:25, c:20,  f:50  },
+  "fiocchi di latte":      { kcal:85,  p:11, c:4,   f:3   },
   // Latticini
   "yogurt greco 0%":       { kcal:57,  p:10, c:4,   f:0.2 },
   "yogurt greco 2%":       { kcal:73,  p:10, c:4,   f:2   },
@@ -952,6 +953,21 @@ const LUNCHES = [
   { name:"Farro con mozzarella proteica e pomodorini", protein_source:"Mozzarella proteica",
     ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Farro perlato (crudo)",grams:180},{item:"Pomodorini",grams:285},{item:"Olio EVO",grams:10}],
     side:{name:"Basilico e rucola",ingredients:[{item:"Rucola",grams:95},{item:"Olio EVO",grams:5}]}},
+  { name:"Frittata con zucchine e patate", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:280},{item:"Zucchine",grams:230},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}],
+    side:{name:"Pomodorini e rucola",ingredients:[{item:"Pomodorini",grams:150},{item:"Rucola",grams:75}]}},
+  { name:"Frittata con peperoni e feta", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:280},{item:"Peperoni misti",grams:230},{item:"Feta",grams:45},{item:"Olio EVO",grams:10}],
+    side:{name:"Spinacino",ingredients:[{item:"Spinacino",grams:115}]}},
+  { name:"Fiocchi di latte con riso basmati e verdure", protein_source:"Fiocchi di latte",
+    ingredients:[{item:"Fiocchi di latte",grams:280},{item:"Riso basmati (crudo)",grams:180},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:8}],
+    side:{name:"Rucola",ingredients:[{item:"Rucola",grams:95}]}},
+  { name:"Fiocchi di latte con farro e cetriolo", protein_source:"Fiocchi di latte",
+    ingredients:[{item:"Fiocchi di latte",grams:280},{item:"Farro perlato (crudo)",grams:170},{item:"Cetriolo",grams:200},{item:"Olio EVO",grams:8}],
+    side:{name:"Pomodorini",ingredients:[{item:"Pomodorini",grams:150}]}},
+  { name:"Piadina con hummus e affettato vegetale", protein_source:"Affettato vegetale",
+    ingredients:[{item:"Piadina integrale",grams:170},{item:"Hummus",grams:80},{item:"Affettato vegetale",grams:100},{item:"Pomodorini",grams:150},{item:"Rucola",grams:40}],
+    side:{name:"Carote crude",ingredients:[{item:"Carote",grams:150}]}},
 ];
 
 // ─── CENE ────────────────────────────────────────────────────────────────────
@@ -992,6 +1008,10 @@ const DINNERS = [
     ingredients:[{item:"Salmone affumicato",grams:80},{item:"Avocado",grams:70},{item:"Misticanza",grams:190},{item:"Pomodorini",grams:190},{item:"Olio EVO",grams:5}]},
   { name:"Mozzarella proteica con verdure grigliate", protein_source:"Mozzarella proteica",
     ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
+  { name:"Frittata con funghi e patate", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:310},{item:"Funghi champignon",grams:285},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}]},
+  { name:"Fiocchi di latte con verdure grigliate e pane integrale", protein_source:"Fiocchi di latte",
+    ingredients:[{item:"Fiocchi di latte",grams:300},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:230},{item:"Pane integrale",grams:100},{item:"Olio EVO",grams:8}]},
   // ── Cene Vemondo / plant-based ───────────────────────────────────────────
   { name:"Burger vegetale con patate al forno e insalata", protein_source:"Burger vegetale",
     ingredients:[{item:"Burger vegetale classico",grams:200},{item:"Patate",grams:350},{item:"Olio EVO",grams:10}],
@@ -1028,7 +1048,7 @@ function shuffle(arr, seed) {
 
 function categorize(item) {
   const s = item.toLowerCase();
-  if (/(pollo|tacchino|salmone|tonno|merluzzo|sgombro|uov|tofu|tempeh|seitan|burger vegetale|burger a base|burger semi|nuggets vegetali|affettato vegetale)/.test(s)) return "Proteine";
+  if (/(pollo|tacchino|salmone|tonno|merluzzo|sgombro|uov|tofu|tempeh|seitan|burger vegetale|burger a base|burger semi|nuggets vegetali|affettato vegetale|fiocchi di latte)/.test(s)) return "Proteine";
   if (/(riso|pasta|farro|cous|quinoa|orzo|pane|piadina|patate|kamut|avena|fette biscottate)/.test(s)) return "Carboidrati";
   if (/(ceci|lenticchie|fagioli|cannellini|bietola|zucchine|spinaci|carote|fagiolini|broccoli|cavolfiore|peperone|peperoni|pomodor|funghi|asparagi|melanzane|finocchio|cipolla|cetriolo|lattuga|rucola|misticanza|ravanelli|sedano|aglio|avocado)/.test(s)) return "Verdure & Legumi";
   if (/(ricotta|feta|parmigiano|scamorza|mozzarella|hummus|yogurt|muesli)/.test(s)) return "Latticini & Uova";
