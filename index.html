@@ -331,8 +331,9 @@
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,.72);
     display: flex; align-items: flex-end; justify-content: center;
-    z-index: 1000; padding: 0 0 0 0;
+    z-index: 1000; padding: 0;
     animation: fadeIn .15s ease;
+    touch-action: none; /* blocca scroll body su iOS */
   }
   @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
   .modal-sheet {
@@ -341,6 +342,9 @@
     padding: 20px 18px 34px;
     animation: slideUp .2s ease;
     max-height: 90vh; overflow-y: auto;
+    overscroll-behavior: contain; /* blocca propagazione scroll */
+    touch-action: pan-y; /* riabilita scroll verticale solo dentro il sheet */
+    -webkit-overflow-scrolling: touch;
   }
   @keyframes slideUp { from { transform: translateY(60px); opacity:0 } to { transform: translateY(0); opacity:1 } }
   .modal-handle { width: 36px; height: 4px; background: #2a2a3e; border-radius: 2px; margin: 0 auto 16px; }
@@ -1273,38 +1277,40 @@ function pantrySearchInput(val) {
   const sugg = document.getElementById("pantrySuggestions");
   const addRow = document.getElementById("pantryAddRow");
 
-  // Nascondi row di aggiunta se l'utente torna a digitare
   _pantryPending = null;
   addRow.style.display = "none";
 
   if (!q) { sugg.style.display = "none"; return; }
 
-  // Alimenti del DB (chiavi MACRO_PER100) + capitalizza
   const allKeys = Object.keys(MACRO_PER100);
   const matches = allKeys
     .filter(k => k.includes(q))
     .sort((a, b) => a.indexOf(q) - b.indexOf(q))
     .slice(0, 8);
 
-  const items = matches.map(k => {
-    const label = k.charAt(0).toUpperCase() + k.slice(1);
-    return `<div class="pantry-suggestion" onclick="pantrySelectItem(${JSON.stringify(label)})">${label}</div>`;
-  });
+  // Store in global array indexed by position — no strings in onclick
+  window._psl = matches.map(k => k.charAt(0).toUpperCase() + k.slice(1));
 
-  // Voce "aggiungi manualmente" se non è già un match esatto
   const exactMatch = allKeys.some(k => k === q);
-  if (!exactMatch && val.trim().length > 1) {
-    const manualLabel = val.trim().charAt(0).toUpperCase() + val.trim().slice(1);
-    items.push(`<div class="pantry-suggestion manual" onclick="pantrySelectItem(${JSON.stringify(manualLabel)})">➕ Aggiungi "${manualLabel}" manualmente</div>`);
-  }
+  const manualLabel = val.trim().charAt(0).toUpperCase() + val.trim().slice(1);
+  const addManual = !exactMatch && val.trim().length > 1;
+  if (addManual || window._psl.length === 0) window._psl.push(manualLabel);
 
-  if (items.length === 0) {
-    const manualLabel = val.trim().charAt(0).toUpperCase() + val.trim().slice(1);
-    items.push(`<div class="pantry-suggestion manual" onclick="pantrySelectItem(${JSON.stringify(manualLabel)})">➕ Aggiungi "${manualLabel}" manualmente</div>`);
-  }
+  const items = window._psl.map((label, i) => {
+    const isManual = addManual && i === window._psl.length - 1;
+    const cls  = isManual ? "pantry-suggestion manual" : "pantry-suggestion";
+    const text = isManual ? `➕ Aggiungi "${label}" manualmente` : label;
+    return `<div class="${cls}" onclick="pantrySelectByIdx(${i})">${text}</div>`;
+  });
 
   sugg.innerHTML = items.join("");
   sugg.style.display = "block";
+}
+
+function pantrySelectByIdx(i) {
+  const name = window._psl && window._psl[i];
+  if (!name) return;
+  pantrySelectItem(name);
 }
 
 function pantrySearchKey(e) {
@@ -2047,10 +2053,12 @@ function openMealModal(dayIdx, mealType) {
   }
 
   document.getElementById("mealModalOverlay").style.display = "flex";
+  document.body.style.overflow = "hidden";
 }
 
 function closeMealModal() {
   document.getElementById("mealModalOverlay").style.display = "none";
+  document.body.style.overflow = "";
   mealModalCtx = null;
 }
 
@@ -2470,15 +2478,19 @@ function render() {
           <span class="pantry-list-title">In dispensa</span>
           <span class="pantry-count">${n} prodott${n===1?"o":"i"}</span>
         </div>
-        ${pantryState.map((item, idx) => `
-        <div class="pantry-row">
+        ${pantryState.map((item, idx) => {
+          // Safely set value via data attribute to avoid HTML quote escaping issues
+          return `<div class="pantry-row">
           <span class="pantry-row-name">${item.name}</span>
-          <input class="pantry-qty-edit" type="text" value="${item.qty||""}" placeholder="—"
+          <input class="pantry-qty-edit" type="text" data-idx="${idx}"
+            placeholder="—"
             onchange="updatePantryQty(${idx}, this.value)"
             onblur="updatePantryQty(${idx}, this.value)"
-            onkeydown="if(event.key==='Enter')this.blur()">
+            onkeydown="if(event.key==='Enter')this.blur()"
+            onfocus="this.value=pantryState[${idx}]?.qty||''">
           <button class="pantry-del-btn" onclick="removePantryItem(${idx})" title="Rimuovi">✕</button>
-        </div>`).join("")}
+        </div>`;
+        }).join("")}
       </div>
       <button class="pantry-clear-btn" onclick="this.dataset.armed==='1'?clearPantry():(this.dataset.armed='1',this.textContent='⚠️ Tocca ancora per svuotare',setTimeout(()=>{if(this.dataset.armed){this.dataset.armed='';this.textContent='🗑️ Svuota dispensa';}},3000))">🗑️ Svuota dispensa</button>`;
     }
@@ -2525,6 +2537,13 @@ function render() {
   }
 
   document.getElementById("planContent").innerHTML = html;
+  // Set pantry qty input values safely via JS after DOM update
+  requestAnimationFrame(() => {
+    pantryState.forEach((item, idx) => {
+      const el = document.querySelector(`.pantry-qty-edit[data-idx="${idx}"]`);
+      if (el && document.activeElement !== el) el.value = item.qty || "";
+    });
+  });
 }
 
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
