@@ -1128,71 +1128,178 @@ function pickMeatDayPattern(seed) {
 const FIXED_BREAKFAST = { name: "Yogurt greco + muesli",
   ingredients: [{ item:"Yogurt greco 0%", grams:100 }, { item:"Muesli", grams:100 }] };
 
+// ─── GENERATORE INTELLIGENTE ─────────────────────────────────────────────────
+//
+// Approccio: score-based selection con backtracking leggero.
+// Per ogni slot (pranzo o cena di un giorno) viene calcolato un punteggio di
+// "penalità" per ogni candidato. Si sceglie quello meno penalizzato.
+//
+// Penalità applicate:
+//  - Stessa proteina del pasto precedente dello stesso slot      → +80
+//  - Stessa proteina nell'altro slot dello STESSO giorno         → +60
+//  - Stessa proteina usata negli ultimi 2 giorni                 → +40
+//  - Stesso carboidrato principale già usato oggi                → +50
+//  - Stesso carboidrato principale usato ieri                    → +25
+//  - Stesso carboidrato principale usato 2gg fa                  → +10
+//  - Stessa verdura principale già usata oggi                    → +30
+//  - Stessa verdura usata ieri                                   → +15
+//  - Pesce oltre il limite settimanale (2 tot)                   → +999
+//  - Carne oltre il limite giornaliero (1 pasto su 2)            → +999
+//  - Stesso pasto identico (per nome) già nel piano              → +999
+//  - Leggero rumore casuale (±0-10)                              → anti-determinismo
+
+const CARB_ITEMS = new Set([
+  "riso basmati (crudo)","riso integrale (crudo)","pasta integrale (cruda)","pasta di kamut (cruda)",
+  "farro perlato (crudo)","orzo perlato (crudo)","quinoa (cruda)","cous cous (crudo)",
+  "patate","patate dolci","piadina integrale","pane integrale","pane di segale","pane bauletto",
+  "ceci in scatola","fagioli cannellini","lenticchie rosse (crude)","lenticchie verdi (crude)",
+]);
+
+const VEGGIE_ITEMS = new Set([
+  "zucchine","peperoni misti","broccoli","spinaci freschi","funghi champignon","fagiolini",
+  "carote","pomodorini","pomodori pelati","cavolfiore","bietola","cetriolo","melanzane",
+  "cipolla rossa","cipolla","finocchio","sedano","misticanza","spinacino","rucola",
+]);
+
+function getMainCarb(meal) {
+  const ings = [...(meal.ingredients||[]), ...(meal.side?.ingredients||[]), ...(meal.side_dish?.ingredients||[])];
+  return ings.map(i => i.item.toLowerCase()).find(k => CARB_ITEMS.has(k)) || null;
+}
+function getMainVeggie(meal) {
+  const ings = [...(meal.ingredients||[]), ...(meal.side?.ingredients||[]), ...(meal.side_dish?.ingredients||[])];
+  return ings.map(i => i.item.toLowerCase()).find(k => VEGGIE_ITEMS.has(k)) || null;
+}
+function getProtein(meal) { return (meal.protein_source || "").toLowerCase(); }
+
+function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx) {
+  let penalty = 0;
+  const proto = getProtein(candidate);
+  const carb  = getMainCarb(candidate);
+  const veg   = getMainVeggie(candidate);
+
+  // Stessa proteina: stesso slot giorni precedenti
+  const prevSameSlot = slot === "lunch" ? chosenLunches : chosenDinners;
+  if (dayIdx > 0 && getProtein(prevSameSlot[dayIdx-1]) === proto) penalty += 80;
+  if (dayIdx > 1 && getProtein(prevSameSlot[dayIdx-2]) === proto) penalty += 40;
+
+  // Stessa proteina: altro slot STESSO giorno
+  const otherSlot = slot === "lunch" ? chosenDinners[dayIdx] : chosenLunches[dayIdx];
+  if (otherSlot && getProtein(otherSlot) === proto) penalty += 60;
+
+  // Stesso pasto già nel piano
+  const allChosen = [...chosenLunches.filter(Boolean), ...chosenDinners.filter(Boolean)];
+  if (allChosen.some(m => m.name === candidate.name)) penalty += 999;
+
+  // Carboidrato: stesso giorno
+  const todayCarbs = [chosenLunches[dayIdx], chosenDinners[dayIdx]].filter(Boolean).map(getMainCarb);
+  if (carb && todayCarbs.includes(carb)) penalty += 50;
+  // Carboidrato: ieri
+  if (dayIdx > 0) {
+    const yestCarbs = [chosenLunches[dayIdx-1], chosenDinners[dayIdx-1]].filter(Boolean).map(getMainCarb);
+    if (carb && yestCarbs.includes(carb)) penalty += 25;
+  }
+  // Carboidrato: 2gg fa
+  if (dayIdx > 1) {
+    const twodCarbs = [chosenLunches[dayIdx-2], chosenDinners[dayIdx-2]].filter(Boolean).map(getMainCarb);
+    if (carb && twodCarbs.includes(carb)) penalty += 10;
+  }
+
+  // Verdura: stesso giorno
+  const todayVegs = [chosenLunches[dayIdx], chosenDinners[dayIdx]].filter(Boolean).map(getMainVeggie);
+  if (veg && todayVegs.includes(veg)) penalty += 30;
+  // Verdura: ieri
+  if (dayIdx > 0) {
+    const yestVegs = [chosenLunches[dayIdx-1], chosenDinners[dayIdx-1]].filter(Boolean).map(getMainVeggie);
+    if (veg && yestVegs.includes(veg)) penalty += 15;
+  }
+
+  // Pesce: max 2 a settimana totali
+  if (isFish(proto) && fishCount >= 2) penalty += 999;
+
+  // Rumore casuale anti-determinismo (0–10)
+  penalty += ((seed * 1103515245 + dayIdx * 12345 + idx * 6789) & 0x7fffffff) % 11;
+
+  return penalty;
+}
+
 function generatePlan(seed) {
   const DAYS = ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì"];
-  const sSN = shuffle([...SNACKS, ...customMeals.snack], seed + 555);
-  const sL  = shuffle([...LUNCHES, ...customMeals.lunch], seed);
-  const sD  = shuffle([...DINNERS, ...customMeals.dinner], seed + 777);
 
-  // Giorni che avranno un pasto a carne (pranzo O cena, deciso sotto)
-  const meatDayIdxs = new Set(pickMeatDayPattern(seed));
-  // Per ciascun giorno-carne, decido se va a pranzo o cena (alternando in base al seed)
-  const meatAtLunch = new Set();
+  // Pool mescolati come base (preserva seed per riproducibilità)
+  const poolL = shuffle([...LUNCHES,  ...customMeals.lunch],  seed);
+  const poolD = shuffle([...DINNERS,  ...customMeals.dinner], seed + 777);
+  const poolS = shuffle([...SNACKS,   ...customMeals.snack],  seed + 555);
+
+  // Pattern carne: quanti giorni con carne e dove
+  const meatDayIdxs  = new Set(pickMeatDayPattern(seed));
+  const meatAtLunch  = new Set();
   [...meatDayIdxs].forEach((dayIdx, k) => {
-    const goesLunch = ((seed + dayIdx) % 2 === 0);
-    if (goesLunch) meatAtLunch.add(dayIdx);
+    if ((seed + dayIdx) % 2 === 0) meatAtLunch.add(dayIdx);
   });
 
-  const lunchMeat    = sL.filter(l => isMeat(l.protein_source));
-  const lunchNoMeat  = sL.filter(l => !isMeat(l.protein_source));
-  const dinnerMeat   = sD.filter(d => isMeat(d.protein_source));
-  const dinnerNoMeat = sD.filter(d => !isMeat(d.protein_source));
+  // Separa pool per tipo proteina
+  const poolLMeat   = poolL.filter(m => isMeat(m.protein_source));
+  const poolLNoMeat = poolL.filter(m => !isMeat(m.protein_source));
+  const poolDMeat   = poolD.filter(m => isMeat(m.protein_source));
+  const poolDNoMeat = poolD.filter(m => !isMeat(m.protein_source));
 
-  const lunches = [];
-  let lastLunchP = "", fishL = 0, mIdxL = 0, nmIdxL = 0;
-  for (let i = 0; i < 5; i++) {
-    const wantsMeat = meatDayIdxs.has(i) && meatAtLunch.has(i);
-    const pool = wantsMeat ? lunchMeat : lunchNoMeat;
-    let chosen = null;
-    for (let tries = 0; tries < pool.length; tries++) {
-      const idx = wantsMeat ? (mIdxL + tries) % pool.length : (nmIdxL + tries) % pool.length;
-      const cand = pool[idx];
-      if (cand.protein_source === lastLunchP) continue;
-      if (isFish(cand.protein_source) && fishL >= 1) continue;
-      chosen = cand;
-      if (wantsMeat) mIdxL = idx + 1; else nmIdxL = idx + 1;
-      break;
-    }
-    if (!chosen) chosen = pool[(wantsMeat ? mIdxL : nmIdxL) % pool.length] || sL[i % sL.length];
-    if (isFish(chosen.protein_source)) fishL++;
-    lastLunchP = chosen.protein_source;
-    lunches.push(chosen);
+  const chosenLunches = new Array(5).fill(null);
+  const chosenDinners = new Array(5).fill(null);
+  let fishCount = 0;
+
+  // Selezione pranzi e cene con scoring
+  for (let day = 0; day < 5; day++) {
+    // ── PRANZO ──
+    const wantsMeatL = meatDayIdxs.has(day) && meatAtLunch.has(day);
+    const candL = wantsMeatL ? poolLMeat : poolLNoMeat;
+
+    // Filtra hard constraints (carne/no-carne), poi scoré
+    let validL = candL.filter(c => {
+      if (wantsMeatL && !isMeat(c.protein_source)) return false;
+      if (!wantsMeatL && isMeat(c.protein_source)) return false;
+      return true;
+    });
+    if (validL.length === 0) validL = candL; // fallback
+
+    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i) }));
+    validL.sort((a, b) => a.score - b.score);
+    const pickedL = validL[0].c;
+    chosenLunches[day] = pickedL;
+    if (isFish(getProtein(pickedL))) fishCount++;
+
+    // ── CENA ──
+    const wantsMeatD = meatDayIdxs.has(day) && !meatAtLunch.has(day);
+    const candD = wantsMeatD ? poolDMeat : poolDNoMeat;
+
+    let validD = candD.filter(c => {
+      if (wantsMeatD && !isMeat(c.protein_source)) return false;
+      if (!wantsMeatD && isMeat(c.protein_source)) return false;
+      return true;
+    });
+    if (validD.length === 0) validD = candD;
+
+    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i) }));
+    validD.sort((a, b) => a.score - b.score);
+    const pickedD = validD[0].c;
+    chosenDinners[day] = pickedD;
+    if (isFish(getProtein(pickedD))) fishCount++;
   }
 
-  const dinners = [];
-  let fishD = 0, mIdxD = 0, nmIdxD = 0;
-  for (let i = 0; i < 5; i++) {
-    const wantsMeat = meatDayIdxs.has(i) && !meatAtLunch.has(i);
-    const pool = wantsMeat ? dinnerMeat : dinnerNoMeat;
-    let chosen = null;
-    for (let tries = 0; tries < pool.length; tries++) {
-      const idx = wantsMeat ? (mIdxD + tries) % pool.length : (nmIdxD + tries) % pool.length;
-      const cand = pool[idx];
-      if (isFish(cand.protein_source) && fishD >= 1) continue;
-      chosen = cand;
-      if (wantsMeat) mIdxD = idx + 1; else nmIdxD = idx + 1;
-      break;
-    }
-    if (!chosen) chosen = pool[(wantsMeat ? mIdxD : nmIdxD) % pool.length] || sD[i % sD.length];
-    if (isFish(chosen.protein_source)) fishD++;
-    dinners.push(chosen);
-  }
+  // Spuntini: nessuna ripetizione nella stessa settimana se possibile
+  const usedSnacks = new Set();
+  const snacks = DAYS.map((_, i) => {
+    const avail = poolS.filter(s => !usedSnacks.has(s.name));
+    const pick  = avail.length > 0 ? avail[i % avail.length] : poolS[i % poolS.length];
+    usedSnacks.add(pick.name);
+    return pick;
+  });
 
+  // Costruzione meal_plan
   const meal_plan = DAYS.map((day, i) => {
     const bf    = FIXED_BREAKFAST;
-    const snack = sSN[i % sSN.length];
-    const lunch = { ...lunches[i], side_dish: lunches[i].side };
-    const dinner = dinners[i];
+    const snack = snacks[i];
+    const lunch = { ...chosenLunches[i], side_dish: chosenLunches[i].side };
+    const dinner = chosenDinners[i];
     const bfMacros    = sumMacros(bf.ingredients);
     const snackMacros = sumMacros(snack.ingredients);
     const lMacros     = sumMacros([...lunch.ingredients, ...lunch.side_dish.ingredients]);
@@ -1206,6 +1313,7 @@ function generatePlan(seed) {
     return { day, bf, snack, lunch, dinner, bfMacros, snackMacros, lMacros, dMacros, total };
   });
 
+  // Lista spesa
   const items = {};
   const add = (name, grams) => {
     const k = name.toLowerCase();
