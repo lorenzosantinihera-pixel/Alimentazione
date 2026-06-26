@@ -190,7 +190,7 @@
   /* ── CALENDARIO MENSILE ── */
   .cal-header { display: flex; align-items: center; justify-content: space-between;
                 padding: 9px 12px; background: #0f1923; border-radius: 12px;
-                cursor: pointer; user-select: none; transition: border-radius .15s; }
+                user-select: none; transition: border-radius .15s; }
   .cal-header.cal-open { border-radius: 12px 12px 0 0; }
   .cal-header-title { font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
   .cal-toggle-icon { font-size: 10px; color: #475569; transition: transform .2s; }
@@ -1627,20 +1627,23 @@ function renderTraining() {
       "cal-cell cur-month",
       hasRun && hasCF ? "has-both" : hasRun ? "has-run" : hasCF ? "has-cf" : "",
       isToday ? "today" : ""
-    ].join(" ");
-    const dot = hasRun && hasCF ? "●" : hasRun ? "●" : hasCF ? "●" : "";
-    return `<div class="${cls}">${dayNum}${dot ? `<div class="cal-cell-dot">${dot}</div>` : ""}</div>`;
+    ].filter(Boolean).join(" ");
+    let dotHtml = "";
+    if (hasRun && hasCF) dotHtml = `<span class="cal-dot cal-dot-both">●</span>`;
+    else if (hasRun)     dotHtml = `<span class="cal-dot cal-dot-run">●</span>`;
+    else if (hasCF)      dotHtml = `<span class="cal-dot cal-dot-cf">●</span>`;
+    return `<div class="${cls}"><span class="cal-num">${dayNum}</span>${dotHtml}</div>`;
   });
 
   const calendarHtml = `
   <div class="cal-wrapper">
-    <div class="cal-header ${calendarOpen ? "cal-open" : ""}" onclick="toggleCalendar()">
+    <div class="cal-header ${calendarOpen ? "cal-open" : ""}">
       <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="event.stopPropagation();prevCalMonth()">‹</button>
+        <button class="cal-nav-btn" onclick="prevCalMonth()">‹</button>
         <span class="cal-header-title">${MONTH_NAMES[calendarMonth]} ${calendarYear}</span>
-        <button class="cal-nav-btn" onclick="event.stopPropagation();nextCalMonth()">›</button>
+        <button class="cal-nav-btn" onclick="nextCalMonth()">›</button>
       </div>
-      <span class="cal-toggle-icon ${calendarOpen?"open":""}">▼</span>
+      <span class="cal-toggle-icon ${calendarOpen?"open":""}" onclick="toggleCalendar()" style="cursor:pointer;padding:4px 8px">▼</span>
     </div>
     ${calendarOpen ? `<div class="cal-body">
       <div class="cal-day-labels">${DAY_LABELS.map(d=>`<div class="cal-day-lbl">${d}</div>`).join("")}</div>
