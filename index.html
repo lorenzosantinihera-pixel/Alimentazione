@@ -63,50 +63,55 @@
   .day-warn { font-size: 11px; font-weight: 700; color: #f59e0b; }
   .day-bars { display: flex; gap: 10px; }
   .day-body { padding: 13px 15px; }
-  /* Meal sections */
+  /* Meal sections — ognuno con sfondo distinto per scansione rapida */
   .meal-bf { background: #0d1a2e; border: 1px solid #312e51; border-radius: 8px;
-             padding: 9px 12px; margin-bottom: 10px; }
+             padding: 10px 12px; margin-bottom: 12px; }
   .meal-snack { background: #0d1f15; border: 1px solid #14532d; border-radius: 8px;
-                padding: 9px 12px; margin-bottom: 10px; }
-  .meal-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                padding: 10px 12px; margin-bottom: 12px; }
+  .meal-lunch { background: #0d1826; border: 1px solid #1e3a5f; border-radius: 8px;
+                padding: 10px 12px; margin-bottom: 12px; }
+  .meal-dinner { background: #1a1228; border: 1px solid #3b2e6b; border-radius: 8px;
+                 padding: 10px 12px; }
+  .meal-section-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase;
                         letter-spacing: .08em; }
-  .meal-name { font-size: 14px; font-weight: 800; color: #f1f5f9; margin-top: 5px; letter-spacing: -.01em; }
-  .tag-row { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .meal-name { font-size: 15px; font-weight: 800; color: #f1f5f9; margin-top: 6px; letter-spacing: -.01em; }
+  .tag-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
   /* Clickable ingredient tag */
-  .tag-green { font-size: 11px; background: #1a2e1a; color: #86efac;
-               padding: 2px 7px; border-radius: 4px; cursor: pointer;
+  .tag-green { font-size: 12px; background: #1a2e1a; color: #86efac;
+               padding: 3px 8px; border-radius: 4px; cursor: pointer;
                transition: background .12s; border: 1px solid transparent; }
   .tag-green:hover { background: #1e3d1e; border-color: #4ade80; }
   /* Lunch/Dinner */
   .meal-heading { display: flex; align-items: center; justify-content: space-between;
-                  margin-bottom: 7px; flex-wrap: wrap; gap: 4px; }
-  .meal-heading-left { display: flex; align-items: center; gap: 6px; }
-  .meal-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
-                letter-spacing: .1em; color: #64748b; }
-  .meal-title { font-size: 14px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
-  .protein-badge { font-size: 10px; font-weight: 700; padding: 2px 6px;
+                  margin-bottom: 8px; flex-wrap: wrap; gap: 5px; }
+  .meal-heading-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .meal-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+                letter-spacing: .1em; color: #8a96ab; }
+  .meal-title { font-size: 15px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
+  .protein-badge { font-size: 10.5px; font-weight: 700; padding: 2px 7px;
                    border-radius: 4px; }
-  .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 7px; }
-  .ing-cell { background: #0f1923; border-radius: 6px; padding: 5px 9px; font-size: 11px;
-              display: flex; justify-content: space-between; align-items: center;
+  .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .ing-cell { background: #0f1923; border-radius: 6px; padding: 7px 10px; font-size: 12.5px;
+              display: flex; justify-content: space-between; align-items: center; gap: 8px;
               cursor: pointer; transition: background .12s; border: 1px solid transparent; }
   .ing-cell:hover { background: #131c2e; border-color: #2563eb44; }
-  .ing-name { color: #cbd5e1; }
-  .ing-g-blue { color: #60a5fa; font-weight: 700; }
-  .ing-g-purple { color: #a78bfa; font-weight: 700; }
-  .contorno-box { background: #0a1628; border: 1px solid #1e3a5f; border-radius: 7px;
-                  padding: 7px 11px; }
-  .contorno-title { font-size: 10px; font-weight: 700; color: #3b82f6; margin-bottom: 4px;
+  .ing-name { color: #dbe4f0; font-weight: 500; }
+  .ing-g-blue { color: #60a5fa; font-weight: 800; white-space: nowrap; }
+  .ing-g-purple { color: #a78bfa; font-weight: 800; white-space: nowrap; }
+  .contorno-box { background: #0f1923; border: 1px solid #2c4a73; border-left: 3px solid #3b82f6;
+                  border-radius: 7px; padding: 8px 12px; }
+  .contorno-title { font-size: 10.5px; font-weight: 700; color: #60a5fa; margin-bottom: 5px;
                     text-transform: uppercase; letter-spacing: .08em; }
-  .contorno-items { display: flex; gap: 5px; flex-wrap: wrap; }
-  .contorno-item { font-size: 11px; color: #94a3b8; cursor: pointer; padding: 1px 4px;
+  .contorno-items { display: flex; gap: 6px; flex-wrap: wrap; }
+  .contorno-item { font-size: 12px; color: #b6c2d4; cursor: pointer; padding: 2px 6px;
                    border-radius: 3px; border: 1px solid transparent; transition: background .12s; }
   .contorno-item:hover { background: #131c2e; border-color: #2563eb44; }
-  .dinner-wrap { border-top: 1px solid #1e2030; padding-top: 10px; }
-  /* Macro pill */
-  .macro-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-  .macro-pill { font-size: 10px; font-weight: 700; background: #1e2030;
-                padding: 2px 7px; border-radius: 4px; }
+  /* Macro line — riepilogo compatto invece di 4 pillole separate */
+  .macro-pills { display: flex; align-items: center; gap: 5px; margin-top: 7px;
+                 background: #1e2030; padding: 4px 10px; border-radius: 6px;
+                 width: fit-content; font-size: 11.5px; font-weight: 800; white-space: nowrap; }
+  .macro-pill { font-weight: 800; }
+  .macro-sep { color: #3b4155; font-weight: 400; }
   /* Macro bar */
   .macro-bar { flex: 1; min-width: 0; }
   .macro-bar-label { font-size: 9px; color: #64748b; font-weight: 700;
@@ -2746,10 +2751,13 @@ function macroBar(label, value, target, color, unit="g") {
 
 function macroPills(m) {
   return `<div class="macro-pills">
-    <span class="macro-pill" style="color:#fbbf24">kcal ${Math.round(m.kcal)}</span>
-    <span class="macro-pill" style="color:#60a5fa">P ${Math.round(m.p)}g</span>
-    <span class="macro-pill" style="color:#4ade80">C ${Math.round(m.c)}g</span>
-    <span class="macro-pill" style="color:#f87171">G ${Math.round(m.f)}g</span>
+    <span class="macro-pill" style="color:#fbbf24">${Math.round(m.kcal)} kcal</span>
+    <span class="macro-sep">·</span>
+    <span class="macro-pill" style="color:#60a5fa">${Math.round(m.p)}P</span>
+    <span class="macro-sep">·</span>
+    <span class="macro-pill" style="color:#4ade80">${Math.round(m.c)}C</span>
+    <span class="macro-sep">·</span>
+    <span class="macro-pill" style="color:#f87171">${Math.round(m.f)}G</span>
   </div>`;
 }
 
@@ -2942,7 +2950,7 @@ function render() {
             ${renderTagRow(snackIngs, di, "snack")}
           </div>
           <!-- Pranzo -->
-          <div style="margin-bottom:10px">
+          <div class="meal-lunch">
             <div class="meal-heading">
               <div class="meal-heading-left">
                 <span class="meal-label">🍱 Pranzo</span>
@@ -2960,7 +2968,7 @@ function render() {
             </div>
           </div>
           <!-- Cena -->
-          <div class="dinner-wrap">
+          <div class="meal-dinner">
             <div class="meal-heading">
               <div class="meal-heading-left">
                 <span class="meal-label">🍽️ Cena</span>
