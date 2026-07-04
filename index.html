@@ -333,6 +333,44 @@
   .weight-row-del:hover { color:#f87171; }
   .weight-empty { text-align:center; padding:20px 0; color:#334155; font-size:13px; }
 
+  /* ── SWAP RAPIDO PASTO ── */
+  .swap-icon { cursor: pointer; font-size: 12px; opacity: .5; transition: opacity .15s, transform .2s;
+               padding: 1px 3px; border-radius: 4px; user-select: none; }
+  .swap-icon:hover { opacity: 1; transform: rotate(140deg); background: rgba(255,255,255,.07); }
+  .swap-toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(16px);
+                background: #1e2030; color: #f1f5f9; padding: 10px 18px; border-radius: 10px;
+                font-size: 12.5px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,.45);
+                border: 1px solid #334155; opacity: 0; pointer-events: none; z-index: 999;
+                transition: opacity .25s, transform .25s; max-width: 85vw; text-align: center; }
+  .swap-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── TOGGLE VISTA COMPATTA / COMODA ── */
+  .view-toggle-row { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .view-toggle-label { font-size: 11px; font-weight: 700; color: #64748b; margin-right: 2px; }
+  .view-toggle-btn { padding: 6px 12px; border-radius: 7px; border: none; font-size: 12px;
+                     font-weight: 700; cursor: pointer; font-family: inherit;
+                     background: #1a1a2e; color: #64748b; transition: background .15s, color .15s; }
+  .view-toggle-btn.active { background: #1e3a5f; color: #60a5fa; }
+
+  /* ── VISTA COMPATTA: font e spaziature ridotte per vedere più contenuto ── */
+  body.view-compact .meal-bf, body.view-compact .meal-snack,
+  body.view-compact .meal-lunch, body.view-compact .meal-dinner { padding: 7px 10px; margin-bottom: 8px; }
+  body.view-compact .meal-name { font-size: 12.5px; margin-top: 4px; }
+  body.view-compact .meal-title { font-size: 12.5px; }
+  body.view-compact .meal-label { font-size: 9.5px; }
+  body.view-compact .meal-section-title { font-size: 9.5px; }
+  body.view-compact .ing-grid { gap: 4px; margin-bottom: 5px; }
+  body.view-compact .ing-cell { padding: 4px 8px; font-size: 11px; }
+  body.view-compact .tag-row { gap: 4px; margin-top: 4px; }
+  body.view-compact .tag-green { font-size: 10.5px; padding: 2px 6px; }
+  body.view-compact .contorno-box { padding: 6px 9px; }
+  body.view-compact .contorno-item { font-size: 10.5px; }
+  body.view-compact .contorno-title { font-size: 9.5px; margin-bottom: 3px; }
+  body.view-compact .macro-pills { font-size: 10px; padding: 3px 8px; margin-top: 5px; }
+  body.view-compact .protein-badge { font-size: 9.5px; padding: 1px 5px; }
+  body.view-compact .day-body { padding: 10px 12px; }
+  body.view-compact .meal-heading { margin-bottom: 6px; }
+
   /* ── MEAL PICKER (cambio pasto intero) ── */
   .meal-picker-list { display: flex; flex-direction: column; gap: 7px; max-height: 320px;
                        overflow-y: auto; padding-right: 2px; }
@@ -660,6 +698,18 @@
 <script>
 // ─── TARGETS ─────────────────────────────────────────────────────────────────
 const TARGETS = { kcal: 2700, protein: 130, carbs: 310, fat: 75 };
+
+// ─── VISTA COMPATTA / COMODA ─────────────────────────────────────────────────
+const VIEW_KEY = "mealplan_view_v1";
+let viewMode = (() => { try { return localStorage.getItem(VIEW_KEY) || "comfortable"; } catch(e) { return "comfortable"; } })();
+document.body.classList.toggle("view-compact", viewMode === "compact");
+
+function setViewMode(mode) {
+  viewMode = mode;
+  try { localStorage.setItem(VIEW_KEY, mode); } catch(e) {}
+  document.body.classList.toggle("view-compact", mode === "compact");
+  render();
+}
 
 // ─── MACRO DB (per 100g) ─────────────────────────────────────────────────────
 const MACRO_PER100 = {
@@ -2692,6 +2742,89 @@ function applyMealPick(idx) {
   render();
 }
 
+// ─── SWAP RAPIDO: "non mi piace, cambia" ─────────────────────────────────────
+// Pesca un'alternativa a caso dal pool del tipo di pasto, senza aprire il modal
+function getMealPool(mealType) {
+  let pool = [];
+  if (mealType === "bf") {
+    pool = [...BREAKFASTS, ...BREAKFAST_ALTERNATIVES, ...(customMeals.bf || [])];
+  } else if (mealType === "snack") {
+    pool = [...SNACKS, ...(customMeals.snack || [])];
+  } else if (mealType === "lunch") {
+    pool = [...LUNCHES, ...(customMeals.lunch || [])];
+  } else if (mealType === "dinner") {
+    pool = [...DINNERS, ...(customMeals.dinner || [])];
+  }
+  // Dedup per nome (case-insensitive), mantiene la prima occorrenza
+  const seen = new Set();
+  return pool.filter(m => {
+    const k = m.name.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function swapMeal(dayIdx, mealType) {
+  const day = state.plan.meal_plan[dayIdx];
+  const meal = getMealRef(dayIdx, mealType);
+  if (!day || !meal) return;
+
+  const currentName = getMealName(dayIdx, mealType, meal.name).toLowerCase();
+  const pool = getMealPool(mealType).filter(m => m.name.toLowerCase() !== currentName);
+  if (pool.length === 0) return;
+
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+
+  const clearOverrides = (type) => {
+    const ref = getMealRef(dayIdx, type);
+    if (!ref) return;
+    (ref.ingredients || []).forEach((_, i) => delete state.overrides[`${dayIdx}:${type}:${i}`]);
+  };
+
+  if (mealType === "bf") {
+    clearOverrides("bf");
+    day.bf = { name: picked.name, ingredients: (picked.ingredients||[]).map(i=>({...i})) };
+  } else if (mealType === "snack") {
+    clearOverrides("snack");
+    day.snack = { name: picked.name, ingredients: (picked.ingredients||[]).map(i=>({...i})) };
+  } else if (mealType === "lunch") {
+    clearOverrides("lunch");
+    clearOverrides("side");
+    day.lunch = {
+      name: picked.name,
+      ingredients: (picked.ingredients||[]).map(i=>({...i})),
+      side_dish: picked.side_dish
+        ? { name: picked.side_dish.name, ingredients: (picked.side_dish.ingredients||[]).map(i=>({...i})) }
+        : { name: "Insalata mista", ingredients: [{ item:"Misticanza", grams:100 },{ item:"Olio EVO", grams:5 }] },
+    };
+  } else if (mealType === "dinner") {
+    clearOverrides("dinner");
+    day.dinner = { name: picked.name, ingredients: (picked.ingredients||[]).map(i=>({...i})) };
+  }
+
+  delete state.nameOverrides[`${dayIdx}:${mealType}`];
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  render();
+  showSwapToast(picked.name);
+}
+
+function showSwapToast(name) {
+  let toast = document.getElementById("swapToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "swapToast";
+    toast.className = "swap-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = `🔄 Cambiato in: ${name}`;
+  toast.classList.remove("show");
+  void toast.offsetWidth; // forza reflow per riavviare la transizione
+  toast.classList.add("show");
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
 
 function applyBreakfastAltByName(altName, dayIdx) {
   const alt = BREAKFAST_ALTERNATIVES.find(a => a.name === altName);
@@ -2898,6 +3031,11 @@ function render() {
   ${activeTab !== "favorites" && activeTab !== "pantry" ? `<div class="export-row">
     <button class="btn-copy" id="btnCopy" onclick="copyMd()">📋 Copia Markdown</button>
     <button class="btn-pdf" id="btnPdf" onclick="exportPdf()">📄 Esporta PDF</button>
+  </div>` : ""}
+  ${activeTab === "plan" ? `<div class="view-toggle-row">
+    <span class="view-toggle-label">Vista:</span>
+    <button class="view-toggle-btn ${viewMode==="comfortable"?"active":""}" onclick="setViewMode('comfortable')">🔎 Comoda</button>
+    <button class="view-toggle-btn ${viewMode==="compact"?"active":""}" onclick="setViewMode('compact')">📐 Compatta</button>
   </div>` : ""}`;
 
   if (activeTab === "plan") {
@@ -2934,7 +3072,10 @@ function render() {
           <!-- Colazione -->
           <div class="meal-bf">
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span class="meal-section-title" style="color:#a5b4fc">🌅 Colazione</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="meal-section-title" style="color:#a5b4fc">🌅 Colazione</span>
+                <span class="swap-icon" onclick="swapMeal(${di},'bf')" title="Non mi piace, cambia">🔄</span>
+              </div>
               ${macroPills(day.bfMacros)}
             </div>
             <div class="meal-name editable-name" onclick="openMealModal(${di},'bf')">${getMealName(di,'bf',day.bf.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:bf`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</div>
@@ -2943,7 +3084,10 @@ function render() {
           <!-- Spuntino -->
           <div class="meal-snack">
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span class="meal-section-title" style="color:#4ade80">🍎 Spuntino</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="meal-section-title" style="color:#4ade80">🍎 Spuntino</span>
+                <span class="swap-icon" onclick="swapMeal(${di},'snack')" title="Non mi piace, cambia">🔄</span>
+              </div>
               ${macroPills(day.snackMacros)}
             </div>
             <div class="meal-name editable-name" onclick="openMealModal(${di},'snack')">${getMealName(di,'snack',day.snack.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:snack`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}${day.snack.note?` <span style="color:#4ade80;font-size:10px">· ${day.snack.note}</span>`:''}</div>
@@ -2956,6 +3100,7 @@ function render() {
                 <span class="meal-label">🍱 Pranzo</span>
                 <span class="meal-title editable-name" onclick="openMealModal(${di},'lunch')">${getMealName(di,'lunch',day.lunch.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:lunch`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</span>
                 <span class="protein-badge" style="background:${pc}22;color:${pc};border:1px solid ${pc}44">${day.lunch.protein_source}</span>
+                <span class="swap-icon" onclick="swapMeal(${di},'lunch')" title="Non mi piace, cambia">🔄</span>
               </div>
               ${macroPills(day.lMacros)}
             </div>
@@ -2974,6 +3119,7 @@ function render() {
                 <span class="meal-label">🍽️ Cena</span>
                 <span class="meal-title editable-name" onclick="openMealModal(${di},'dinner')">${getMealName(di,'dinner',day.dinner.name)}<span class="edit-icon">✏️</span>${state.nameOverrides[`${di}:dinner`]!==undefined?'<span class="modified-dot" title="Nome modificato"></span>':''}</span>
                 <span class="protein-badge" style="background:${dc}22;color:${dc};border:1px solid ${dc}44">${day.dinner.protein_source}</span>
+                <span class="swap-icon" onclick="swapMeal(${di},'dinner')" title="Non mi piace, cambia">🔄</span>
               </div>
               ${macroPills(day.dMacros)}
             </div>
