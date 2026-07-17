@@ -63,18 +63,18 @@
   .day-warn { font-size: 11px; font-weight: 700; color: #f59e0b; }
   .day-bars { display: flex; gap: 10px; }
   .day-body { padding: 13px 15px; }
-  /* Meal sections — ognuno con sfondo distinto per scansione rapida */
-  .meal-bf { background: #0d1a2e; border: 1px solid #312e51; border-radius: 8px;
-             padding: 10px 12px; margin-bottom: 12px; }
-  .meal-snack { background: #0d1f15; border: 1px solid #14532d; border-radius: 8px;
-                padding: 10px 12px; margin-bottom: 12px; }
-  .meal-lunch { background: #0d1826; border: 1px solid #1e3a5f; border-radius: 8px;
-                padding: 10px 12px; margin-bottom: 12px; }
-  .meal-dinner { background: #1a1228; border: 1px solid #3b2e6b; border-radius: 8px;
-                 padding: 10px 12px; }
+  /* Meal sections — pranzo/cena più evidenti (più alti), colazione/spuntino più bassi ma leggibili */
+  .meal-bf { background: #0d1a2e; border: 1px solid #2a2f4a; border-radius: 8px;
+             padding: 7px 12px; margin-bottom: 10px; }
+  .meal-snack { background: #0d1f15; border: 1px solid #1e3d29; border-radius: 8px;
+                padding: 7px 12px; margin-bottom: 10px; }
+  .meal-lunch { background: #0d1826; border: 1px solid #2c5490; border-left: 4px solid #2563eb;
+                border-radius: 10px; padding: 11px 13px; margin-bottom: 13px; }
+  .meal-dinner { background: #1a1228; border: 1px solid #5b3fa8; border-left: 4px solid #7c3aed;
+                 border-radius: 10px; padding: 11px 13px; }
   .meal-section-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase;
                         letter-spacing: .08em; }
-  .meal-name { font-size: 15px; font-weight: 800; color: #f1f5f9; margin-top: 6px; letter-spacing: -.01em; }
+  .meal-name { font-size: 14px; font-weight: 700; color: #e8edf5; margin-top: 4px; letter-spacing: -.01em; }
   .tag-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
   /* Clickable ingredient tag */
   .tag-green { font-size: 12px; background: #1a2e1a; color: #86efac;
@@ -85,9 +85,9 @@
   .meal-heading { display: flex; align-items: center; justify-content: space-between;
                   margin-bottom: 8px; flex-wrap: wrap; gap: 5px; }
   .meal-heading-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .meal-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase;
-                letter-spacing: .1em; color: #8a96ab; }
-  .meal-title { font-size: 15px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
+  .meal-label { font-size: 11px; font-weight: 800; text-transform: uppercase;
+                letter-spacing: .1em; color: #93a3bd; }
+  .meal-title { font-size: 16px; font-weight: 800; color: #f8fafc; letter-spacing: -.01em; }
   .protein-badge { font-size: 10.5px; font-weight: 700; padding: 2px 7px;
                    border-radius: 4px; }
   .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
@@ -121,6 +121,14 @@
   .macro-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
   .macro-bar-val { font-size: 11px; font-weight: 700; }
   /* Shopping */
+  .cost-summary-box { background: linear-gradient(135deg,#0f2010,#0d1a12); border: 1px solid #15803d;
+                       border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; text-align: center; }
+  .cost-summary-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                         letter-spacing: .08em; color: #4ade80; margin-bottom: 4px; }
+  .cost-summary-total { font-size: 26px; font-weight: 800; color: #f1f5f9; letter-spacing: -.02em; }
+  .cost-summary-note { font-size: 10.5px; color: #64748b; margin-top: 5px; line-height: 1.5; }
+  .shop-cat-cost { font-size: 11.5px; font-weight: 700; color: #4ade80; }
+  .shop-item-cost { font-size: 11px; font-weight: 700; color: #4ade80; white-space: nowrap; }
   .shop-cat { background: #15151f; border: 1px solid #1e2030; border-radius: 12px;
               margin-bottom: 11px; overflow: hidden; }
   .shop-cat-header { background: #0f1923; padding: 10px 14px;
@@ -353,12 +361,12 @@
   .view-toggle-btn.active { background: #1e3a5f; color: #60a5fa; }
 
   /* ── VISTA COMPATTA: font e spaziature ridotte per vedere più contenuto ── */
-  body.view-compact .meal-bf, body.view-compact .meal-snack,
-  body.view-compact .meal-lunch, body.view-compact .meal-dinner { padding: 7px 10px; margin-bottom: 8px; }
-  body.view-compact .meal-name { font-size: 12.5px; margin-top: 4px; }
-  body.view-compact .meal-title { font-size: 12.5px; }
-  body.view-compact .meal-label { font-size: 9.5px; }
-  body.view-compact .meal-section-title { font-size: 9.5px; }
+  body.view-compact .meal-bf, body.view-compact .meal-snack { padding: 6px 10px; margin-bottom: 7px; }
+  body.view-compact .meal-lunch, body.view-compact .meal-dinner { padding: 9px 12px; margin-bottom: 9px; }
+  body.view-compact .meal-name { font-size: 12px; margin-top: 3px; }
+  body.view-compact .meal-title { font-size: 14px; }
+  body.view-compact .meal-label { font-size: 10px; }
+  body.view-compact .meal-section-title { font-size: 9px; }
   body.view-compact .ing-grid { gap: 4px; margin-bottom: 5px; }
   body.view-compact .ing-cell { padding: 4px 8px; font-size: 11px; }
   body.view-compact .tag-row { gap: 4px; margin-top: 4px; }
@@ -370,6 +378,24 @@
   body.view-compact .protein-badge { font-size: 9.5px; padding: 1px 5px; }
   body.view-compact .day-body { padding: 10px 12px; }
   body.view-compact .meal-heading { margin-bottom: 6px; }
+  /* elementi non ancora coperti: card, header giorno, macro-bar */
+  body.view-compact .day-card { margin-bottom: 8px; border-radius: 10px; }
+  body.view-compact .day-header { padding: 7px 12px; }
+  body.view-compact .day-title-row { margin-bottom: 5px; }
+  body.view-compact .day-name { font-size: 13px; }
+  body.view-compact .day-ok, body.view-compact .day-warn { font-size: 10px; }
+  body.view-compact .day-bars { gap: 6px; }
+  body.view-compact .macro-bar-label { font-size: 8px; margin-bottom: 1px; }
+  body.view-compact .macro-bar-track { height: 3px; margin-bottom: 1px; }
+  body.view-compact .macro-bar-val { font-size: 9.5px; }
+  body.view-compact .meal-heading-left { gap: 4px; }
+  body.view-compact .contorno-items { gap: 4px; }
+  /* in compatta: solo nomi pasto + macro, niente ingredienti/quantità */
+  body.view-compact .ing-grid { display: none; }
+  body.view-compact .tag-row { display: none; }
+  body.view-compact .contorno-items { display: none; }
+  body.view-compact .contorno-box { padding: 5px 9px; }
+  body.view-compact .contorno-title { margin-bottom: 0; }
 
   /* ── MEAL PICKER (cambio pasto intero) ── */
   .meal-picker-list { display: flex; flex-direction: column; gap: 7px; max-height: 320px;
@@ -408,12 +434,17 @@
   .pantry-suggestion:last-child { border-bottom: none; }
   .pantry-suggestion:active { background: #1e3a5f; }
   .pantry-suggestion.manual { color: #60a5fa; font-style: italic; }
-  .pantry-add-row { display: flex; gap: 7px; margin-bottom: 4px; align-items: center; }
+  .pantry-add-row { display: flex; gap: 7px; margin-bottom: 4px; align-items: center; flex-wrap: wrap; }
   .pantry-qty-input  { flex: 1; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
                         color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
                         font-family: inherit; min-width: 0; }
   .pantry-qty-input:focus { border-color: #2563eb; }
   .pantry-qty-input::placeholder { color: #334155; }
+  .pantry-exp-input, .pantry-exp-edit { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
+                      color: #94a3b8; font-size: 12px; padding: 9px 8px; outline: none;
+                      font-family: inherit; flex-shrink: 0; color-scheme: dark; }
+  .pantry-exp-edit { width: 118px; padding: 5px 7px; font-size: 11px; border-radius: 6px; }
+  .pantry-exp-input:focus, .pantry-exp-edit:focus { border-color: #2563eb; }
   .pantry-add-btn { padding: 9px 13px; border-radius: 8px; border: none;
                      background: #1e3a5f; color: #60a5fa; font-size: 18px; font-weight: 700;
                      cursor: pointer; flex-shrink: 0; line-height: 1; }
@@ -427,9 +458,9 @@
   .pantry-list-title { font-size: 11px; font-weight: 700; text-transform: uppercase;
                         letter-spacing: .08em; color: #64748b; }
   .pantry-count { font-size: 12px; font-weight: 700; color: #22c55e; }
-  .pantry-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  .pantry-row { display: flex; align-items: center; gap: 8px; padding: 10px 14px; flex-wrap: wrap;
                  border-top: 1px solid #1e2030; }
-  .pantry-row-name { flex: 1; font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .pantry-row-name { flex: 1 1 100%; font-size: 13px; font-weight: 600; color: #e2e8f0; }
   .pantry-qty-edit { width: 72px; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 6px;
                       color: #60a5fa; font-size: 12px; font-weight: 700; padding: 5px 7px;
                       text-align: right; font-family: inherit; outline: none; flex-shrink: 0; }
@@ -836,6 +867,69 @@ function persistCustomMacros() {
   try { localStorage.setItem(CUSTOM_MACROS_KEY, JSON.stringify(custom)); } catch(e) {}
 }
 
+// ─── PREZZI LIDL (stima, €/kg) ────────────────────────────────────────────────
+// Prezzi indicativi da assortimento standard Lidl Italia (non in offerta).
+// Servono per una stima di massima della spesa settimanale, non un preventivo esatto:
+// possono variare per punto vendita, stagione e promozioni in corso.
+const LIDL_PRICE_PER_KG = {
+  "petto di pollo": 7.5, "petto di pollo a striscioline": 8.5,
+  "tonno in acqua (sgocciolato)": 9.5, "filetto di salmone": 16, "salmone affumicato": 25,
+  "filetto di merluzzo": 12, "sgombro al naturale (sgocciolato)": 8, "orata al forno": 13,
+  "gamberetti": 14, "sarde al naturale": 7,
+  "uova intere": 5, "uova": 5,
+  "ricotta vaccina": 3.5, "feta": 8, "scamorza": 9, "parmigiano": 15,
+  "mozzarella light": 8, "mozzarella proteica": 9.5,
+  "burger vegetale classico": 9, "burger a base di soia": 9, "nuggets vegetali": 8,
+  "burger semi di lino e zucca": 9.5, "tofu naturale": 5, "tofu affumicato": 5.5,
+  "tempeh": 7.5, "seitan": 7.5, "affettato vegetale": 9,
+  "lenticchie rosse (crude)": 2.2, "lenticchie verdi (crude)": 2.2,
+  "ceci in scatola (sgocciolati)": 1.8, "fagioli cannellini (sgocciolati)": 1.8,
+  "fagioli neri (sgocciolati)": 1.9, "edamame": 5, "hummus": 6, "tofu sodo": 5,
+  "riso basmati (crudo)": 2, "riso integrale (crudo)": 2.2, "pasta integrale (cruda)": 1.8,
+  "pasta di kamut (cruda)": 2.8, "spaghetti di grano saraceno": 3.5,
+  "farro perlato (crudo)": 2.8, "cous cous (crudo)": 2.5, "quinoa (cruda)": 4.5,
+  "orzo perlato (crudo)": 2.3, "patate": 1.2, "patate dolci": 2.5,
+  "piadina integrale": 4, "pane di segale": 3.5, "pane integrale": 2.5,
+  "avena (fiocchi)": 2, "fette biscottate integrali": 3.2, "pane bauletto": 2.2,
+  "burro d'arachidi": 7, "fiocchi di latte": 4, "yogurt greco 0%": 3.2, "yogurt greco 2%": 3.4,
+  "muesli": 3.5, "latte di cocco light": 3,
+  "zucchine": 2, "spinacino": 6.5, "spinaci freschi": 4.5, "pomodorini": 3,
+  "pomodori": 1.8, "pomodori ramati": 1.8, "pomodori pelati": 1.4, "pomodoro a cubetti": 1.4,
+  "carote": 1.2, "broccoli": 2.5, "cavolfiore": 2, "cavolo riccio (kale)": 4,
+  "fagiolini": 3.5, "asparagi": 6, "peperone rosso": 3, "peperone giallo": 3,
+  "peperoni misti": 3, "peperoni": 3, "funghi champignon": 4, "funghi misti": 5,
+  "bietola": 2.5, "melanzane": 2.2, "finocchio": 2, "misticanza": 7, "lattuga iceberg": 2,
+  "rucola": 8, "ravanelli": 3, "cetriolo": 1.8, "cipolla": 1.2, "cipolla rossa": 1.6,
+  "sedano": 2, "aglio": 5, "zucca": 1.5, "avocado": 5, "mais in scatola": 1.6,
+  "olio evo": 5.5, "olio di sesamo": 9, "olive nere": 5, "olive taggiasche": 9,
+  "capperi": 10, "salsa di soia": 3.5, "zenzero fresco": 6, "tahini": 9,
+  "aceto balsamico": 4, "senape": 4,
+};
+
+// Grammi effettivamente acquistabili, arrotondati alle confezioni Lidl tipiche
+// (stessa logica di formatQty, ma restituisce un numero per il calcolo del costo)
+function purchasableGrams(name, grams) {
+  const s = name.toLowerCase();
+  if (/(riso|farro|cous|quinoa|orzo|kamut)/.test(s)) return Math.ceil(grams/500)*500;
+  if (/pasta|avena|fette biscottate/.test(s)) return Math.ceil(grams/500)*500;
+  if (/pollo|salmone|merluzzo/.test(s)) return Math.ceil(grams/100)*100;
+  if (/tonno|sgombro/.test(s)) return Math.ceil(grams/80)*80;
+  if (/uov/.test(s)) return Math.ceil(grams/60)*60;
+  if (/ceci|fagioli|lenticchie/.test(s)) return Math.ceil(grams/400)*400;
+  if (/ricotta/.test(s)) return Math.ceil(grams/250)*250;
+  if (/mozzarella/.test(s)) return Math.ceil(grams/125)*125;
+  if (/avocado/.test(s)) return Math.ceil(grams/150)*150;
+  if (/yogurt/.test(s)) return Math.ceil(grams/500)*500;
+  if (/muesli/.test(s)) return 500;
+  return grams;
+}
+function estimateItemCost(name, grams) {
+  const key = name.toLowerCase();
+  const pricePerKg = LIDL_PRICE_PER_KG[key];
+  if (pricePerKg == null) return null;
+  return (purchasableGrams(name, grams) / 1000) * pricePerKg;
+}
+
 
 // ─── ALTERNATIVES DB ─────────────────────────────────────────────────────────
 // Per ciascun alimento: lista di alternative con nome, grammi suggeriti, note
@@ -1005,27 +1099,27 @@ const BREAKFAST_ALTERNATIVES = [
 
 
 const SNACKS = [
-  { name: "Fiocchi di latte con pomodorini",
-    ingredients: [{ item:"Fiocchi di latte", grams:150 }, { item:"Pomodorini", grams:100 }],
-    note: "Spuntino proteico leggero" },
-  { name: "Ricotta con fette biscottate",
-    ingredients: [{ item:"Ricotta vaccina", grams:140 }, { item:"Fette biscottate integrali", grams:60 }],
-    note: "Spuntino proteico" },
   { name: "Uova sode",
     ingredients: [{ item:"Uova intere", grams:170 }],
-    note: "Pre o post allenamento" },
-  { name: "Yogurt greco con avena",
-    ingredients: [{ item:"Yogurt greco 2%", grams:100 }, { item:"Avena (fiocchi)", grams:60 }],
-    note: "Metà mattina o pomeriggio" },
-  { name: "Ricotta con pane integrale",
-    ingredients: [{ item:"Ricotta vaccina", grams:165 }, { item:"Pane integrale", grams:85 }],
-    note: "Post-allenamento" },
+    note: "🧊 Bollile in anticipo, sgusciate e via — si conservano in frigo 4-5 giorni" },
+  { name: "Fiocchi di latte con pomodorini",
+    ingredients: [{ item:"Fiocchi di latte", grams:150 }, { item:"Pomodorini", grams:100 }],
+    note: "🧊 Vasetto pronto, apri e mangi col cucchiaio" },
+  { name: "Yogurt greco",
+    ingredients: [{ item:"Yogurt greco 0%", grams:200 }],
+    note: "🧊 Confezione singola, apri e mangi — zero assemblaggio" },
   { name: "Mozzarella proteica con pomodorini",
     ingredients: [{ item:"Mozzarella proteica", grams:100 }, { item:"Pomodori pelati", grams:150 }],
-    note: "Spuntino proteico leggero" },
-  { name: "Toast con avocado",
-    ingredients: [{ item:"Pane integrale", grams:105 }, { item:"Avocado", grams:65 }],
-    note: "Spuntino con grassi buoni" },
+    note: "🧊 Monoporzione pronta, apri e mangi" },
+  { name: "Ricotta con pomodorini",
+    ingredients: [{ item:"Ricotta vaccina", grams:150 }, { item:"Pomodorini", grams:100 }],
+    note: "🧊 Vasetto pronto, solo cucchiaio" },
+  { name: "Tonno al naturale con pomodorini",
+    ingredients: [{ item:"Tonno in acqua (sgocciolato)", grams:150 }, { item:"Pomodorini", grams:100 }],
+    note: "🗄️ Scatoletta o busta, apri e mangi — zero frigo, zero prep" },
+  { name: "Yogurt greco con carote baby",
+    ingredients: [{ item:"Yogurt greco 0%", grams:200 }, { item:"Carote", grams:150 }],
+    note: "🧊 Carotine già lavate, yogurt monoporzione — apri e mangi" },
 ];
 
 // ─── TAG PESCE ────────────────────────────────────────────────────────────────
@@ -1102,6 +1196,19 @@ const LUNCHES = [
   { name:"Piadina con hummus e affettato vegetale", protein_source:"Affettato vegetale",
     ingredients:[{item:"Piadina integrale",grams:170},{item:"Hummus",grams:80},{item:"Affettato vegetale",grams:100},{item:"Pomodorini",grams:150},{item:"Rucola",grams:40}],
     side:{name:"Carote crude",ingredients:[{item:"Carote",grams:150}]}},
+  // ── Patate dolci ──────────────────────────────────────────────────────────
+  { name:"Patate dolci con petto di pollo e broccoli", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:100},{item:"Patate dolci",grams:300},{item:"Broccoli",grams:250},{item:"Olio EVO",grams:10}],
+    side:{name:"Pomodorini e rucola",ingredients:[{item:"Pomodorini",grams:150},{item:"Rucola",grams:75}]}},
+  { name:"Patate dolci con salmone e spinaci", protein_source:"Salmone",
+    ingredients:[{item:"Filetto di salmone",grams:100},{item:"Patate dolci",grams:300},{item:"Spinaci freschi",grams:230},{item:"Olio EVO",grams:10}],
+    side:{name:"Misticanza",ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}]}},
+  { name:"Patate dolci con ceci e peperoni", protein_source:"Ceci",
+    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:380},{item:"Patate dolci",grams:280},{item:"Peperoni misti",grams:230},{item:"Olio EVO",grams:10}],
+    side:{name:"Rucola",ingredients:[{item:"Rucola",grams:95},{item:"Olio EVO",grams:5}]}},
+  { name:"Patate dolci con tonno e cetriolo", protein_source:"Tonno",
+    ingredients:[{item:"Tonno in acqua (sgocciolato)",grams:95},{item:"Patate dolci",grams:300},{item:"Cetriolo",grams:200},{item:"Olio EVO",grams:10}],
+    side:{name:"Pomodorini",ingredients:[{item:"Pomodorini",grams:150}]}},
 ];
 
 // ─── CENE ────────────────────────────────────────────────────────────────────
@@ -1167,6 +1274,15 @@ const DINNERS = [
   { name:"Affettato vegetale con farro e insalata", protein_source:"Affettato vegetale",
     ingredients:[{item:"Affettato vegetale",grams:160},{item:"Farro perlato (crudo)",grams:150},{item:"Pomodorini",grams:200},{item:"Olio EVO",grams:10}],
     side:{name:"Rucola",ingredients:[{item:"Rucola",grams:100},{item:"Olio EVO",grams:5}]}},
+  // ── Patate dolci ──────────────────────────────────────────────────────────
+  { name:"Petto di pollo al forno con patate dolci", protein_source:"Pollo",
+    ingredients:[{item:"Petto di pollo",grams:130},{item:"Patate dolci",grams:380},{item:"Olio EVO",grams:10}]},
+  { name:"Salmone al forno con patate dolci", protein_source:"Salmone",
+    ingredients:[{item:"Filetto di salmone",grams:115},{item:"Patate dolci",grams:340},{item:"Olio EVO",grams:10}]},
+  { name:"Frittata con patate dolci e spinaci", protein_source:"Uova",
+    ingredients:[{item:"Uova intere",grams:280},{item:"Patate dolci",grams:320},{item:"Spinaci freschi",grams:230},{item:"Olio EVO",grams:10}]},
+  { name:"Tofu al forno con patate dolci e broccoli", protein_source:"Tofu",
+    ingredients:[{item:"Tofu naturale",grams:200},{item:"Patate dolci",grams:300},{item:"Broccoli",grams:250},{item:"Olio EVO",grams:10}]},
 ];
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -1189,6 +1305,10 @@ function categorize(item) {
   return "Condimenti & Altro";
 }
 
+function fmtEuro(n) {
+  if (n == null || isNaN(n)) return "—";
+  return "€" + n.toFixed(2).replace(".", ",");
+}
 function formatQty(name, grams) {
   const s = name.toLowerCase();
   if (/(riso|farro|cous|quinoa|orzo|kamut)/.test(s)) return `${Math.ceil(grams/500)*500}g`;
@@ -1209,6 +1329,8 @@ function formatQty(name, grams) {
 function isFish(src) { return FISH_SOURCES.some(f => (src||"").includes(f)); }
 const MEAT_SOURCES = ["Pollo"];
 function isMeat(src) { return MEAT_SOURCES.some(m => (src||"").includes(m)); }
+function usesSweetPotato(meal) { return (meal.ingredients||[]).some(i => i.item.toLowerCase() === "patate dolci"); }
+const MAX_SWEET_POTATO_MEALS_PER_WEEK = 2;
 
 // ─── SELEZIONE GIORNI/PASTI CON CARNE ────────────────────────────────────────
 // Vincoli: max 4 pasti a carne/settimana (su 10 slot: 5 pranzi + 5 cene),
@@ -1270,6 +1392,32 @@ const VEGGIE_ITEMS = new Set([
   "cipolla rossa","cipolla","finocchio","sedano","misticanza","spinacino","rucola",
 ]);
 
+// ─── VERDURE DELLA SETTIMANA ──────────────────────────────────────────────────
+// Per limitare la spesa, ogni settimana (= ogni generazione del piano) si usano
+// solo 2-3 verdure "ancora", scelte a rotazione dal seed. Il generatore preferisce
+// fortemente pasti che usano queste verdure, e il contorno del pranzo viene sempre
+// costruito con una di esse.
+const ANCHOR_VEGGIES = [
+  "zucchine","carote","broccoli","cetriolo","pomodorini","peperoni misti",
+  "cavolfiore","finocchio","misticanza","spinaci freschi",
+];
+const WEEKLY_VEG_COUNT = 3;
+function pickWeeklyVeggies(seed) {
+  return shuffle(ANCHOR_VEGGIES, seed + 999).slice(0, WEEKLY_VEG_COUNT);
+}
+const VEG_SIDE_TEMPLATES = {
+  "zucchine":        { name:"Zucchine grigliate",   ingredients:[{item:"Zucchine",grams:250},{item:"Olio EVO",grams:5}] },
+  "carote":          { name:"Carote crude",          ingredients:[{item:"Carote",grams:230}] },
+  "broccoli":        { name:"Broccoli al vapore",    ingredients:[{item:"Broccoli",grams:280},{item:"Olio EVO",grams:5}] },
+  "cetriolo":        { name:"Cetriolo fresco",       ingredients:[{item:"Cetriolo",grams:270}] },
+  "pomodorini":      { name:"Pomodorini conditi",    ingredients:[{item:"Pomodorini",grams:220},{item:"Olio EVO",grams:5}] },
+  "peperoni misti":  { name:"Peperoni grigliati",    ingredients:[{item:"Peperoni misti",grams:250},{item:"Olio EVO",grams:5}] },
+  "cavolfiore":      { name:"Cavolfiore al vapore",  ingredients:[{item:"Cavolfiore",grams:270},{item:"Olio EVO",grams:5}] },
+  "finocchio":       { name:"Finocchio crudo",       ingredients:[{item:"Finocchio",grams:245}] },
+  "misticanza":      { name:"Misticanza",            ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}] },
+  "spinaci freschi": { name:"Spinaci saltati",       ingredients:[{item:"Spinaci freschi",grams:230},{item:"Olio EVO",grams:5}] },
+};
+
 function getMainCarb(meal) {
   const ings = [...(meal.ingredients||[]), ...(meal.side?.ingredients||[]), ...(meal.side_dish?.ingredients||[])];
   return ings.map(i => i.item.toLowerCase()).find(k => CARB_ITEMS.has(k)) || null;
@@ -1280,11 +1428,19 @@ function getMainVeggie(meal) {
 }
 function getProtein(meal) { return (meal.protein_source || "").toLowerCase(); }
 
-function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx) {
+function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx, weeklyVeggies, sweetPotatoCount) {
   let penalty = 0;
   const proto = getProtein(candidate);
   const carb  = getMainCarb(candidate);
   const veg   = getMainVeggie(candidate);
+
+  // Verdure fuori dalla selezione della settimana: penalità forte (soft-constraint,
+  // così se non ci sono alternative valide il generatore può comunque procedere)
+  if (weeklyVeggies) {
+    const candVeggies = (candidate.ingredients||[]).map(i => i.item.toLowerCase()).filter(k => VEGGIE_ITEMS.has(k));
+    const offWeek = candVeggies.filter(v => !weeklyVeggies.has(v));
+    penalty += offWeek.length * 200;
+  }
 
   // Stessa proteina: stesso slot giorni precedenti
   const prevSameSlot = slot === "lunch" ? chosenLunches : chosenDinners;
@@ -1325,6 +1481,9 @@ function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCo
   // Pesce: max 2 a settimana totali
   if (isFish(proto) && fishCount >= 2) penalty += 999;
 
+  // Patate dolci: max 2 pasti a settimana totali
+  if (usesSweetPotato(candidate) && sweetPotatoCount >= MAX_SWEET_POTATO_MEALS_PER_WEEK) penalty += 999;
+
   // Rumore casuale anti-determinismo (0–10)
   penalty += ((seed * 1103515245 + dayIdx * 12345 + idx * 6789) & 0x7fffffff) % 11;
 
@@ -1352,9 +1511,14 @@ function generatePlan(seed) {
   const poolDMeat   = poolD.filter(m => isMeat(m.protein_source));
   const poolDNoMeat = poolD.filter(m => !isMeat(m.protein_source));
 
+  // Verdure ancora della settimana (max 2-3, per limitare la spesa)
+  const weeklyVeggiesArr = pickWeeklyVeggies(seed);
+  const weeklyVeggies = new Set(weeklyVeggiesArr);
+
   const chosenLunches = new Array(5).fill(null);
   const chosenDinners = new Array(5).fill(null);
   let fishCount = 0;
+  let sweetPotatoCount = 0;
 
   // Selezione pranzi e cene con scoring
   for (let day = 0; day < 5; day++) {
@@ -1370,11 +1534,12 @@ function generatePlan(seed) {
     });
     if (validL.length === 0) validL = candL; // fallback
 
-    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i) }));
+    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount) }));
     validL.sort((a, b) => a.score - b.score);
     const pickedL = validL[0].c;
     chosenLunches[day] = pickedL;
     if (isFish(getProtein(pickedL))) fishCount++;
+    if (usesSweetPotato(pickedL)) sweetPotatoCount++;
 
     // ── CENA ──
     const wantsMeatD = meatDayIdxs.has(day) && !meatAtLunch.has(day);
@@ -1387,12 +1552,21 @@ function generatePlan(seed) {
     });
     if (validD.length === 0) validD = candD;
 
-    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i) }));
+    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount) }));
     validD.sort((a, b) => a.score - b.score);
     const pickedD = validD[0].c;
     chosenDinners[day] = pickedD;
     if (isFish(getProtein(pickedD))) fishCount++;
+    if (usesSweetPotato(pickedD)) sweetPotatoCount++;
   }
+
+  // Contorno del pranzo: sempre una delle verdure della settimana (ruota tra i giorni)
+  for (let day = 0; day < 5; day++) {
+    const vegKey = weeklyVeggiesArr[day % weeklyVeggiesArr.length];
+    const tmpl = VEG_SIDE_TEMPLATES[vegKey];
+    chosenLunches[day] = { ...chosenLunches[day], side: { name: tmpl.name, ingredients: tmpl.ingredients.map(i => ({...i})) } };
+  }
+
 
   // Spuntini: nessuna ripetizione nella stessa settimana se possibile
   const usedSnacks = new Set();
@@ -1436,12 +1610,19 @@ function generatePlan(seed) {
   });
 
   const cats = ["Proteine","Carboidrati","Verdure & Legumi","Latticini & Uova","Condimenti & Altro"];
-  const shopping_list = cats.map(cat => ({
-    category: cat,
-    items: Object.values(items).filter(i => i.cat===cat).map(i => ({ name: i.name, quantity: formatQty(i.name, i.grams) }))
-  })).filter(c => c.items.length > 0);
+  const shopping_list = cats.map(cat => {
+    const catItems = Object.values(items).filter(i => i.cat===cat).map(i => ({
+      name: i.name,
+      quantity: formatQty(i.name, i.grams),
+      cost: estimateItemCost(i.name, i.grams),
+    }));
+    const catCost = catItems.reduce((s,i) => s + (i.cost||0), 0);
+    return { category: cat, items: catItems, cost: catCost };
+  }).filter(c => c.items.length > 0);
 
-  return { meal_plan, shopping_list };
+  const estimated_cost_total = shopping_list.reduce((s,c) => s + c.cost, 0);
+
+  return { meal_plan, shopping_list, estimated_cost_total };
 }
 
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
@@ -1550,11 +1731,13 @@ function confirmPantryAdd() {
   const name = _pantryPending;
   if (!name) return;
   const qty = (document.getElementById("pantryQtyInput").value || "").trim();
+  const exp = (document.getElementById("pantryExpInput").value || "").trim();
   const idx = findPantryIdx(name);
   if (idx >= 0) {
     pantryState[idx].qty = sumQty(pantryState[idx].qty || "", qty);
+    if (exp) pantryState[idx].exp = exp;
   } else {
-    pantryState.push({ name, qty });
+    pantryState.push({ name, qty, exp });
   }
   savePantry(pantryState);
   _pantryPending = null;
@@ -1567,6 +1750,24 @@ function updatePantryQty(idx, val) {
   pantryState[idx].qty = val.trim();
   savePantry(pantryState);
   // Non chiamiamo render() per non perdere il focus sull'input
+}
+function updatePantryExp(idx, val) {
+  if (!pantryState[idx]) return;
+  pantryState[idx].exp = val || "";
+  savePantry(pantryState);
+  render();
+}
+// Badge di scadenza: rosso se scaduto/entro 2gg, arancio entro 5gg, verde oltre
+function expBadge(exp) {
+  if (!exp) return "";
+  const days = Math.ceil((new Date(exp + "T00:00:00") - new Date(new Date().toDateString())) / 86400000);
+  let color, label;
+  if (days < 0)       { color = "#f87171"; label = "⚠️ scaduto"; }
+  else if (days === 0){ color = "#f87171"; label = "⚠️ scade oggi"; }
+  else if (days <= 2) { color = "#f87171"; label = `⚠️ scade tra ${days}g`; }
+  else if (days <= 5) { color = "#fb923c"; label = `⏳ scade tra ${days}g`; }
+  else                { color = "#4ade80"; label = `scade tra ${days}g`; }
+  return ` <span style="color:${color};font-size:10px;font-weight:700">· ${label}</span>`;
 }
 function removePantryItem(idx) {
   pantryState.splice(idx, 1);
@@ -3129,6 +3330,12 @@ function render() {
       </div>`;
     });
   } else if (activeTab === "shopping") {
+    html += `
+    <div class="cost-summary-box">
+      <div class="cost-summary-label">💶 Spesa stimata (Lidl)</div>
+      <div class="cost-summary-total">${fmtEuro(plan.estimated_cost_total)}</div>
+      <div class="cost-summary-note">Stima indicativa su prezzi standard, non in offerta — può variare per punto vendita e promozioni.</div>
+    </div>`;
     plan.shopping_list.forEach((cat, ci) => {
       const checkedCount = cat.items.filter((_,ii)=>checked[`${ci}-${ii}`]).length;
       html += `
@@ -3138,7 +3345,10 @@ function render() {
             <span class="shop-cat-icon">${CAT_ICON[cat.category]||"📦"}</span>
             <span class="shop-cat-name">${cat.category}</span>
           </div>
-          <span class="shop-cat-count" style="color:${checkedCount===cat.items.length?"#4ade80":"#64748b"}">${checkedCount}/${cat.items.length}</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="shop-cat-cost">${fmtEuro(cat.cost)}</span>
+            <span class="shop-cat-count" style="color:${checkedCount===cat.items.length?"#4ade80":"#64748b"}">${checkedCount}/${cat.items.length}</span>
+          </span>
         </div>
         <div class="shop-items">
           ${cat.items.map((item,ii)=>{
@@ -3154,6 +3364,7 @@ function render() {
                 <span class="shop-item-name ${isChecked?"line-through":""}">${item.name}</span>
                 <span style="display:flex;align-items:baseline;gap:5px">
                   ${inPantry&&!isChecked&&pantryQty?`<span style="font-size:10px;color:#15803d;font-weight:700">🏠${pantryQty}</span>`:""}
+                  ${item.cost!=null?`<span class="shop-item-cost">${fmtEuro(item.cost)}</span>`:""}
                   <span class="shop-item-qty">${item.quantity}</span>
                 </span>
               </div>
@@ -3166,7 +3377,7 @@ function render() {
     const n = pantryState.length;
     html += `
     <div style="font-size:11px;color:#64748b;line-height:1.6;margin-bottom:12px">
-      Tieni traccia di quello che hai già in casa. Puoi indicare anche la quantità disponibile.
+      Tieni traccia di quello che hai già in casa. Puoi indicare quantità e data di scadenza.
     </div>
 
     <div class="pantry-search-wrap">
@@ -3180,6 +3391,8 @@ function render() {
     <div class="pantry-add-row" id="pantryAddRow" style="display:none">
       <span id="pantrySelectedName" style="flex:2;font-size:12px;font-weight:700;color:#94a3b8;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
       <input class="pantry-qty-input" id="pantryQtyInput" type="text" placeholder="Qtà (es. 500g)"
+             onkeydown="if(event.key==='Enter')document.getElementById('pantryExpInput').focus()">
+      <input class="pantry-exp-input" id="pantryExpInput" type="date" title="Data di scadenza (opzionale)"
              onkeydown="if(event.key==='Enter')confirmPantryAdd()">
       <button class="pantry-add-btn" onclick="confirmPantryAdd()">+</button>
     </div>`;
@@ -3195,19 +3408,29 @@ function render() {
         ${pantryState.map((item, idx) => {
           // Safely set value via data attribute to avoid HTML quote escaping issues
           return `<div class="pantry-row">
-          <span class="pantry-row-name">${item.name}</span>
+          <span class="pantry-row-name">${item.name}${expBadge(item.exp)}</span>
           <input class="pantry-qty-edit" type="text" data-idx="${idx}"
             placeholder="—"
             onchange="updatePantryQty(${idx}, this.value)"
             onblur="updatePantryQty(${idx}, this.value)"
             onkeydown="if(event.key==='Enter')this.blur()"
             onfocus="this.value=pantryState[${idx}]?.qty||''">
+          <input class="pantry-exp-edit" type="date" data-idx="${idx}"
+            title="Data di scadenza"
+            value="${item.exp||''}"
+            onchange="updatePantryExp(${idx}, this.value)">
           <button class="pantry-del-btn" onclick="removePantryItem(${idx})" title="Rimuovi">✕</button>
         </div>`;
         }).join("")}
       </div>
       <button class="pantry-clear-btn" onclick="this.dataset.armed==='1'?clearPantry():(this.dataset.armed='1',this.textContent='⚠️ Tocca ancora per svuotare',setTimeout(()=>{if(this.dataset.armed){this.dataset.armed='';this.textContent='🗑️ Svuota dispensa';}},3000))">🗑️ Svuota dispensa</button>`;
     }
+    html += `
+    <div class="backup-row">
+      <button class="backup-btn backup-btn-export" onclick="exportPantryJSON()">⬇️ Esporta dispensa</button>
+      <button class="backup-btn backup-btn-import" onclick="importPantryJSON()">⬆️ Importa dispensa</button>
+    </div>
+    <div class="import-feedback" id="pantryImportFeedback"></div>`;
 
   } else if (activeTab === "favorites") {
     const sections = [
@@ -3521,14 +3744,70 @@ function importTrainingJSON() {
   document.body.removeChild(input);
 }
 
-function showImportFeedback(msg, color) {
-  const el = document.getElementById("importFeedback");
+function showImportFeedback(msg, color, elId) {
+  const el = document.getElementById(elId || "importFeedback");
   if (!el) return;
   el.textContent = msg;
   el.style.color = color;
   el.style.opacity = "1";
   setTimeout(() => { el.style.opacity = "0"; }, 3000);
 }
+
+// ─── EXPORT / IMPORT DISPENSA ────────────────────────────────────────────────
+function exportPantryJSON() {
+  const data = {
+    exported_at: new Date().toISOString(),
+    version: 1,
+    pantry: pantryState,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `dispensa_backup_${todayISO()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importPantryJSON() {
+  const input = document.createElement("input");
+  input.type  = "file";
+  input.accept = ".json,application/json";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Accetta sia il formato wrapper { pantry: [...] } sia un array diretto
+        const items = Array.isArray(parsed) ? parsed
+                     : Array.isArray(parsed.pantry) ? parsed.pantry
+                     : null;
+        if (!items) {
+          showImportFeedback("❌ File non riconosciuto", "#f87171", "pantryImportFeedback");
+          return;
+        }
+        // Merge per nome: aggiunge solo i prodotti non già presenti in dispensa
+        const existingNames = new Set(pantryState.map(p => (p.name||"").toLowerCase()));
+        const newItems = items.filter(p => p.name && !existingNames.has(p.name.toLowerCase()));
+        pantryState = [...pantryState, ...newItems.map(p => ({ name: p.name, qty: p.qty||"", exp: p.exp||"" }))];
+        savePantry(pantryState);
+        showImportFeedback(`✅ ${newItems.length} prodott${newItems.length===1?"o":"i"} importat${newItems.length===1?"o":"i"}`, "#4ade80", "pantryImportFeedback");
+        render();
+      } catch(err) {
+        showImportFeedback("❌ Errore nella lettura del file", "#f87171", "pantryImportFeedback");
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
 
 document.getElementById("btnGenerate").addEventListener("click", () => {
   state.plan = generatePlan(Date.now() + Math.random() * 1e6 | 0);
