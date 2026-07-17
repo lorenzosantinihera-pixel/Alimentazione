@@ -868,15 +868,18 @@ function persistCustomMacros() {
 }
 
 // ─── PREZZI LIDL (stima, €/kg) ────────────────────────────────────────────────
-// Prezzi indicativi da assortimento standard Lidl Italia (non in offerta).
-// Servono per una stima di massima della spesa settimanale, non un preventivo esatto:
+// Valori calibrati su prezzi reali riscontrati su volantini e sito Lidl Italia
+// (es. petto di pollo 6,49€/kg, olio EVO Italiamo 4,39-5,99€/L, uova 30pz XXL 5,99€,
+// filetto di salmone con pelle 16,99€, riso/pasta Combino 0,89-2€/kg, yogurt greco 3,39€/kg).
+// Dove non è stato trovato un riscontro diretto, il prezzo è stimato per analogia con
+// prodotti simili della stessa categoria. Sono comunque prezzi standard non in offerta:
 // possono variare per punto vendita, stagione e promozioni in corso.
 const LIDL_PRICE_PER_KG = {
-  "petto di pollo": 7.5, "petto di pollo a striscioline": 8.5,
-  "tonno in acqua (sgocciolato)": 9.5, "filetto di salmone": 16, "salmone affumicato": 25,
+  "petto di pollo": 7, "petto di pollo a striscioline": 8.5,
+  "tonno in acqua (sgocciolato)": 10, "filetto di salmone": 17, "salmone affumicato": 25,
   "filetto di merluzzo": 12, "sgombro al naturale (sgocciolato)": 8, "orata al forno": 13,
   "gamberetti": 14, "sarde al naturale": 7,
-  "uova intere": 5, "uova": 5,
+  "uova intere": 4.5, "uova": 4.5,
   "ricotta vaccina": 3.5, "feta": 8, "scamorza": 9, "parmigiano": 15,
   "mozzarella light": 8, "mozzarella proteica": 9.5,
   "burger vegetale classico": 9, "burger a base di soia": 9, "nuggets vegetali": 8,
@@ -885,19 +888,19 @@ const LIDL_PRICE_PER_KG = {
   "lenticchie rosse (crude)": 2.2, "lenticchie verdi (crude)": 2.2,
   "ceci in scatola (sgocciolati)": 1.8, "fagioli cannellini (sgocciolati)": 1.8,
   "fagioli neri (sgocciolati)": 1.9, "edamame": 5, "hummus": 6, "tofu sodo": 5,
-  "riso basmati (crudo)": 2, "riso integrale (crudo)": 2.2, "pasta integrale (cruda)": 1.8,
+  "riso basmati (crudo)": 1.8, "riso integrale (crudo)": 2, "pasta integrale (cruda)": 1.6,
   "pasta di kamut (cruda)": 2.8, "spaghetti di grano saraceno": 3.5,
   "farro perlato (crudo)": 2.8, "cous cous (crudo)": 2.5, "quinoa (cruda)": 4.5,
   "orzo perlato (crudo)": 2.3, "patate": 1.2, "patate dolci": 2.5,
   "piadina integrale": 4, "pane di segale": 3.5, "pane integrale": 2.5,
   "avena (fiocchi)": 2, "fette biscottate integrali": 3.2, "pane bauletto": 2.2,
-  "burro d'arachidi": 7, "fiocchi di latte": 4, "yogurt greco 0%": 3.2, "yogurt greco 2%": 3.4,
+  "burro d'arachidi": 7, "fiocchi di latte": 4, "yogurt greco 0%": 3.4, "yogurt greco 2%": 3.4,
   "muesli": 3.5, "latte di cocco light": 3,
   "zucchine": 2, "spinacino": 6.5, "spinaci freschi": 4.5, "pomodorini": 3,
   "pomodori": 1.8, "pomodori ramati": 1.8, "pomodori pelati": 1.4, "pomodoro a cubetti": 1.4,
   "carote": 1.2, "broccoli": 2.5, "cavolfiore": 2, "cavolo riccio (kale)": 4,
   "fagiolini": 3.5, "asparagi": 6, "peperone rosso": 3, "peperone giallo": 3,
-  "peperoni misti": 3, "peperoni": 3, "funghi champignon": 4, "funghi misti": 5,
+  "peperoni misti": 3, "peperoni": 3, "funghi champignon": 3, "funghi misti": 5,
   "bietola": 2.5, "melanzane": 2.2, "finocchio": 2, "misticanza": 7, "lattuga iceberg": 2,
   "rucola": 8, "ravanelli": 3, "cetriolo": 1.8, "cipolla": 1.2, "cipolla rossa": 1.6,
   "sedano": 2, "aglio": 5, "zucca": 1.5, "avocado": 5, "mais in scatola": 1.6,
@@ -1755,7 +1758,16 @@ function updatePantryExp(idx, val) {
   if (!pantryState[idx]) return;
   pantryState[idx].exp = val || "";
   savePantry(pantryState);
-  render();
+  // Non chiamiamo render(): su alcuni browser/mobile il campo data scatena
+  // più eventi "change" durante la selezione (giorno/mese/anno separati) e un
+  // render completo distruggerebbe l'input, facendo chiudere il selettore
+  // di continuo. Aggiorniamo solo il badge accanto al nome.
+  const rows = document.querySelectorAll(".pantry-row");
+  const row = rows[idx];
+  if (row) {
+    const nameEl = row.querySelector(".pantry-row-name");
+    if (nameEl) nameEl.innerHTML = `${pantryState[idx].name}${expBadge(pantryState[idx].exp)}`;
+  }
 }
 // Badge di scadenza: rosso se scaduto/entro 2gg, arancio entro 5gg, verde oltre
 function expBadge(exp) {
