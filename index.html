@@ -867,46 +867,47 @@ function persistCustomMacros() {
   try { localStorage.setItem(CUSTOM_MACROS_KEY, JSON.stringify(custom)); } catch(e) {}
 }
 
-// ─── PREZZI LIDL (stima, €/kg) ────────────────────────────────────────────────
-// Valori calibrati su prezzi reali riscontrati su volantini e sito Lidl Italia
-// (es. petto di pollo 6,49€/kg, olio EVO Italiamo 4,39-5,99€/L, uova 30pz XXL 5,99€,
-// filetto di salmone con pelle 16,99€, riso/pasta Combino 0,89-2€/kg, yogurt greco 3,39€/kg).
-// Dove non è stato trovato un riscontro diretto, il prezzo è stimato per analogia con
-// prodotti simili della stessa categoria. Sono comunque prezzi standard non in offerta:
-// possono variare per punto vendita, stagione e promozioni in corso.
+// ─── PREZZI MEDI SUPERMERCATI (stima, €/kg) ──────────────────────────────────
+// Valori calibrati incrociando prezzi reali Lidl (volantini, sito ufficiale) con
+// prezzi reali di altre catene italiane (Esselunga, Iperal, Conad, Carrefour, Tigros —
+// dati da confronto scontrini via Spesalyze.com e volantini). Lidl è mediamente
+// il 10-15% più economico dei supermercati tradizionali (fonte: studi Altroconsumo
+// 2025/2026), quindi qui i valori sono una via di mezzo tra discount e supermercato
+// classico, non solo il prezzo Lidl. Restano comunque una stima: i prezzi reali
+// variano per punto vendita, zona, stagione e promozioni in corso.
 const LIDL_PRICE_PER_KG = {
-  "petto di pollo": 7, "petto di pollo a striscioline": 8.5,
-  "tonno in acqua (sgocciolato)": 10, "filetto di salmone": 17, "salmone affumicato": 25,
-  "filetto di merluzzo": 12, "sgombro al naturale (sgocciolato)": 8, "orata al forno": 13,
-  "gamberetti": 14, "sarde al naturale": 7,
-  "uova intere": 4.5, "uova": 4.5,
-  "ricotta vaccina": 3.5, "feta": 8, "scamorza": 9, "parmigiano": 15,
-  "mozzarella light": 8, "mozzarella proteica": 9.5,
-  "burger vegetale classico": 9, "burger a base di soia": 9, "nuggets vegetali": 8,
-  "burger semi di lino e zucca": 9.5, "tofu naturale": 5, "tofu affumicato": 5.5,
-  "tempeh": 7.5, "seitan": 7.5, "affettato vegetale": 9,
-  "lenticchie rosse (crude)": 2.2, "lenticchie verdi (crude)": 2.2,
-  "ceci in scatola (sgocciolati)": 1.8, "fagioli cannellini (sgocciolati)": 1.8,
-  "fagioli neri (sgocciolati)": 1.9, "edamame": 5, "hummus": 6, "tofu sodo": 5,
-  "riso basmati (crudo)": 1.8, "riso integrale (crudo)": 2, "pasta integrale (cruda)": 1.6,
-  "pasta di kamut (cruda)": 2.8, "spaghetti di grano saraceno": 3.5,
-  "farro perlato (crudo)": 2.8, "cous cous (crudo)": 2.5, "quinoa (cruda)": 4.5,
-  "orzo perlato (crudo)": 2.3, "patate": 1.2, "patate dolci": 2.5,
-  "piadina integrale": 4, "pane di segale": 3.5, "pane integrale": 2.5,
-  "avena (fiocchi)": 2, "fette biscottate integrali": 3.2, "pane bauletto": 2.2,
-  "burro d'arachidi": 7, "fiocchi di latte": 4, "yogurt greco 0%": 3.4, "yogurt greco 2%": 3.4,
-  "muesli": 3.5, "latte di cocco light": 3,
-  "zucchine": 2, "spinacino": 6.5, "spinaci freschi": 4.5, "pomodorini": 3,
-  "pomodori": 1.8, "pomodori ramati": 1.8, "pomodori pelati": 1.4, "pomodoro a cubetti": 1.4,
-  "carote": 1.2, "broccoli": 2.5, "cavolfiore": 2, "cavolo riccio (kale)": 4,
-  "fagiolini": 3.5, "asparagi": 6, "peperone rosso": 3, "peperone giallo": 3,
-  "peperoni misti": 3, "peperoni": 3, "funghi champignon": 3, "funghi misti": 5,
-  "bietola": 2.5, "melanzane": 2.2, "finocchio": 2, "misticanza": 7, "lattuga iceberg": 2,
-  "rucola": 8, "ravanelli": 3, "cetriolo": 1.8, "cipolla": 1.2, "cipolla rossa": 1.6,
-  "sedano": 2, "aglio": 5, "zucca": 1.5, "avocado": 5, "mais in scatola": 1.6,
-  "olio evo": 5.5, "olio di sesamo": 9, "olive nere": 5, "olive taggiasche": 9,
-  "capperi": 10, "salsa di soia": 3.5, "zenzero fresco": 6, "tahini": 9,
-  "aceto balsamico": 4, "senape": 4,
+  "petto di pollo": 8.5, "petto di pollo a striscioline": 9.35,
+  "tonno in acqua (sgocciolato)": 11, "filetto di salmone": 18.7, "salmone affumicato": 27.5,
+  "filetto di merluzzo": 13.2, "sgombro al naturale (sgocciolato)": 8.8, "orata al forno": 14.3,
+  "gamberetti": 15.4, "sarde al naturale": 7.7,
+  "uova intere": 4.95, "uova": 4.95,
+  "ricotta vaccina": 3.85, "feta": 8.8, "scamorza": 9.9, "parmigiano": 16.5,
+  "mozzarella light": 8.8, "mozzarella proteica": 10.45,
+  "burger vegetale classico": 9.9, "burger a base di soia": 9.9, "nuggets vegetali": 8.8,
+  "burger semi di lino e zucca": 10.45, "tofu naturale": 7.15, "tofu affumicato": 7.7,
+  "tempeh": 8.25, "seitan": 8.25, "affettato vegetale": 9.9,
+  "lenticchie rosse (crude)": 2.42, "lenticchie verdi (crude)": 2.42,
+  "ceci in scatola (sgocciolati)": 1.98, "fagioli cannellini (sgocciolati)": 1.98,
+  "fagioli neri (sgocciolati)": 2.09, "edamame": 5.5, "hummus": 6.6, "tofu sodo": 7.15,
+  "riso basmati (crudo)": 1.98, "riso integrale (crudo)": 2.2, "pasta integrale (cruda)": 1.76,
+  "pasta di kamut (cruda)": 3.08, "spaghetti di grano saraceno": 3.85,
+  "farro perlato (crudo)": 3.08, "cous cous (crudo)": 2.75, "quinoa (cruda)": 4.95,
+  "orzo perlato (crudo)": 2.53, "patate": 1.32, "patate dolci": 2.75,
+  "piadina integrale": 4.4, "pane di segale": 3.85, "pane integrale": 2.75,
+  "avena (fiocchi)": 2.2, "fette biscottate integrali": 3.52, "pane bauletto": 2.42,
+  "burro d'arachidi": 6, "fiocchi di latte": 6.05, "yogurt greco 0%": 3.74, "yogurt greco 2%": 3.74,
+  "muesli": 3.85, "latte di cocco light": 3.3,
+  "zucchine": 2.2, "spinacino": 7.15, "spinaci freschi": 4.95, "pomodorini": 3.3,
+  "pomodori": 1.98, "pomodori ramati": 1.98, "pomodori pelati": 1.54, "pomodoro a cubetti": 1.54,
+  "carote": 1.32, "broccoli": 2.6, "cavolfiore": 2.2, "cavolo riccio (kale)": 4.4,
+  "fagiolini": 3.85, "asparagi": 6.6, "peperone rosso": 3.3, "peperone giallo": 3.3,
+  "peperoni misti": 3.3, "peperoni": 3.3, "funghi champignon": 3.3, "funghi misti": 5.5,
+  "bietola": 2.75, "melanzane": 2.42, "finocchio": 2.2, "misticanza": 7.7, "lattuga iceberg": 2.2,
+  "rucola": 8.8, "ravanelli": 3.3, "cetriolo": 1.98, "cipolla": 1.32, "cipolla rossa": 1.76,
+  "sedano": 2.2, "aglio": 5.5, "zucca": 1.65, "avocado": 5.5, "mais in scatola": 1.76,
+  "olio evo": 6.05, "olio di sesamo": 9.9, "olive nere": 5.5, "olive taggiasche": 9.9,
+  "capperi": 11, "salsa di soia": 3.85, "zenzero fresco": 6.6, "tahini": 9.9,
+  "aceto balsamico": 4.4, "senape": 4.4,
 };
 
 // Grammi effettivamente acquistabili, arrotondati alle confezioni Lidl tipiche
@@ -1114,11 +1115,11 @@ const SNACKS = [
   { name: "Mozzarella proteica con pomodorini",
     ingredients: [{ item:"Mozzarella proteica", grams:100 }, { item:"Pomodori pelati", grams:150 }],
     note: "🧊 Monoporzione pronta, apri e mangi" },
-  { name: "Ricotta con pomodorini",
-    ingredients: [{ item:"Ricotta vaccina", grams:150 }, { item:"Pomodorini", grams:100 }],
+  { name: "Ricotta con cetriolo",
+    ingredients: [{ item:"Ricotta vaccina", grams:150 }, { item:"Cetriolo", grams:120 }],
     note: "🧊 Vasetto pronto, solo cucchiaio" },
-  { name: "Tonno al naturale con pomodorini",
-    ingredients: [{ item:"Tonno in acqua (sgocciolato)", grams:150 }, { item:"Pomodorini", grams:100 }],
+  { name: "Tonno al naturale con carote",
+    ingredients: [{ item:"Tonno in acqua (sgocciolato)", grams:150 }, { item:"Carote", grams:120 }],
     note: "🗄️ Scatoletta o busta, apri e mangi — zero frigo, zero prep" },
   { name: "Yogurt greco con carote baby",
     ingredients: [{ item:"Yogurt greco 0%", grams:200 }, { item:"Carote", grams:150 }],
@@ -1155,16 +1156,16 @@ const LUNCHES = [
     ingredients:[{item:"Uova intere",grams:280},{item:"Feta",grams:45},{item:"Patate dolci",grams:425},{item:"Peperone rosso",grams:190},{item:"Olio EVO",grams:10}],
     side:{name:"Cetriolo fresco",ingredients:[{item:"Cetriolo",grams:285}]}},
   { name:"Uova e ceci con pane integrale", protein_source:"Uova + Ceci",
-    ingredients:[{item:"Uova intere",grams:225},{item:"Ceci in scatola (sgocciolati)",grams:320},{item:"Pomodorini",grams:190},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}],
+    ingredients:[{item:"Uova intere",grams:225},{item:"Ceci in scatola (sgocciolati)",grams:320},{item:"Pomodori pelati",grams:190},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}],
     side:{name:"Rucola",ingredients:[{item:"Rucola",grams:115},{item:"Olio EVO",grams:5}]}},
-  { name:"Pasta integrale con ceci e pomodorini", protein_source:"Ceci",
-    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:425},{item:"Pasta integrale (cruda)",grams:190},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:10}],
+  { name:"Pasta integrale con ceci e pomodoro", protein_source:"Ceci",
+    ingredients:[{item:"Ceci in scatola (sgocciolati)",grams:425},{item:"Pasta integrale (cruda)",grams:190},{item:"Pomodori pelati",grams:230},{item:"Olio EVO",grams:10}],
     side:{name:"Rucola",ingredients:[{item:"Rucola",grams:115},{item:"Parmigiano",grams:10},{item:"Olio EVO",grams:5}]}},
   { name:"Lenticchie rosse con riso integrale", protein_source:"Lenticchie",
     ingredients:[{item:"Lenticchie rosse (crude)",grams:260},{item:"Riso integrale (crudo)",grams:170},{item:"Cipolla",grams:115},{item:"Carote",grams:150},{item:"Olio EVO",grams:5}],
     side:{name:"Broccoli al vapore",ingredients:[{item:"Broccoli",grams:305},{item:"Olio EVO",grams:5}]}},
-  { name:"Pasta di kamut con ricotta e pomodorini", protein_source:"Ricotta",
-    ingredients:[{item:"Ricotta vaccina",grams:185},{item:"Pasta di kamut (cruda)",grams:190},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:10}],
+  { name:"Pasta di kamut con ricotta e zucchine", protein_source:"Ricotta",
+    ingredients:[{item:"Ricotta vaccina",grams:185},{item:"Pasta di kamut (cruda)",grams:190},{item:"Zucchine",grams:230},{item:"Olio EVO",grams:10}],
     side:{name:"Rucola con parmigiano",ingredients:[{item:"Rucola",grams:95},{item:"Parmigiano",grams:15},{item:"Olio EVO",grams:5}]}},
   { name:"Fagioli cannellini con quinoa e verdure", protein_source:"Fagioli",
     ingredients:[{item:"Fagioli cannellini (sgocciolati)",grams:470},{item:"Quinoa (cruda)",grams:170},{item:"Peperoni misti",grams:245},{item:"Olio EVO",grams:10}],
@@ -1181,8 +1182,8 @@ const LUNCHES = [
   { name:"Pane integrale con salmone affumicato e avocado", protein_source:"Salmone",
     ingredients:[{item:"Salmone affumicato",grams:80},{item:"Pane integrale",grams:170},{item:"Avocado",grams:70},{item:"Olio EVO",grams:5}],
     side:{name:"Pomodorini e rucola",ingredients:[{item:"Pomodorini",grams:190},{item:"Rucola",grams:75}]}},
-  { name:"Farro con mozzarella proteica e pomodorini", protein_source:"Mozzarella proteica",
-    ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Farro perlato (crudo)",grams:180},{item:"Pomodorini",grams:285},{item:"Olio EVO",grams:10}],
+  { name:"Farro con mozzarella proteica e peperoni", protein_source:"Mozzarella proteica",
+    ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Farro perlato (crudo)",grams:180},{item:"Peperoni misti",grams:230},{item:"Olio EVO",grams:10}],
     side:{name:"Basilico e rucola",ingredients:[{item:"Rucola",grams:95},{item:"Olio EVO",grams:5}]}},
   { name:"Frittata con zucchine e patate", protein_source:"Uova",
     ingredients:[{item:"Uova intere",grams:280},{item:"Zucchine",grams:230},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}],
@@ -1191,13 +1192,13 @@ const LUNCHES = [
     ingredients:[{item:"Uova intere",grams:280},{item:"Peperoni misti",grams:230},{item:"Feta",grams:45},{item:"Olio EVO",grams:10}],
     side:{name:"Spinacino",ingredients:[{item:"Spinacino",grams:115}]}},
   { name:"Fiocchi di latte con riso basmati e verdure", protein_source:"Fiocchi di latte",
-    ingredients:[{item:"Fiocchi di latte",grams:280},{item:"Riso basmati (crudo)",grams:180},{item:"Pomodorini",grams:230},{item:"Olio EVO",grams:8}],
+    ingredients:[{item:"Fiocchi di latte",grams:280},{item:"Riso basmati (crudo)",grams:180},{item:"Zucchine",grams:230},{item:"Olio EVO",grams:8}],
     side:{name:"Rucola",ingredients:[{item:"Rucola",grams:95}]}},
   { name:"Fiocchi di latte con farro e cetriolo", protein_source:"Fiocchi di latte",
     ingredients:[{item:"Fiocchi di latte",grams:280},{item:"Farro perlato (crudo)",grams:170},{item:"Cetriolo",grams:200},{item:"Olio EVO",grams:8}],
     side:{name:"Pomodorini",ingredients:[{item:"Pomodorini",grams:150}]}},
   { name:"Piadina con hummus e affettato vegetale", protein_source:"Affettato vegetale",
-    ingredients:[{item:"Piadina integrale",grams:170},{item:"Hummus",grams:80},{item:"Affettato vegetale",grams:100},{item:"Pomodorini",grams:150},{item:"Rucola",grams:40}],
+    ingredients:[{item:"Piadina integrale",grams:170},{item:"Hummus",grams:80},{item:"Affettato vegetale",grams:100},{item:"Cetriolo",grams:150},{item:"Rucola",grams:40}],
     side:{name:"Carote crude",ingredients:[{item:"Carote",grams:150}]}},
   // ── Patate dolci ──────────────────────────────────────────────────────────
   { name:"Patate dolci con petto di pollo e broccoli", protein_source:"Pollo",
@@ -1243,13 +1244,13 @@ const DINNERS = [
   { name:"Ricotta con verdure grigliate e pane integrale", protein_source:"Ricotta",
     ingredients:[{item:"Ricotta vaccina",grams:200},{item:"Melanzane",grams:340},{item:"Peperoni",grams:285},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}]},
   { name:"Fagioli cannellini con cipolla e pane integrale", protein_source:"Fagioli",
-    ingredients:[{item:"Fagioli cannellini (sgocciolati)",grams:425},{item:"Cipolla rossa",grams:115},{item:"Pomodorini",grams:230},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}]},
+    ingredients:[{item:"Fagioli cannellini (sgocciolati)",grams:425},{item:"Cipolla rossa",grams:115},{item:"Pomodori pelati",grams:230},{item:"Pane integrale",grams:130},{item:"Olio EVO",grams:10}]},
   { name:"Tonno con fagioli cannellini e cipolla", protein_source:"Tonno",
     ingredients:[{item:"Tonno in acqua (sgocciolato)",grams:95},{item:"Fagioli cannellini (sgocciolati)",grams:380},{item:"Cipolla rossa",grams:115},{item:"Olio EVO",grams:10}]},
   { name:"Salmone al forno con broccoli e patate", protein_source:"Salmone",
     ingredients:[{item:"Filetto di salmone",grams:115},{item:"Broccoli",grams:340},{item:"Patate",grams:320},{item:"Olio EVO",grams:10}]},
   { name:"Insalatona con salmone affumicato e avocado", protein_source:"Salmone",
-    ingredients:[{item:"Salmone affumicato",grams:80},{item:"Avocado",grams:70},{item:"Misticanza",grams:190},{item:"Pomodorini",grams:190},{item:"Olio EVO",grams:5}]},
+    ingredients:[{item:"Salmone affumicato",grams:80},{item:"Avocado",grams:70},{item:"Misticanza",grams:190},{item:"Cetriolo",grams:190},{item:"Olio EVO",grams:5}]},
   { name:"Mozzarella proteica con verdure grigliate", protein_source:"Mozzarella proteica",
     ingredients:[{item:"Mozzarella proteica",grams:135},{item:"Zucchine",grams:285},{item:"Peperoni misti",grams:285},{item:"Olio EVO",grams:10}]},
   { name:"Frittata con funghi e patate", protein_source:"Uova",
@@ -1264,8 +1265,8 @@ const DINNERS = [
     ingredients:[{item:"Burger a base di soia",grams:200},{item:"Riso basmati (crudo)",grams:150},{item:"Zucchine",grams:250},{item:"Olio EVO",grams:10}]},
   { name:"Nuggets vegetali con patate dolci e broccoli", protein_source:"Nuggets vegetali",
     ingredients:[{item:"Nuggets vegetali",grams:200},{item:"Patate dolci",grams:300},{item:"Broccoli",grams:250},{item:"Olio EVO",grams:10}]},
-  { name:"Burger semi di lino con fagiolini e pomodorini", protein_source:"Burger semi lino",
-    ingredients:[{item:"Burger semi di lino e zucca",grams:200},{item:"Fagiolini",grams:300},{item:"Pomodorini",grams:200},{item:"Olio EVO",grams:10}]},
+  { name:"Burger semi di lino con fagiolini e zucchine", protein_source:"Burger semi lino",
+    ingredients:[{item:"Burger semi di lino e zucca",grams:200},{item:"Fagiolini",grams:300},{item:"Zucchine",grams:200},{item:"Olio EVO",grams:10}]},
   { name:"Tofu naturale in padella con riso e verdure", protein_source:"Tofu",
     ingredients:[{item:"Tofu naturale",grams:200},{item:"Riso basmati (crudo)",grams:150},{item:"Peperoni misti",grams:250},{item:"Salsa di soia",grams:15},{item:"Olio EVO",grams:8}]},
   { name:"Tofu affumicato con patate e spinaci", protein_source:"Tofu affumicato",
@@ -1275,7 +1276,7 @@ const DINNERS = [
   { name:"Seitan in padella con funghi e pane integrale", protein_source:"Seitan",
     ingredients:[{item:"Seitan",grams:200},{item:"Funghi champignon",grams:300},{item:"Spinaci freschi",grams:200},{item:"Pane integrale",grams:100},{item:"Olio EVO",grams:10}]},
   { name:"Affettato vegetale con farro e insalata", protein_source:"Affettato vegetale",
-    ingredients:[{item:"Affettato vegetale",grams:160},{item:"Farro perlato (crudo)",grams:150},{item:"Pomodorini",grams:200},{item:"Olio EVO",grams:10}],
+    ingredients:[{item:"Affettato vegetale",grams:160},{item:"Farro perlato (crudo)",grams:150},{item:"Peperoni misti",grams:200},{item:"Olio EVO",grams:10}],
     side:{name:"Rucola",ingredients:[{item:"Rucola",grams:100},{item:"Olio EVO",grams:5}]}},
   // ── Patate dolci ──────────────────────────────────────────────────────────
   { name:"Petto di pollo al forno con patate dolci", protein_source:"Pollo",
@@ -1420,6 +1421,17 @@ const VEG_SIDE_TEMPLATES = {
   "misticanza":      { name:"Misticanza",            ingredients:[{item:"Misticanza",grams:115},{item:"Olio EVO",grams:5}] },
   "spinaci freschi": { name:"Spinaci saltati",       ingredients:[{item:"Spinaci freschi",grams:230},{item:"Olio EVO",grams:5}] },
 };
+// Tetto settimanale per singola verdura (grammi), per non dover comprare
+// quantità spropositate dello stesso ortaggio
+const WEEKLY_VEG_CAP_G = 700;
+function vegGramsInIngredients(ingredients) {
+  const out = {};
+  (ingredients||[]).forEach(i => {
+    const key = i.item.toLowerCase();
+    if (VEGGIE_ITEMS.has(key)) out[key] = (out[key]||0) + i.grams;
+  });
+  return out;
+}
 
 function getMainCarb(meal) {
   const ings = [...(meal.ingredients||[]), ...(meal.side?.ingredients||[]), ...(meal.side_dish?.ingredients||[])];
@@ -1431,7 +1443,7 @@ function getMainVeggie(meal) {
 }
 function getProtein(meal) { return (meal.protein_source || "").toLowerCase(); }
 
-function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx, weeklyVeggies, sweetPotatoCount) {
+function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx, weeklyVeggies, sweetPotatoCount, vegUsage) {
   let penalty = 0;
   const proto = getProtein(candidate);
   const carb  = getMainCarb(candidate);
@@ -1443,6 +1455,14 @@ function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCo
     const candVeggies = (candidate.ingredients||[]).map(i => i.item.toLowerCase()).filter(k => VEGGIE_ITEMS.has(k));
     const offWeek = candVeggies.filter(v => !weeklyVeggies.has(v));
     penalty += offWeek.length * 200;
+  }
+
+  // Tetto settimanale per verdura (max 700g): se il candidato lo farebbe sforare, penalità forte
+  if (vegUsage) {
+    const candVegGrams = vegGramsInIngredients(candidate.ingredients);
+    for (const vk in candVegGrams) {
+      if ((vegUsage[vk]||0) + candVegGrams[vk] > WEEKLY_VEG_CAP_G) { penalty += 999; break; }
+    }
   }
 
   // Stessa proteina: stesso slot giorni precedenti
@@ -1518,6 +1538,17 @@ function generatePlan(seed) {
   const weeklyVeggiesArr = pickWeeklyVeggies(seed);
   const weeklyVeggies = new Set(weeklyVeggiesArr);
 
+  // Contorno del pranzo: assegnato per giorno fin da subito (ruota tra le verdure
+  // della settimana), così il tetto dei 700g/settimana tiene conto anche dei contorni
+  const sideVegForDay = [];
+  for (let day = 0; day < 5; day++) sideVegForDay.push(weeklyVeggiesArr[day % weeklyVeggiesArr.length]);
+
+  const vegUsage = {};
+  sideVegForDay.forEach(vegKey => {
+    const g = vegGramsInIngredients(VEG_SIDE_TEMPLATES[vegKey].ingredients);
+    for (const vk in g) vegUsage[vk] = (vegUsage[vk]||0) + g[vk];
+  });
+
   const chosenLunches = new Array(5).fill(null);
   const chosenDinners = new Array(5).fill(null);
   let fishCount = 0;
@@ -1537,12 +1568,13 @@ function generatePlan(seed) {
     });
     if (validL.length === 0) validL = candL; // fallback
 
-    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount) }));
+    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage) }));
     validL.sort((a, b) => a.score - b.score);
     const pickedL = validL[0].c;
     chosenLunches[day] = pickedL;
     if (isFish(getProtein(pickedL))) fishCount++;
     if (usesSweetPotato(pickedL)) sweetPotatoCount++;
+    { const g = vegGramsInIngredients(pickedL.ingredients); for (const vk in g) vegUsage[vk] = (vegUsage[vk]||0) + g[vk]; }
 
     // ── CENA ──
     const wantsMeatD = meatDayIdxs.has(day) && !meatAtLunch.has(day);
@@ -1555,18 +1587,18 @@ function generatePlan(seed) {
     });
     if (validD.length === 0) validD = candD;
 
-    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount) }));
+    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage) }));
     validD.sort((a, b) => a.score - b.score);
     const pickedD = validD[0].c;
     chosenDinners[day] = pickedD;
     if (isFish(getProtein(pickedD))) fishCount++;
     if (usesSweetPotato(pickedD)) sweetPotatoCount++;
+    { const g = vegGramsInIngredients(pickedD.ingredients); for (const vk in g) vegUsage[vk] = (vegUsage[vk]||0) + g[vk]; }
   }
 
-  // Contorno del pranzo: sempre una delle verdure della settimana (ruota tra i giorni)
+  // Applica il contorno del pranzo pre-calcolato
   for (let day = 0; day < 5; day++) {
-    const vegKey = weeklyVeggiesArr[day % weeklyVeggiesArr.length];
-    const tmpl = VEG_SIDE_TEMPLATES[vegKey];
+    const tmpl = VEG_SIDE_TEMPLATES[sideVegForDay[day]];
     chosenLunches[day] = { ...chosenLunches[day], side: { name: tmpl.name, ingredients: tmpl.ingredients.map(i => ({...i})) } };
   }
 
@@ -3344,9 +3376,9 @@ function render() {
   } else if (activeTab === "shopping") {
     html += `
     <div class="cost-summary-box">
-      <div class="cost-summary-label">💶 Spesa stimata (Lidl)</div>
+      <div class="cost-summary-label">💶 Spesa stimata (media supermercati)</div>
       <div class="cost-summary-total">${fmtEuro(plan.estimated_cost_total)}</div>
-      <div class="cost-summary-note">Stima indicativa su prezzi standard, non in offerta — può variare per punto vendita e promozioni.</div>
+      <div class="cost-summary-note">Media indicativa tra discount e supermercati tradizionali, prezzi standard non in offerta — può variare per punto vendita, zona e promozioni.</div>
     </div>`;
     plan.shopping_list.forEach((cat, ci) => {
       const checkedCount = cat.items.filter((_,ii)=>checked[`${ci}-${ii}`]).length;
