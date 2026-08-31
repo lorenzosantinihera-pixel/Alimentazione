@@ -187,28 +187,31 @@
   /* ── MACRO NAV ── */
   .macro-nav { display: flex; gap: 0; background: #0f0f13; border-bottom: 2px solid #1e2030;
                position: sticky; top: 0; z-index: 50; }
-  .macro-btn { flex: 1; padding: 13px 8px; border: none; font-size: 14px; font-weight: 700;
-               cursor: pointer; font-family: inherit; transition: all .18s; letter-spacing: -.01em; }
+  .macro-btn { flex: 1; padding: 12px 4px; border: none; font-size: 12.5px; font-weight: 700;
+               cursor: pointer; font-family: inherit; transition: all .18s; letter-spacing: -.01em;
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .macro-btn-active   { background: #0f0f13; color: #f1f5f9;
                          border-bottom: 3px solid #2563eb; }
   .macro-btn-inactive { background: #0f0f13; color: #475569;
                          border-bottom: 3px solid transparent; }
 
   /* ── TRAINING TABS ── */
-  .train-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-  .train-tab { flex: 1; min-width: 74px; padding: 10px 4px; border-radius: 9px; border: none;
-               font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .train-tabs { display: flex; gap: 5px; margin-bottom: 16px; }
+  .train-tab { flex: 1; min-width: 0; padding: 10px 3px; border-radius: 9px; border: none;
+               font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .train-tab-active   { background: #1e3a5f; color: #60a5fa; border-bottom: 2px solid #2563eb; }
   .train-tab-inactive { background: #1a1a2e; color: #475569; border-bottom: 2px solid transparent; }
 
   /* ── CALENDARIO MENSILE ── */
-  .cal-header { display: flex; align-items: center; justify-content: space-between;
-                padding: 9px 12px; background: #0f1923; border-radius: 12px;
+  .cal-header { display: flex; align-items: center; justify-content: center; position: relative;
+                padding: 9px 40px; background: #0f1923; border-radius: 12px;
                 user-select: none; transition: border-radius .15s; }
   .cal-header.cal-open { border-radius: 12px 12px 0 0; }
   .cal-header-title { font-size: 13px; font-weight: 800; color: #f1f5f9; letter-spacing: -.01em; }
-  .cal-toggle-icon { font-size: 10px; color: #475569; transition: transform .2s; }
-  .cal-toggle-icon.open { transform: rotate(180deg); }
+  .cal-toggle-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                      font-size: 10px; color: #475569; transition: transform .2s; }
+  .cal-toggle-icon.open { transform: translateY(-50%) rotate(180deg); }
   .cal-nav { display: flex; align-items: center; gap: 6px; }
   .cal-nav-btn { background: #1e3a5f; border: none; color: #60a5fa; font-size: 14px;
                   width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
@@ -256,6 +259,12 @@
                color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
                font-family: inherit; }
   .log-input:focus { border-color: #2563eb; }
+
+  /* Fix iOS Safari: il valore interno di <input type="date"> ha un rendering nativo
+     che ignora padding/text-align dell'input e appare decentrato. Si corregge il
+     pseudo-elemento WebKit che contiene il testo del valore. */
+  input[type="date"] { -webkit-appearance: none; appearance: none; }
+  input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
   .log-select { width: 100%; background: #0f1923; border: 1px solid #1e3a5f; border-radius: 8px;
                 color: #f1f5f9; font-size: 13px; padding: 9px 11px; outline: none;
                 font-family: inherit; appearance: none; }
@@ -416,8 +425,9 @@
   .meal-picker-badge-saved { background: #1e1a2a; color: #a78bfa; border: 1px solid #6d28d9; }
   .backup-row { display: flex; gap: 8px; margin-top: 18px; padding-top: 14px;
                 border-top: 1px solid #1e2030; }
-  .backup-btn { flex: 1; padding: 10px 8px; border-radius: 9px; border: none;
-                font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .backup-btn { flex: 1; padding: 10px 6px; border-radius: 9px; border: none;
+                font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .backup-btn-export { background: #0f2010; color: #4ade80; border: 1px solid #15803d; }
   .backup-btn-import { background: #0d1520; color: #60a5fa; border: 1px solid #1d4ed8; }
   .import-feedback { font-size: 11px; text-align: center; margin-top: 7px;
@@ -606,6 +616,18 @@
                         line-height: 1.5; margin-bottom: 12px; }
   .dash-training-msg.intense { border-left-color: #fb923c; }
   .dash-training-msg.light   { border-left-color: #4ade80; }
+  .dash-quicklog-btn { width: 100%; padding: 10px; border-radius: 9px; border: 1px dashed #3b3060;
+                        background: transparent; color: #a78bfa; font-size: 12.5px; font-weight: 700;
+                        cursor: pointer; margin-bottom: 12px; }
+  .dash-quicklog-btn:hover { background: #150f24; }
+  .qt-type-row { display: flex; gap: 5px; margin-bottom: 14px; }
+  .qt-type-btn { flex: 1; min-width: 0; padding: 10px 3px; border-radius: 9px; border: 1px solid #1e2030;
+                 background: #0f1923; color: #64748b; font-size: 11px; font-weight: 700;
+                 cursor: pointer; font-family: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qt-type-btn.active { background: #1e3a5f; color: #60a5fa; border-color: #2563eb; }
+  .qt-type-btn.active[data-type="cf"]    { background: #16234a; color: #60a5fa; border-color: #2563eb; }
+  .qt-type-btn.active[data-type="climb"] { background: #2a1a08; color: #fb923c; border-color: #c2410c; }
+  .qt-type-btn.active[data-type="run"]   { background: #0a2416; color: #4ade80; border-color: #15803d; }
 
   .dash-macro-table { background: #0f1923; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
   .dash-macro-table-row { display: grid; grid-template-columns: 64px 1fr 1fr 1fr; gap: 6px;
@@ -754,8 +776,8 @@
   <div id="sectionTrain" style="display:none">
     <div id="trainContent"></div>
     <div class="backup-row">
-      <button class="backup-btn backup-btn-export" onclick="exportTrainingJSON()">⬇️ Backup completo (JSON)</button>
-      <button class="backup-btn backup-btn-import" onclick="importTrainingJSON()">⬆️ Ripristina backup</button>
+      <button class="backup-btn backup-btn-export" onclick="exportTrainingJSON()">⬇️ Backup completo</button>
+      <button class="backup-btn backup-btn-import" onclick="importTrainingJSON()">⬆️ Ripristina</button>
     </div>
     <div style="font-size:10px;color:#475569;text-align:center;margin-top:-4px;margin-bottom:4px">Include allenamenti, peso, pasti registrati, target e piano alimentare</div>
     <div class="import-feedback" id="importFeedback"></div>
@@ -965,6 +987,107 @@
     </div>
 
     <button class="btn-modal-close" onclick="closeExtraModal()">Chiudi</button>
+  </div>
+</div>
+
+<!-- QUICK TRAIN MODAL (registrazione rapida allenamento di oggi dalla Dashboard) -->
+<div id="quickTrainModalOverlay" class="modal-overlay" style="display:none" onclick="closeQuickTrainModalOutside(event)">
+  <div class="modal-sheet" id="quickTrainModalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏋️ Registra allenamento di oggi</div>
+    <div class="modal-subtitle" id="qtDateLabel"></div>
+
+    <div class="qt-type-row">
+      <button class="qt-type-btn" id="qtTypeBtnRun" data-type="run" onclick="quickTrainSelectType('run')">🏃 Corsa</button>
+      <button class="qt-type-btn" id="qtTypeBtnCf" data-type="cf" onclick="quickTrainSelectType('cf')">🏋️ CrossFit</button>
+      <button class="qt-type-btn" id="qtTypeBtnClimb" data-type="climb" onclick="quickTrainSelectType('climb')">🧗 Arrampicata</button>
+    </div>
+
+    <div id="qtRunFields" style="display:none">
+      <div class="log-fields">
+        <div><div class="log-label">Distanza (km)</div><input class="log-input" id="qtRunKm" type="number" step="0.1" placeholder="5.0"></div>
+        <div><div class="log-label">Tempo (mm:ss)</div><input class="log-input" id="qtRunTime" type="text" placeholder="25:00"></div>
+        <div>
+          <div class="log-label">Superficie</div>
+          <select class="log-select" id="qtRunSurface">
+            <option value="strada">Strada</option>
+            <option value="sterrato">Sterrato</option>
+            <option value="pista">Pista</option>
+            <option value="tapis roulant">Tapis roulant</option>
+          </select>
+        </div>
+        <div>
+          <div class="log-label">Sensazione (1–5)</div>
+          <select class="log-select" id="qtRunFeel">
+            <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
+            <option value="4">⭐⭐⭐⭐ Buona</option>
+            <option value="3" selected>⭐⭐⭐ Nella norma</option>
+            <option value="2">⭐⭐ Faticosa</option>
+            <option value="1">⭐ Pesante</option>
+          </select>
+        </div>
+        <div class="log-field-full"><div class="log-label">Note (facoltativo)</div><textarea class="log-textarea" id="qtRunNote"></textarea></div>
+      </div>
+    </div>
+
+    <div id="qtCfFields" style="display:none">
+      <div class="log-fields">
+        <div class="log-field-full"><div class="log-label">WOD</div><input class="log-input" id="qtCfWod" type="text" placeholder="es. Fran, Murph, AMRAP 20..."></div>
+        <div><div class="log-label">Round/Reps</div><input class="log-input" id="qtCfRounds" type="text" placeholder="es. 5 round"></div>
+        <div>
+          <div class="log-label">Rx</div>
+          <select class="log-select" id="qtCfRx">
+            <option value="RX">RX</option>
+            <option value="RX+">RX+</option>
+            <option value="Scaled">Scaled</option>
+          </select>
+        </div>
+        <div class="log-field-full">
+          <div class="log-label">Sensazione (1–5)</div>
+          <select class="log-select" id="qtCfFeel">
+            <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
+            <option value="4">⭐⭐⭐⭐ Buona</option>
+            <option value="3" selected>⭐⭐⭐ Nella norma</option>
+            <option value="2">⭐⭐ Faticosa</option>
+            <option value="1">⭐ Pesante</option>
+          </select>
+        </div>
+        <div class="log-field-full"><div class="log-label">Note (facoltativo)</div><textarea class="log-textarea" id="qtCfNote"></textarea></div>
+      </div>
+    </div>
+
+    <div id="qtClimbFields" style="display:none">
+      <div class="log-fields">
+        <div><div class="log-label">Luogo / Palestra</div><input class="log-input" id="qtClimbPlace" type="text" placeholder="es. Boulder Bo..."></div>
+        <div>
+          <div class="log-label">Disciplina</div>
+          <select class="log-select" id="qtClimbDiscipline">
+            <option value="Boulder">Boulder</option>
+            <option value="Lead">Lead (a corda)</option>
+            <option value="Top-rope">Top-rope</option>
+            <option value="Multipitch">Multipitch</option>
+          </select>
+        </div>
+        <div><div class="log-label">Grado massimo</div><input class="log-input" id="qtClimbGrade" type="text" placeholder="6a / V4..."></div>
+        <div><div class="log-label">Vie/problemi completati</div><input class="log-input" id="qtClimbSends" type="text" placeholder="es. 8"></div>
+        <div class="log-field-full">
+          <div class="log-label">Sensazione (1–5)</div>
+          <select class="log-select" id="qtClimbFeel">
+            <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
+            <option value="4">⭐⭐⭐⭐ Buona</option>
+            <option value="3" selected>⭐⭐⭐ Nella norma</option>
+            <option value="2">⭐⭐ Faticosa</option>
+            <option value="1">⭐ Pesante</option>
+          </select>
+        </div>
+        <div class="log-field-full"><div class="log-label">Note (facoltativo)</div><textarea class="log-textarea" id="qtClimbNote"></textarea></div>
+      </div>
+    </div>
+
+    <div id="qtNoTypeMsg" style="font-size:11.5px;color:#475569;text-align:center;padding:10px 0">Scegli il tipo di allenamento sopra</div>
+
+    <button class="log-save-btn log-save-run" id="qtSaveBtn" style="display:none" onclick="quickSaveTraining()">✅ Salva allenamento</button>
+    <button class="btn-modal-close" onclick="closeQuickTrainModal()">Chiudi</button>
   </div>
 </div>
 
@@ -3484,6 +3607,95 @@ function confirmAddExtra() {
   refreshCurrentView();
 }
 
+// ─── MODAL: QUICK TRAIN (registrazione rapida allenamento di oggi dalla Dashboard) ──
+let quickTrainType = null;
+function quickTrainOpenModal() {
+  quickTrainType = null;
+  const iso = todayISO();
+  const now = new Date();
+  document.getElementById("qtDateLabel").textContent = now.toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+  ["run","cf","climb"].forEach(t => document.getElementById("qtTypeBtn" + t.charAt(0).toUpperCase()+t.slice(1)).classList.remove("active"));
+  document.getElementById("qtRunFields").style.display = "none";
+  document.getElementById("qtCfFields").style.display = "none";
+  document.getElementById("qtClimbFields").style.display = "none";
+  document.getElementById("qtNoTypeMsg").style.display = "";
+  document.getElementById("qtSaveBtn").style.display = "none";
+  // reset campi
+  document.getElementById("qtRunKm").value = "";
+  document.getElementById("qtRunTime").value = "";
+  document.getElementById("qtRunFeel").value = "3";
+  document.getElementById("qtRunNote").value = "";
+  document.getElementById("qtCfWod").value = "";
+  document.getElementById("qtCfRounds").value = "";
+  document.getElementById("qtCfFeel").value = "3";
+  document.getElementById("qtCfNote").value = "";
+  document.getElementById("qtClimbPlace").value = "";
+  document.getElementById("qtClimbGrade").value = "";
+  document.getElementById("qtClimbSends").value = "";
+  document.getElementById("qtClimbFeel").value = "3";
+  document.getElementById("qtClimbNote").value = "";
+  document.getElementById("quickTrainModalOverlay").style.display = "flex";
+}
+function closeQuickTrainModal() {
+  document.getElementById("quickTrainModalOverlay").style.display = "none";
+}
+function closeQuickTrainModalOutside(e) {
+  if (e.target === document.getElementById("quickTrainModalOverlay")) closeQuickTrainModal();
+}
+function quickTrainSelectType(type) {
+  quickTrainType = type;
+  const labelMap = { run:"Run", cf:"Cf", climb:"Climb" };
+  ["run","cf","climb"].forEach(t => {
+    document.getElementById("qtTypeBtn" + labelMap[t]).classList.toggle("active", t === type);
+  });
+  document.getElementById("qtRunFields").style.display   = type === "run"   ? "" : "none";
+  document.getElementById("qtCfFields").style.display    = type === "cf"    ? "" : "none";
+  document.getElementById("qtClimbFields").style.display = type === "climb" ? "" : "none";
+  document.getElementById("qtNoTypeMsg").style.display = "none";
+  const saveBtn = document.getElementById("qtSaveBtn");
+  saveBtn.style.display = "";
+  saveBtn.className = "log-save-btn " + (type === "run" ? "log-save-run" : type === "climb" ? "log-save-climb" : "log-save-cf");
+}
+function quickSaveTraining() {
+  const iso = todayISO();
+  if (quickTrainType === "run") {
+    const km      = parseFloat(document.getElementById("qtRunKm").value);
+    const timeStr = document.getElementById("qtRunTime").value.trim();
+    const feel    = document.getElementById("qtRunFeel").value;
+    const surface = document.getElementById("qtRunSurface").value;
+    const note    = document.getElementById("qtRunNote").value.trim();
+    if (!km || !timeStr) return flashInvalid("qtSaveBtn");
+    const parts = timeStr.split(":").map(Number);
+    let totalMin = 0;
+    if (parts.length === 2) totalMin = parts[0] + parts[1]/60;
+    else if (parts.length === 3) totalMin = parts[0]*60 + parts[1] + parts[2]/60;
+    const paceMin = km > 0 ? totalMin / km : 0;
+    const paceStr = paceMin > 0 ? `${Math.floor(paceMin)}:${String(Math.round((paceMin%1)*60)).padStart(2,"0")}` : "";
+    trainLog.unshift({ id: Date.now(), type:"run", date: iso, km, time:timeStr, pace:paceStr, feel, surface, note });
+  } else if (quickTrainType === "cf") {
+    const wod    = document.getElementById("qtCfWod").value.trim();
+    const rounds = document.getElementById("qtCfRounds").value.trim();
+    const rx     = document.getElementById("qtCfRx").value;
+    const feel   = document.getElementById("qtCfFeel").value;
+    const note   = document.getElementById("qtCfNote").value.trim();
+    if (!wod) return flashInvalid("qtSaveBtn");
+    trainLog.unshift({ id: Date.now(), type:"cf", date: iso, wod, rounds, rx, feel, note });
+  } else if (quickTrainType === "climb") {
+    const place      = document.getElementById("qtClimbPlace").value.trim();
+    const discipline = document.getElementById("qtClimbDiscipline").value;
+    const grade      = document.getElementById("qtClimbGrade").value.trim();
+    const sends      = document.getElementById("qtClimbSends").value.trim();
+    const feel       = document.getElementById("qtClimbFeel").value;
+    const note       = document.getElementById("qtClimbNote").value.trim();
+    trainLog.unshift({ id: Date.now(), type:"climb", date: iso, place, discipline, grade, sends, feel, note });
+  } else {
+    return flashInvalid("qtSaveBtn");
+  }
+  saveTrainLog(trainLog);
+  closeQuickTrainModal();
+  refreshCurrentView();
+}
+
 // ─── IMPOSTAZIONI TARGET TRAINING/REST DAY ───────────────────────────────────
 let dashSettingsOpen = false;
 function dashToggleSettings() {
@@ -3595,7 +3807,9 @@ function renderDashboard() {
 
     <div class="dash-training-msg ${trainInfo.intensity||''}">${trainInfo.message}${
       trainInfo.isTrainingDay ? ` <span style="color:#64748b">(${trainInfo.sessions.map(s=>s.type==='run'?'🏃 corsa':s.type==='climb'?'🧗 arrampicata':'🏋️ CrossFit').join(', ')})</span>` : ''
-    }</div>`;
+    }</div>
+
+    <button class="dash-quicklog-btn" onclick="quickTrainOpenModal()">🏋️ Registra allenamento di oggi</button>`;
 
   if (di === null) {
     // Weekend: nessun piano pasti, ma mostriamo comunque training/peso/extra
