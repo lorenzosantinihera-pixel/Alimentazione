@@ -236,6 +236,17 @@
   .cal-cell.has-both .cal-num { color: #f1f5f9; }
   .cal-cell.has-climb  { background: #2a1a08; border: 1px solid #92400e; }
   .cal-cell.has-climb .cal-num { color: #f1f5f9; }
+  .cal-cell { cursor: pointer; }
+  .cal-cell.selected { outline: 2px solid #2563eb; outline-offset: -1px; }
+  .cal-day-detail { background: #0f1923; border: 1px solid #1e2030; border-radius: 10px;
+                     padding: 12px 14px; margin-top: 12px; }
+  .cal-day-detail-title { font-size: 12px; font-weight: 800; color: #e2e8f0; margin-bottom: 10px;
+                           text-transform: capitalize; }
+  .cal-day-empty { font-size: 12px; color: #475569; text-align: center; padding: 10px 0; }
+  .cal-day-session-row { background: #131c2e; border-radius: 8px; padding: 9px 11px; margin-bottom: 7px; }
+  .cal-day-session-row:last-child { margin-bottom: 0; }
+  .cal-day-session-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .cal-day-session-summary { font-size: 11.5px; color: #94a3b8; }
   .cal-num  { font-size: 12px; font-weight: 800; line-height: 1; }
   .cal-dot  { font-size: 6px; line-height: 1; }
   .cal-dot-run  { color: #4ade80; }
@@ -298,6 +309,40 @@
                font-size: 11px; font-weight: 700; }
   .stat-pill span { color: #64748b; font-weight: 400; }
   .session-note { font-size: 12px; color: #64748b; font-style: italic; margin-top: 4px; }
+  .session-actions { display: flex; align-items: center; gap: 2px; }
+  .session-edit { background: none; border: none; color: #334155; font-size: 13px;
+                  cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+  .session-edit:hover { color: #60a5fa; }
+  .session-card.is-record { border-color: #b45309; }
+  .record-badge { display: inline-block; font-size: 9px; font-weight: 800; background: #2a1f08;
+                   color: #fbbf24; padding: 2px 7px; border-radius: 5px; margin-left: 6px;
+                   text-transform: uppercase; letter-spacing: .04em; }
+  .pr-badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .pr-badge { background: #15151f; border: 1px solid #92400e; border-radius: 8px; padding: 6px 10px;
+              font-size: 11px; font-weight: 700; color: #fbbf24; }
+  .pr-badge span { display: block; font-size: 9px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 1px; }
+  .wod-history-card { background: #0f1923; border: 1px solid #1e2030; border-radius: 10px;
+                       padding: 10px 12px; margin-bottom: 10px; }
+  .wod-history-title { font-size: 12px; font-weight: 800; color: #e2e8f0; margin-bottom: 5px; }
+  .wod-history-attempts { font-size: 11px; color: #64748b; line-height: 1.6; }
+  .climb-progression-line { background: #0f1923; border: 1px solid #1e2030; border-radius: 10px;
+                              padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #cbd5e1; }
+  .climb-progression-line b { color: #fb923c; }
+  .week-summary-card { background: linear-gradient(135deg,#0d1a2e,#150f24); border: 1px solid #2c3a56;
+                        border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+  .week-summary-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+                         color: #64748b; margin-bottom: 6px; }
+  .week-summary-line { font-size: 12.5px; color: #e2e8f0; font-weight: 600; margin-bottom: 3px; }
+  .week-goal-row { margin-top: 8px; }
+  .week-goal-label { font-size: 10.5px; color: #94a3b8; margin-bottom: 3px; }
+  .week-goal-bar { background: #0f1923; border-radius: 5px; height: 7px; overflow: hidden; }
+  .week-goal-fill { background: linear-gradient(90deg,#7c3aed,#a78bfa); height: 100%; border-radius: 5px; transition: width .3s; }
+  .week-goal-fill.run { background: linear-gradient(90deg,#059669,#4ade80); }
+  .edit-mode-banner { background: #1f1711; border: 1px solid #92400e; border-radius: 8px; padding: 8px 12px;
+                       font-size: 11.5px; color: #fb923c; margin-bottom: 10px; display: flex;
+                       align-items: center; justify-content: space-between; }
+  .edit-mode-cancel { background: none; border: none; color: #fb923c; font-weight: 700; font-size: 11px;
+                       cursor: pointer; text-decoration: underline; }
 
   /* ── STATS SUMMARY ── */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
@@ -897,6 +942,13 @@
 
     <div class="divider"></div>
     <div class="modal-section-label">🔄 Sostituisci pasto</div>
+
+    <div id="trackPickerSection" style="display:none;margin-bottom:14px">
+      <div style="font-size:11px;color:#64748b;margin-bottom:8px">Scegli tra le proposte già pronte:</div>
+      <div class="meal-picker-list" id="trackPickerList"></div>
+    </div>
+
+    <div style="font-size:11px;color:#475569;margin-bottom:8px" id="trackManualLabel">Oppure inserisci un pasto/alimento personalizzato:</div>
     <div class="manual-form">
       <div class="manual-fields">
         <div class="field-group" style="grid-column:1/-1">
@@ -924,7 +976,7 @@
           <input class="field-input" id="trkRepF" type="number" min="0" placeholder="">
         </div>
       </div>
-      <button class="btn-apply" onclick="trackApplyReplace()">✅ Sostituisci pasto</button>
+      <button class="btn-apply" id="trkRepApplyBtn" onclick="trackApplyReplace()">✅ Sostituisci pasto</button>
     </div>
 
     <div id="trackUndoSection" style="display:none">
@@ -1044,7 +1096,8 @@
             <option value="Scaled">Scaled</option>
           </select>
         </div>
-        <div class="log-field-full">
+        <div><div class="log-label">Durata (min)</div><input class="log-input" id="qtCfDuration" type="number" min="0" placeholder="45"></div>
+        <div>
           <div class="log-label">Sensazione (1–5)</div>
           <select class="log-select" id="qtCfFeel">
             <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
@@ -1072,7 +1125,8 @@
         </div>
         <div><div class="log-label">Grado massimo</div><input class="log-input" id="qtClimbGrade" type="text" placeholder="6a / V4..."></div>
         <div><div class="log-label">Vie/problemi completati</div><input class="log-input" id="qtClimbSends" type="text" placeholder="es. 8"></div>
-        <div class="log-field-full">
+        <div><div class="log-label">Durata (min)</div><input class="log-input" id="qtClimbDuration" type="number" min="0" placeholder="90"></div>
+        <div>
           <div class="log-label">Sensazione (1–5)</div>
           <select class="log-select" id="qtClimbFeel">
             <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
@@ -1220,6 +1274,25 @@ const MACRO_PER100 = {
   "tahini":                { kcal:595, p:17, c:21,  f:54  },
   "aceto balsamico":       { kcal:88,  p:0.5,c:17,  f:0   },
   "senape":                { kcal:60,  p:3.7,c:5.4, f:3.3 },
+  // Frutta
+  "mela":                  { kcal:52,  p:0.3,c:14,  f:0.2 },
+  "banana":                { kcal:89,  p:1.1,c:23,  f:0.3 },
+  "pera":                  { kcal:57,  p:0.4,c:15,  f:0.1 },
+  "arancia":               { kcal:47,  p:0.9,c:12,  f:0.1 },
+  "kiwi":                  { kcal:61,  p:1.1,c:15,  f:0.5 },
+  "mirtilli":              { kcal:57,  p:0.7,c:14,  f:0.3 },
+  "fragole":               { kcal:32,  p:0.7,c:7.7, f:0.3 },
+  "uva":                   { kcal:69,  p:0.7,c:18,  f:0.2 },
+  "pesca":                 { kcal:39,  p:0.9,c:9.5, f:0.3 },
+  "ananas":                { kcal:50,  p:0.5,c:13,  f:0.1 },
+  "macedonia mista":       { kcal:50,  p:0.6,c:12,  f:0.2 },
+  // Frutta secca
+  "mandorle":              { kcal:579, p:21, c:22,  f:50  },
+  "noci":                  { kcal:654, p:15, c:14,  f:65  },
+  "nocciole":              { kcal:628, p:15, c:17,  f:61  },
+  "anacardi":              { kcal:553, p:18, c:30,  f:44  },
+  "pistacchi":             { kcal:560, p:20, c:28,  f:45  },
+  "frutta secca mista":    { kcal:600, p:18, c:22,  f:52  },
 };
 
 // ─── MACRO PERSONALIZZATI (alimenti aggiunti manualmente) ────────────────────
@@ -1276,6 +1349,9 @@ const LIDL_PRICE_PER_KG = {
   "olio evo": 6.05, "olio di sesamo": 9.9, "olive nere": 5.5, "olive taggiasche": 9.9,
   "capperi": 11, "salsa di soia": 3.85, "zenzero fresco": 6.6, "tahini": 9.9,
   "aceto balsamico": 4.4, "senape": 4.4,
+  "mela": 1.8, "banana": 1.5, "pera": 2.0, "arancia": 1.6, "kiwi": 2.5,
+  "mirtilli": 12, "fragole": 6, "uva": 3, "pesca": 2.5, "ananas": 2.5, "macedonia mista": 5,
+  "mandorle": 12, "noci": 11, "nocciole": 13, "anacardi": 14, "pistacchi": 18, "frutta secca mista": 13,
 };
 
 // Grammi effettivamente acquistabili, arrotondati alle confezioni Lidl tipiche
@@ -1471,27 +1547,24 @@ const BREAKFAST_ALTERNATIVES = [
 
 
 const SNACKS = [
-  { name: "Uova sode",
-    ingredients: [{ item:"Uova intere", grams:170 }],
-    note: "🧊 Bollile in anticipo, sgusciate e via — si conservano in frigo 4-5 giorni" },
-  { name: "Fiocchi di latte con pomodorini",
-    ingredients: [{ item:"Fiocchi di latte", grams:150 }, { item:"Pomodorini", grams:100 }],
-    note: "🧊 Vasetto pronto, apri e mangi col cucchiaio" },
   { name: "Yogurt greco",
     ingredients: [{ item:"Yogurt greco 0%", grams:200 }],
     note: "🧊 Confezione singola, apri e mangi — zero assemblaggio" },
-  { name: "Mozzarella proteica con pomodorini",
-    ingredients: [{ item:"Mozzarella proteica", grams:100 }, { item:"Pomodori pelati", grams:150 }],
-    note: "🧊 Monoporzione pronta, apri e mangi" },
-  { name: "Ricotta con cetriolo",
-    ingredients: [{ item:"Ricotta vaccina", grams:150 }, { item:"Cetriolo", grams:120 }],
+  { name: "Fiocchi di latte",
+    ingredients: [{ item:"Fiocchi di latte", grams:200 }],
     note: "🧊 Vasetto pronto, solo cucchiaio" },
-  { name: "Tonno al naturale con carote",
-    ingredients: [{ item:"Tonno in acqua (sgocciolato)", grams:150 }, { item:"Carote", grams:120 }],
-    note: "🗄️ Scatoletta o busta, apri e mangi — zero frigo, zero prep" },
-  { name: "Yogurt greco con carote baby",
-    ingredients: [{ item:"Yogurt greco 0%", grams:200 }, { item:"Carote", grams:150 }],
-    note: "🧊 Carotine già lavate, yogurt monoporzione — apri e mangi" },
+  { name: "Mela",
+    ingredients: [{ item:"Mela", grams:180 }],
+    note: "🍎 Zero prep, la metti in borsa e via" },
+  { name: "Banana",
+    ingredients: [{ item:"Banana", grams:120 }],
+    note: "🍌 Zero prep, perfetta anche fuori casa" },
+  { name: "Frutta secca mista",
+    ingredients: [{ item:"Frutta secca mista", grams:30 }],
+    note: "🥜 Una manciata pronta, apri il sacchetto e via" },
+  { name: "Mandorle",
+    ingredients: [{ item:"Mandorle", grams:30 }],
+    note: "🥜 Zero prep, comode da portare in borsa/zaino" },
 ];
 
 // ─── TAG PESCE ────────────────────────────────────────────────────────────────
@@ -1703,6 +1776,8 @@ const MEAT_SOURCES = ["Pollo"];
 function isMeat(src) { return MEAT_SOURCES.some(m => (src||"").includes(m)); }
 function usesSweetPotato(meal) { return (meal.ingredients||[]).some(i => i.item.toLowerCase() === "patate dolci"); }
 const MAX_SWEET_POTATO_MEALS_PER_WEEK = 2;
+function usesPotato(meal) { return (meal.ingredients||[]).some(i => i.item.toLowerCase() === "patate"); }
+const MAX_POTATO_MEALS_PER_WEEK = 2;
 
 // ─── SELEZIONE GIORNI/PASTI CON CARNE ────────────────────────────────────────
 // Vincoli: max 4 pasti a carne/settimana (su 10 slot: 5 pranzi + 5 cene),
@@ -1811,7 +1886,7 @@ function getMainVeggie(meal) {
 }
 function getProtein(meal) { return (meal.protein_source || "").toLowerCase(); }
 
-function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx, weeklyVeggies, sweetPotatoCount, vegUsage) {
+function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCount, seed, idx, weeklyVeggies, sweetPotatoCount, vegUsage, potatoCount) {
   let penalty = 0;
   const proto = getProtein(candidate);
   const carb  = getMainCarb(candidate);
@@ -1875,6 +1950,9 @@ function scoreMeal(candidate, slot, dayIdx, chosenLunches, chosenDinners, fishCo
   // Patate dolci: max 2 pasti a settimana totali
   if (usesSweetPotato(candidate) && sweetPotatoCount >= MAX_SWEET_POTATO_MEALS_PER_WEEK) penalty += 999;
 
+  // Patate: max 2 pasti a settimana totali
+  if (usesPotato(candidate) && potatoCount >= MAX_POTATO_MEALS_PER_WEEK) penalty += 999;
+
   // Rumore casuale anti-determinismo (0–10)
   penalty += ((seed * 1103515245 + dayIdx * 12345 + idx * 6789) & 0x7fffffff) % 11;
 
@@ -1921,6 +1999,7 @@ function generatePlan(seed) {
   const chosenDinners = new Array(5).fill(null);
   let fishCount = 0;
   let sweetPotatoCount = 0;
+  let potatoCount = 0;
 
   // Selezione pranzi e cene con scoring
   for (let day = 0; day < 5; day++) {
@@ -1936,12 +2015,13 @@ function generatePlan(seed) {
     });
     if (validL.length === 0) validL = candL; // fallback
 
-    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage) }));
+    validL = validL.map((c, i) => ({ c, score: scoreMeal(c, "lunch", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage, potatoCount) }));
     validL.sort((a, b) => a.score - b.score);
     const pickedL = validL[0].c;
     chosenLunches[day] = pickedL;
     if (isFish(getProtein(pickedL))) fishCount++;
     if (usesSweetPotato(pickedL)) sweetPotatoCount++;
+    if (usesPotato(pickedL)) potatoCount++;
     { const g = vegGramsInIngredients(pickedL.ingredients); for (const vk in g) vegUsage[vk] = (vegUsage[vk]||0) + g[vk]; }
 
     // ── CENA ──
@@ -1955,12 +2035,13 @@ function generatePlan(seed) {
     });
     if (validD.length === 0) validD = candD;
 
-    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage) }));
+    validD = validD.map((c, i) => ({ c, score: scoreMeal(c, "dinner", day, chosenLunches, chosenDinners, fishCount, seed, i, weeklyVeggies, sweetPotatoCount, vegUsage, potatoCount) }));
     validD.sort((a, b) => a.score - b.score);
     const pickedD = validD[0].c;
     chosenDinners[day] = pickedD;
     if (isFish(getProtein(pickedD))) fishCount++;
     if (usesSweetPotato(pickedD)) sweetPotatoCount++;
+    if (usesPotato(pickedD)) potatoCount++;
     { const g = vegGramsInIngredients(pickedD.ingredients); for (const vk in g) vegUsage[vk] = (vegUsage[vk]||0) + g[vk]; }
   }
 
@@ -2204,10 +2285,130 @@ let macroSection = (() => {
     return v;
   } catch(e) { return "dashboard"; }
 })();
-let trainTab      = "run"; // "run" | "cf"
+let trainTab      = "run"; // "run" | "cf" | "climb" | "peso"
+let editingSessionId = null; // id della sessione in modifica, o null
+
+// ─── PR / RECORD CORSA ───────────────────────────────────────────────────────
+function paceToSeconds(paceStr) {
+  if (!paceStr) return Infinity;
+  const parts = paceStr.split(":").map(Number);
+  return (parts[0]||0)*60 + (parts[1]||0);
+}
+const PR_RACE_DISTANCES = [5, 10, 15, 21.1, 42.2];
+function findRunPRs(runLog) {
+  const prs = {};
+  PR_RACE_DISTANCES.forEach(target => {
+    const tol = target * 0.07; // tolleranza ±7% sulla distanza per considerarla "quella gara"
+    const matches = runLog.filter(r => r.km && r.pace && Math.abs(r.km - target) <= tol);
+    if (matches.length === 0) return;
+    let best = matches[0], bestSec = Infinity;
+    matches.forEach(m => {
+      const totalSec = paceToSeconds(m.pace) * m.km;
+      if (totalSec < bestSec) { bestSec = totalSec; best = m; }
+    });
+    prs[target] = best;
+  });
+  return prs;
+}
+function getRunRecordIds(runLog) {
+  const ids = new Set();
+  if (runLog.length === 0) return ids;
+  const withPace = runLog.filter(r => r.pace);
+  if (withPace.length) {
+    const best = [...withPace].sort((a,b) => paceToSeconds(a.pace) - paceToSeconds(b.pace))[0];
+    ids.add(best.id);
+  }
+  const longest = [...runLog].sort((a,b) => (b.km||0) - (a.km||0))[0];
+  if (longest) ids.add(longest.id);
+  Object.values(findRunPRs(runLog)).forEach(s => ids.add(s.id));
+  return ids;
+}
+
+// ─── STORICO WOD RIPETUTI (CrossFit) ─────────────────────────────────────────
+function groupRepeatedWods(cfLog) {
+  const map = {};
+  cfLog.forEach(s => {
+    const key = (s.wod||"").trim().toLowerCase();
+    if (!key) return;
+    if (!map[key]) map[key] = [];
+    map[key].push(s);
+  });
+  return Object.values(map)
+    .filter(arr => arr.length >= 2)
+    .map(arr => ({ name: arr[0].wod, attempts: [...arr].sort((a,b) => a.date.localeCompare(b.date)) }))
+    .sort((a,b) => b.attempts[b.attempts.length-1].date.localeCompare(a.attempts[a.attempts.length-1].date));
+}
+
+// ─── RIEPILOGO SETTIMANALE & OBIETTIVI ───────────────────────────────────────
+function getWeekBounds(dateISO) {
+  const d = new Date(dateISO + "T00:00:00");
+  const dow = d.getDay(); // 0=Dom..6=Sab
+  const diffToMonday = (dow === 0 ? -6 : 1 - dow);
+  const monday = new Date(d); monday.setDate(d.getDate() + diffToMonday);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  const fmt = x => `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
+  return { startISO: fmt(monday), endISO: fmt(sunday) };
+}
+function getWeekSessions(dateISO) {
+  const { startISO, endISO } = getWeekBounds(dateISO);
+  return trainLog.filter(s => s.date >= startISO && s.date <= endISO);
+}
+function parseDurationMinutes(session) {
+  if (session.type === "run") {
+    const parts = (session.time||"").split(":").map(Number);
+    if (parts.length === 2) return parts[0] + parts[1]/60;
+    if (parts.length === 3) return parts[0]*60 + parts[1] + parts[2]/60;
+    return 0;
+  }
+  return parseFloat(session.duration) || 0;
+}
+function computeWeekSummary(dateISO) {
+  const sessions = getWeekSessions(dateISO);
+  const runSessions   = sessions.filter(s => s.type === "run");
+  const cfSessions    = sessions.filter(s => s.type === "cf");
+  const climbSessions = sessions.filter(s => s.type === "climb");
+  const totalMinutes  = sessions.reduce((sum,s) => sum + parseDurationMinutes(s), 0);
+  const runKm = runSessions.reduce((sum,s) => sum + (s.km||0), 0);
+  return {
+    totalSessions: sessions.length,
+    runCount: runSessions.length, runKm,
+    cfCount: cfSessions.length,
+    climbCount: climbSessions.length,
+    totalMinutes: Math.round(totalMinutes),
+  };
+}
+function renderWeekSummaryCard() {
+  const summary = computeWeekSummary(todayISO());
+  const goals = appSettings.weeklyGoals;
+  const sessPct = goals.sessions > 0 ? Math.min(100, Math.round(summary.totalSessions/goals.sessions*100)) : 0;
+  const kmPct   = goals.kmRun > 0 ? Math.min(100, Math.round(summary.runKm/goals.kmRun*100)) : 0;
+  const h = Math.floor(summary.totalMinutes/60), m = summary.totalMinutes%60;
+  const durataStr = summary.totalMinutes > 0 ? `${h>0?h+"h ":""}${m}min totali` : "Nessun allenamento ancora questa settimana";
+  return `<div class="week-summary-card">
+    <div class="week-summary-title">📊 Questa settimana</div>
+    <div class="week-summary-line">${summary.runCount} corse${summary.runKm>0?` (${summary.runKm.toFixed(1)}km)`:""} · ${summary.cfCount} CrossFit · ${summary.climbCount} arrampicata</div>
+    <div class="week-summary-line" style="color:#64748b;font-weight:400">${durataStr}</div>
+    <div class="week-goal-row">
+      <div class="week-goal-label">Sessioni: ${summary.totalSessions}/${goals.sessions}</div>
+      <div class="week-goal-bar"><div class="week-goal-fill" style="width:${sessPct}%"></div></div>
+    </div>
+    ${goals.kmRun > 0 ? `<div class="week-goal-row">
+      <div class="week-goal-label">Km corsa: ${summary.runKm.toFixed(1)}/${goals.kmRun}</div>
+      <div class="week-goal-bar"><div class="week-goal-fill run" style="width:${kmPct}%"></div></div>
+    </div>` : ""}
+  </div>`;
+}
+function dashUpdateWeeklyGoal(field, val) {
+  const n = parseFloat(val);
+  if (isNaN(n) || n < 0) return;
+  appSettings.weeklyGoals[field] = n;
+  saveSettings(appSettings);
+  refreshCurrentView();
+}
 let calendarOpen  = true;  // calendario mensile visibile
 let calendarYear  = new Date().getFullYear();
 let calendarMonth = new Date().getMonth(); // 0-based
+let selectedCalDay = null; // "YYYY-MM-DD" del giorno selezionato nel calendario, o null
 
 function loadTrainLog()  { try { return JSON.parse(localStorage.getItem(TRAIN_KEY) || "[]"); } catch(e) { return []; } }
 function saveTrainLog(l) { try { localStorage.setItem(TRAIN_KEY, JSON.stringify(l)); } catch(e) {} }
@@ -2257,6 +2458,7 @@ function defaultSettings() {
     useDayTypeTargets: false,
     restTargets:     { kcal: TARGETS.kcal, protein: TARGETS.protein, carbs: TARGETS.carbs, fat: TARGETS.fat },
     trainingTargets: { kcal: TARGETS.kcal, protein: TARGETS.protein, carbs: TARGETS.carbs + 40, fat: TARGETS.fat },
+    weeklyGoals: { sessions: 3, kmRun: 15 },
   };
 }
 function loadSettings() {
@@ -2264,7 +2466,7 @@ function loadSettings() {
     const r = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null");
     if (!r) return defaultSettings();
     const d = defaultSettings();
-    return { ...d, ...r, restTargets: { ...d.restTargets, ...(r.restTargets||{}) }, trainingTargets: { ...d.trainingTargets, ...(r.trainingTargets||{}) } };
+    return { ...d, ...r, restTargets: { ...d.restTargets, ...(r.restTargets||{}) }, trainingTargets: { ...d.trainingTargets, ...(r.trainingTargets||{}) }, weeklyGoals: { ...d.weeklyGoals, ...(r.weeklyGoals||{}) } };
   } catch(e) { return defaultSettings(); }
 }
 function saveSettings(s) { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch(e) {} }
@@ -2338,6 +2540,7 @@ function getChartDefaults() {
 }
 
 function setMacro(section) {
+  if (section !== "train" && editingSessionId !== null) editingSessionId = null; // esce dalla modifica se si lascia il tab Training
   macroSection = section;
   try { localStorage.setItem(MACRO_KEY2, section); } catch(e) {}
   document.getElementById("sectionDashboard").style.display = section === "dashboard" ? "" : "none";
@@ -2351,6 +2554,10 @@ function setMacro(section) {
 }
 
 function setTrainTab(tab) {
+  if (editingSessionId !== null) {
+    const editing = trainLog.find(s => s.id === editingSessionId);
+    if (!editing || editing.type !== tab) editingSessionId = null; // evita stato di modifica "appeso" su un tab diverso
+  }
   trainTab = tab;
   renderTraining();
 }
@@ -2372,22 +2579,39 @@ function saveRunSession() {
   const paceMin = km > 0 ? totalMin / km : 0;
   const paceStr = paceMin > 0 ? `${Math.floor(paceMin)}:${String(Math.round((paceMin%1)*60)).padStart(2,"0")}` : "";
 
-  trainLog.unshift({ id: Date.now(), type:"run", date, km, time:timeStr, pace:paceStr, feel, surface, note });
+  const payload = { type:"run", date, km, time:timeStr, pace:paceStr, feel, surface, note };
+  if (editingSessionId !== null) {
+    const idx = trainLog.findIndex(s => s.id === editingSessionId && s.type === "run");
+    editingSessionId = null;
+    if (idx !== -1) { trainLog[idx] = { ...trainLog[idx], ...payload }; }
+    else { trainLog.unshift({ id: Date.now(), ...payload }); }
+  } else {
+    trainLog.unshift({ id: Date.now(), ...payload });
+  }
   saveTrainLog(trainLog);
   flashSaveSuccess("runSaveBtn");
   renderTraining();
 }
 
 function saveCFSession() {
-  const date   = document.getElementById("cfDate").value;
-  const wod    = document.getElementById("cfWod").value.trim();
-  const rounds = document.getElementById("cfRounds").value.trim();
-  const rx     = document.getElementById("cfRx").value;
-  const feel   = document.getElementById("cfFeel").value;
-  const note   = document.getElementById("cfNote").value.trim();
+  const date     = document.getElementById("cfDate").value;
+  const wod      = document.getElementById("cfWod").value.trim();
+  const rounds   = document.getElementById("cfRounds").value.trim();
+  const rx       = document.getElementById("cfRx").value;
+  const duration = document.getElementById("cfDuration").value.trim();
+  const feel     = document.getElementById("cfFeel").value;
+  const note     = document.getElementById("cfNote").value.trim();
   if (!date) return flashInvalid("cfSaveBtn");
 
-  trainLog.unshift({ id: Date.now(), type:"cf", date, wod, rounds, rx, feel, note });
+  const payload = { type:"cf", date, wod, rounds, rx, duration, feel, note };
+  if (editingSessionId !== null) {
+    const idx = trainLog.findIndex(s => s.id === editingSessionId && s.type === "cf");
+    editingSessionId = null;
+    if (idx !== -1) { trainLog[idx] = { ...trainLog[idx], ...payload }; }
+    else { trainLog.unshift({ id: Date.now(), ...payload }); }
+  } else {
+    trainLog.unshift({ id: Date.now(), ...payload });
+  }
   saveTrainLog(trainLog);
   flashSaveSuccess("cfSaveBtn");
   renderTraining();
@@ -2399,19 +2623,69 @@ function saveClimbSession() {
   const discipline = document.getElementById("climbDiscipline").value;
   const grade      = document.getElementById("climbGrade").value.trim();
   const sends      = document.getElementById("climbSends").value.trim();
+  const duration   = document.getElementById("climbDuration").value.trim();
   const feel       = document.getElementById("climbFeel").value;
   const note       = document.getElementById("climbNote").value.trim();
   if (!date) return flashInvalid("climbSaveBtn");
 
-  trainLog.unshift({ id: Date.now(), type:"climb", date, place, discipline, grade, sends, feel, note });
+  const payload = { type:"climb", date, place, discipline, grade, sends, duration, feel, note };
+  if (editingSessionId !== null) {
+    const idx = trainLog.findIndex(s => s.id === editingSessionId && s.type === "climb");
+    editingSessionId = null;
+    if (idx !== -1) { trainLog[idx] = { ...trainLog[idx], ...payload }; }
+    else { trainLog.unshift({ id: Date.now(), ...payload }); }
+  } else {
+    trainLog.unshift({ id: Date.now(), ...payload });
+  }
   saveTrainLog(trainLog);
   flashSaveSuccess("climbSaveBtn");
+  renderTraining();
+}
+
+function editSession(id) {
+  const session = trainLog.find(s => s.id === id);
+  if (!session) return;
+  editingSessionId = id;
+  trainTab = session.type;
+  renderTraining();
+  // popola i campi del form con i valori esistenti
+  if (session.type === "run") {
+    document.getElementById("runDate").value = session.date;
+    document.getElementById("runKm").value = session.km || "";
+    document.getElementById("runTime").value = session.time || "";
+    document.getElementById("runFeel").value = session.feel || "3";
+    document.getElementById("runSurface").value = session.surface || "Asfalto";
+    document.getElementById("runNote").value = session.note || "";
+  } else if (session.type === "cf") {
+    document.getElementById("cfDate").value = session.date;
+    document.getElementById("cfWod").value = session.wod || "";
+    document.getElementById("cfRounds").value = session.rounds || "";
+    document.getElementById("cfRx").value = session.rx || "RX";
+    document.getElementById("cfDuration").value = session.duration || "";
+    document.getElementById("cfFeel").value = session.feel || "3";
+    document.getElementById("cfNote").value = session.note || "";
+  } else if (session.type === "climb") {
+    document.getElementById("climbDate").value = session.date;
+    document.getElementById("climbPlace").value = session.place || "";
+    document.getElementById("climbDiscipline").value = session.discipline || "Boulder";
+    document.getElementById("climbGrade").value = session.grade || "";
+    document.getElementById("climbSends").value = session.sends || "";
+    document.getElementById("climbDuration").value = session.duration || "";
+    document.getElementById("climbFeel").value = session.feel || "3";
+    document.getElementById("climbNote").value = session.note || "";
+  }
+  const card = document.querySelector(".log-card");
+  if (card && typeof card.scrollIntoView === "function") card.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+function cancelEditSession() {
+  editingSessionId = null;
   renderTraining();
 }
 
 function deleteSession(id) {
   trainLog = trainLog.filter(s => s.id !== id);
   saveTrainLog(trainLog);
+  if (editingSessionId === id) editingSessionId = null;
   renderTraining();
 }
 
@@ -2439,6 +2713,10 @@ function nextCalMonth() {
 }
 function toggleCalendar() {
   calendarOpen = !calendarOpen;
+  renderTraining();
+}
+function selectCalDay(iso) {
+  selectedCalDay = (selectedCalDay === iso) ? null : iso; // tap di nuovo sullo stesso giorno per deselezionare
   renderTraining();
 }
 
@@ -2471,10 +2749,12 @@ function renderTraining() {
     const hasClimb = trainLog.some(s => s.type==="climb" && s.date===iso);
     const activityCount = [hasRun, hasCF, hasClimb].filter(Boolean).length;
     const isToday = iso === todayStr;
+    const isSelected = iso === selectedCalDay;
     const cls = [
       "cal-cell cur-month",
       activityCount >= 2 ? "has-both" : hasRun ? "has-run" : hasCF ? "has-cf" : hasClimb ? "has-climb" : "",
-      isToday ? "today" : ""
+      isToday ? "today" : "",
+      isSelected ? "selected" : ""
     ].filter(Boolean).join(" ");
     let dotHtml = "";
     if (activityCount >= 2) {
@@ -2482,8 +2762,49 @@ function renderTraining() {
     } else if (hasRun)   dotHtml = `<span class="cal-dot cal-dot-run">●</span>`;
     else if (hasCF)      dotHtml = `<span class="cal-dot cal-dot-cf">●</span>`;
     else if (hasClimb)   dotHtml = `<span class="cal-dot cal-dot-climb">●</span>`;
-    return `<div class="${cls}"><span class="cal-num">${dayNum}</span>${dotHtml}</div>`;
+    return `<div class="${cls}" onclick="selectCalDay('${iso}')"><span class="cal-num">${dayNum}</span>${dotHtml}</div>`;
   });
+
+  // helper: modifica/elimina sessione (definiti qui per poterli usare anche nel pannello di dettaglio giorno)
+  const editBtn = (id) => `<button class="session-edit" title="Modifica" onclick="editSession(${id})">✏️</button>`;
+  const delBtn = (id) =>
+    `<button class="session-del" title="Elimina"
+      onclick="const b=this;if(b.dataset.armed==='1'){deleteSession(${id});}else{b.dataset.armed='1';b.textContent='✓?';b.style.color='#f87171';setTimeout(()=>{if(b.dataset.armed){b.dataset.armed='';b.textContent='✕';b.style.color='';}},2500);}">✕</button>`;
+
+  // ── Pannello dettaglio giorno selezionato ──
+  let dayDetailHtml = "";
+  if (selectedCalDay) {
+    const daySessions = trainLog.filter(s => s.date === selectedCalDay);
+    const dLabel = new Date(selectedCalDay + "T00:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+    const typeMeta = { run: { icon:"🏃", label:"Corsa", badge:"badge-run" }, cf: { icon:"🏋️", label:"CrossFit", badge:"badge-cf" }, climb: { icon:"🧗", label:"Arrampicata", badge:"badge-climb" } };
+    if (daySessions.length === 0) {
+      dayDetailHtml = `<div class="cal-day-detail">
+        <div class="cal-day-detail-title">${dLabel}</div>
+        <div class="cal-day-empty">Nessun allenamento registrato questo giorno.</div>
+      </div>`;
+    } else {
+      dayDetailHtml = `<div class="cal-day-detail">
+        <div class="cal-day-detail-title">${dLabel} · ${daySessions.length} allenament${daySessions.length>1?"i":"o"}</div>
+        ${daySessions.map(s => {
+          const meta = typeMeta[s.type];
+          const feelStars = "⭐".repeat(parseInt(s.feel)||3);
+          let summary = "";
+          if (s.type === "run") summary = `${s.km||"?"}km in ${s.time||"?"} ${s.pace?`(passo ${s.pace}/km)`:""}`;
+          else if (s.type === "cf") summary = `${s.wod ? s.wod.slice(0,40) : "WOD"}${s.rounds?` · ${s.rounds}`:""}${s.rx?` · ${s.rx}`:""}`;
+          else if (s.type === "climb") summary = `${s.discipline||""}${s.grade?` · ${s.grade}`:""}${s.place?` · ${s.place}`:""}`;
+          return `<div class="cal-day-session-row">
+            <div class="cal-day-session-top">
+              <span class="session-type-badge ${meta.badge}">${meta.icon} ${meta.label}</span>
+              <div class="session-actions">${editBtn(s.id)}${delBtn(s.id)}</div>
+            </div>
+            <div class="cal-day-session-summary">${summary}</div>
+            <div class="cal-day-session-summary" style="margin-top:2px">${feelStars}${s.duration?` · ${s.duration} min`:""}</div>
+            ${s.note ? `<div class="session-note">${s.note}</div>` : ""}
+          </div>`;
+        }).join("")}
+      </div>`;
+    }
+  }
 
   const calendarHtml = `
   <div class="cal-wrapper">
@@ -2504,11 +2825,12 @@ function renderTraining() {
         <div class="cal-legend-item"><span style="color:#fb923c">●</span> Arrampicata</div>
         <div class="cal-legend-item"><span style="color:#c4b5fd">●</span> Più attività</div>
       </div>
+      ${dayDetailHtml}
     </div>` : ""}
   </div>`;
 
-  // ── Tabs ──
-  let html = calendarHtml + `
+  // riepilogo settimanale (sempre visibile, sopra il calendario)
+  let html = renderWeekSummaryCard() + calendarHtml + `
   <div class="train-tabs">
     <button class="train-tab ${trainTab==="run"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('run')">🏃 Corsa</button>
     <button class="train-tab ${trainTab==="cf"?"train-tab-active":"train-tab-inactive"}"  onclick="setTrainTab('cf')">🏋️ CrossFit</button>
@@ -2516,16 +2838,22 @@ function renderTraining() {
     <button class="train-tab ${trainTab==="peso"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('peso')">⚖️ Peso</button>
   </div>`;
 
-  // helper: delete button con doppio tap
-  const delBtn = (id) =>
-    `<button class="session-del" title="Elimina"
-      onclick="const b=this;if(b.dataset.armed==='1'){deleteSession(${id});}else{b.dataset.armed='1';b.textContent='✓?';b.style.color='#f87171';setTimeout(()=>{if(b.dataset.armed){b.dataset.armed='';b.textContent='✕';b.style.color='';}},2500);}">✕</button>`;
+  // helper: banner modalità modifica
+  const editBanner = (type) => (editingSessionId !== null && trainTab === type) ? `<div class="edit-mode-banner">
+      <span>✏️ Stai modificando una sessione esistente</span>
+      <button class="edit-mode-cancel" onclick="cancelEditSession()">Annulla</button>
+    </div>` : "";
 
   // ── RUN TAB ──
   if (trainTab === "run") {
     const totalKm   = runLog.reduce((s,r) => s + (r.km||0), 0);
-    const bestPace  = runLog.filter(r=>r.pace).sort((a,b) => a.pace.localeCompare(b.pace))[0]?.pace || "—";
+    const bestPaceEntry = runLog.filter(r=>r.pace).sort((a,b) => paceToSeconds(a.pace) - paceToSeconds(b.pace))[0];
+    const bestPace  = bestPaceEntry ? bestPaceEntry.pace : "—";
     const longestKm = runLog.length ? Math.max(...runLog.map(r=>r.km||0)).toFixed(1) : "—";
+    const recordIds = getRunRecordIds(runLog);
+    const runPRs = findRunPRs(runLog);
+
+    html += editBanner("run");
 
     html += `<div class="stats-grid">
       <div class="stat-box"><div class="stat-box-val">${runLog.length}</div><div class="stat-box-lbl">Sessioni</div></div>
@@ -2534,8 +2862,17 @@ function renderTraining() {
       <div class="stat-box"><div class="stat-box-val">${longestKm}</div><div class="stat-box-lbl">Uscita più lunga (km)</div></div>
     </div>`;
 
+    if (Object.keys(runPRs).length > 0) {
+      const distLabel = { 5:"5K", 10:"10K", 15:"15K", 21.1:"Mezza", 42.2:"Maratona" };
+      html += `<div class="pr-badge-row">${Object.entries(runPRs).map(([dist,s]) => {
+        const totalSec = Math.round(paceToSeconds(s.pace) * s.km);
+        const mm = Math.floor(totalSec/60), ss = totalSec%60;
+        return `<div class="pr-badge">🏅 ${distLabel[dist]||dist+"K"}: ${mm}:${String(ss).padStart(2,"0")}<span>${s.date.slice(5)}</span></div>`;
+      }).join("")}</div>`;
+    }
+
     html += `<div class="log-card">
-      <div class="log-card-title">➕ Registra uscita</div>
+      <div class="log-card-title">${editingSessionId!==null?"✏️ Modifica uscita":"➕ Registra uscita"}</div>
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
@@ -2571,7 +2908,7 @@ function renderTraining() {
           <textarea class="log-textarea" id="runNote" placeholder="es. gambe pesanti, caldo…"></textarea>
         </div>
       </div>
-      <button class="log-save-btn log-save-run" id="runSaveBtn" onclick="saveRunSession()">✅ Salva uscita</button>
+      <button class="log-save-btn log-save-run" id="runSaveBtn" onclick="saveRunSession()">${editingSessionId!==null?"💾 Aggiorna uscita":"✅ Salva uscita"}</button>
     </div>`;
 
     if (runLog.length === 0) {
@@ -2598,13 +2935,15 @@ function renderTraining() {
       </div>`;
       html += runLog.map(s => {
         const feelStars = "⭐".repeat(parseInt(s.feel)||3);
-        return `<div class="session-card">
+        const isRecord = recordIds.has(s.id);
+        return `<div class="session-card ${isRecord?'is-record':''}">
           <div class="session-header">
             <div class="session-date-type">
               <span class="session-type-badge badge-run">Corsa</span>
               <span class="session-date-str">${s.date}</span>
+              ${isRecord ? '<span class="record-badge">🏆 Record</span>' : ''}
             </div>
-            ${delBtn(s.id)}
+            <div class="session-actions">${editBtn(s.id)}${delBtn(s.id)}</div>
           </div>
           <div class="session-body">
             <div class="session-stats">
@@ -2638,6 +2977,8 @@ function renderTraining() {
       return count;
     })();
 
+    html += editBanner("cf");
+
     html += `<div class="stats-grid">
       <div class="stat-box"><div class="stat-box-val">${totalSess}</div><div class="stat-box-lbl">Sessioni</div></div>
       <div class="stat-box"><div class="stat-box-val">${rxCount}</div><div class="stat-box-lbl">Sessioni RX</div></div>
@@ -2646,7 +2987,7 @@ function renderTraining() {
     </div>`;
 
     html += `<div class="log-card">
-      <div class="log-card-title">➕ Registra sessione CrossFit</div>
+      <div class="log-card-title">${editingSessionId!==null?"✏️ Modifica sessione CrossFit":"➕ Registra sessione CrossFit"}</div>
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
@@ -2668,7 +3009,11 @@ function renderTraining() {
             <option value="RX+">RX+</option>
           </select>
         </div>
-        <div class="log-field-full">
+        <div>
+          <div class="log-label">Durata (min)</div>
+          <input class="log-input" id="cfDuration" type="number" min="0" placeholder="45">
+        </div>
+        <div>
           <div class="log-label">Sensazione (1–5)</div>
           <select class="log-select" id="cfFeel">
             <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
@@ -2683,12 +3028,21 @@ function renderTraining() {
           <textarea class="log-textarea" id="cfNote" placeholder="es. PR su clean, spalle affaticate…"></textarea>
         </div>
       </div>
-      <button class="log-save-btn log-save-cf" id="cfSaveBtn" onclick="saveCFSession()">✅ Salva sessione</button>
+      <button class="log-save-btn log-save-cf" id="cfSaveBtn" onclick="saveCFSession()">${editingSessionId!==null?"💾 Aggiorna sessione":"✅ Salva sessione"}</button>
     </div>`;
 
     if (cfLog.length === 0) {
       html += `<div class="train-empty">🏋️ Nessuna sessione registrata.<br>Aggiungi il tuo primo allenamento.</div>`;
     } else {
+      const repeatedWods = groupRepeatedWods(cfLog);
+      if (repeatedWods.length > 0) {
+        html += `<div class="dash-section-title" style="margin-top:0">📋 Storico WOD ripetuti</div>`;
+        html += repeatedWods.map(g => `<div class="wod-history-card">
+          <div class="wod-history-title">${g.name.length>60?g.name.slice(0,60)+"…":g.name}</div>
+          <div class="wod-history-attempts">${g.attempts.map(a => `${a.date.slice(5)}: ${a.rounds||"—"} (${a.rx||"—"})`).join(" · ")}</div>
+        </div>`).join("");
+      }
+
       // ── Grafico sessioni CF per settimana ──
       const cfSorted = [...cfLog].sort((a,b) => a.date.localeCompare(b.date));
       // group by week (ISO week label)
@@ -2722,12 +3076,13 @@ function renderTraining() {
               <span class="session-type-badge badge-cf">CrossFit</span>
               <span class="session-date-str">${s.date}</span>
             </div>
-            ${delBtn(s.id)}
+            <div class="session-actions">${editBtn(s.id)}${delBtn(s.id)}</div>
           </div>
           <div class="session-body">
             <div class="session-stats">
               ${s.rx ? `<div class="stat-pill" style="color:${s.rx==="RX"?"#4ade80":"#a78bfa"}">${s.rx}</div>` : ""}
               ${s.rounds ? `<div class="stat-pill">${s.rounds} <span>rounds/reps</span></div>` : ""}
+              ${s.duration ? `<div class="stat-pill">${s.duration} <span>min</span></div>` : ""}
               <div class="stat-pill" style="color:#fbbf24">${feelStars}</div>
             </div>
             ${s.wod ? `<div class="session-note" style="font-style:normal;color:#94a3b8;margin-bottom:4px">📋 ${s.wod}</div>` : ""}
@@ -2755,6 +3110,8 @@ function renderTraining() {
       return count;
     })();
 
+    html += editBanner("climb");
+
     html += `<div class="stats-grid">
       <div class="stat-box"><div class="stat-box-val">${totalSess}</div><div class="stat-box-lbl">Sessioni</div></div>
       <div class="stat-box"><div class="stat-box-val">${lastGrade}</div><div class="stat-box-lbl">Ultimo grado</div></div>
@@ -2763,7 +3120,7 @@ function renderTraining() {
     </div>`;
 
     html += `<div class="log-card">
-      <div class="log-card-title">➕ Registra sessione di arrampicata</div>
+      <div class="log-card-title">${editingSessionId!==null?"✏️ Modifica sessione di arrampicata":"➕ Registra sessione di arrampicata"}</div>
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
@@ -2791,6 +3148,10 @@ function renderTraining() {
           <input class="log-input" id="climbSends" type="text" placeholder="es. 8">
         </div>
         <div>
+          <div class="log-label">Durata (min)</div>
+          <input class="log-input" id="climbDuration" type="number" min="0" placeholder="90">
+        </div>
+        <div>
           <div class="log-label">Sensazione (1–5)</div>
           <select class="log-select" id="climbFeel">
             <option value="5">⭐⭐⭐⭐⭐ Ottima</option>
@@ -2805,12 +3166,26 @@ function renderTraining() {
           <textarea class="log-textarea" id="climbNote" placeholder="es. progressi sul tetto, prese piccole…"></textarea>
         </div>
       </div>
-      <button class="log-save-btn log-save-climb" id="climbSaveBtn" onclick="saveClimbSession()">✅ Salva sessione</button>
+      <button class="log-save-btn log-save-climb" id="climbSaveBtn" onclick="saveClimbSession()">${editingSessionId!==null?"💾 Aggiorna sessione":"✅ Salva sessione"}</button>
     </div>`;
 
     if (climbLog.length === 0) {
       html += `<div class="train-empty">🧗 Nessuna sessione registrata.<br>Aggiungi la tua prima arrampicata.</div>`;
     } else {
+      // ── Andamento gradi (disciplina con più sessioni registrate) ──
+      const disciplineGroups = {};
+      climbLog.forEach(s => {
+        const key = s.discipline || "Boulder";
+        (disciplineGroups[key] = disciplineGroups[key] || []).push(s);
+      });
+      const mainDiscipline = Object.entries(disciplineGroups).sort((a,b) => b[1].length - a[1].length)[0];
+      if (mainDiscipline && mainDiscipline[1].length >= 2) {
+        const sortedGrades = [...mainDiscipline[1]].sort((a,b) => a.date.localeCompare(b.date)).filter(s => s.grade);
+        if (sortedGrades.length >= 2) {
+          html += `<div class="climb-progression-line">📈 Andamento gradi (${mainDiscipline[0]}): <b>${sortedGrades.map(s=>s.grade).join(" → ")}</b></div>`;
+        }
+      }
+
       // ── Grafico sessioni per settimana ──
       const climbSorted = [...climbLog].sort((a,b) => a.date.localeCompare(b.date));
       const weekMap = {};
@@ -2835,13 +3210,14 @@ function renderTraining() {
               <span class="session-type-badge badge-climb">Arrampicata</span>
               <span class="session-date-str">${s.date}</span>
             </div>
-            ${delBtn(s.id)}
+            <div class="session-actions">${editBtn(s.id)}${delBtn(s.id)}</div>
           </div>
           <div class="session-body">
             <div class="session-stats">
               ${s.discipline ? `<div class="stat-pill" style="color:#94a3b8">${s.discipline}</div>` : ""}
               ${s.grade ? `<div class="stat-pill" style="color:#fb923c">${s.grade}</div>` : ""}
               ${s.sends ? `<div class="stat-pill">${s.sends} <span>vie/problemi</span></div>` : ""}
+              ${s.duration ? `<div class="stat-pill">${s.duration} <span>min</span></div>` : ""}
               <div class="stat-pill" style="color:#fbbf24">${feelStars}</div>
             </div>
             ${s.place ? `<div class="session-note" style="font-style:normal;color:#94a3b8;margin-bottom:4px">📍 ${s.place}</div>` : ""}
@@ -3281,6 +3657,7 @@ function getLoggedMealMacros(entry, plannedMacros) {
     return sumMacrosWithOverrides(entry.ingredients.map(i => ({ item:i.item, grams:i.grams, _macrosPer100:i.macrosPer100 })));
   }
   if (entry.status === "replaced") {
+    if (entry.ingredients) return sumMacrosWithOverrides(entry.ingredients.map(i => ({ item:i.item, grams:i.grams, _macrosPer100:i.macrosPer100 })));
     return macrosFromPer100(entry.grams, entry.macrosPer100);
   }
   return { kcal:0, p:0, c:0, f:0 };
@@ -3476,6 +3853,41 @@ function trackOpenModal(dateISO, mealType) {
   document.getElementById("trkRepC").value = "";
   document.getElementById("trkRepF").value = "";
 
+  // Picker: scegli tra le proposte del piano (base + salvati), come nel tab Meal Plan
+  const currentName = planned.name.toLowerCase();
+  let pool = [];
+  if (mealType === "bf") {
+    pool = [...BREAKFASTS, ...BREAKFAST_ALTERNATIVES].map(m => ({ ...m, _src: "base" }));
+  } else if (mealType === "snack") {
+    pool = [...SNACKS.map(m => ({ ...m, _src:"base" })), ...(customMeals.snack||[]).map(m => ({ ...m, _src:"saved" }))];
+  } else if (mealType === "lunch") {
+    pool = [...LUNCHES.map(m => ({ ...m, _src:"base" })), ...(customMeals.lunch||[]).map(m => ({ ...m, _src:"saved" }))];
+  } else if (mealType === "dinner") {
+    pool = [...DINNERS.map(m => ({ ...m, _src:"base" })), ...(customMeals.dinner||[]).map(m => ({ ...m, _src:"saved" }))];
+  }
+  const filteredPool = pool.filter(m => m.name.toLowerCase() !== currentName);
+  const pickerSection = document.getElementById("trackPickerSection");
+  if (filteredPool.length > 0) {
+    window._trackPickerPool = filteredPool;
+    document.getElementById("trackPickerList").innerHTML = filteredPool.map((m, i) => {
+      const ings = m.side_dish ? [...(m.ingredients||[]), ...(m.side_dish.ingredients||[])] : (m.ingredients||[]);
+      const macros = sumMacros(ings);
+      const savedBadge = m._src === "saved" ? `<span class="meal-picker-badge meal-picker-badge-saved">⭐ Preferito</span>` : `<span class="meal-picker-badge">📋 Proposta</span>`;
+      return `<div class="meal-picker-item" onclick="trackApplyMealPick(${i})">
+        <div class="meal-picker-item-name">${m.name} ${savedBadge}</div>
+        <div class="meal-picker-macros">
+          <span class="alt-pill" style="color:#fbbf24">${macros.kcal} kcal</span>
+          <span class="alt-pill" style="color:#60a5fa">P ${macros.p}g</span>
+          <span class="alt-pill" style="color:#4ade80">C ${macros.c}g</span>
+          <span class="alt-pill" style="color:#f87171">G ${macros.f}g</span>
+        </div>
+      </div>`;
+    }).join("");
+    pickerSection.style.display = "";
+  } else {
+    pickerSection.style.display = "none";
+  }
+
   document.getElementById("trackModalOverlay").style.display = "flex";
 }
 function closeTrackModal() {
@@ -3519,7 +3931,7 @@ function trackApplyReplace() {
   const c     = parseFloat(document.getElementById("trkRepC").value);
   const f     = parseFloat(document.getElementById("trkRepF").value);
   if (!name || isNaN(grams) || grams <= 0) {
-    const btn = document.querySelector('#trackModalSheet .btn-apply:last-of-type');
+    const btn = document.getElementById("trkRepApplyBtn");
     if (btn) { btn.style.background = '#7f1d1d'; setTimeout(()=>btn.style.background='',800); }
     return;
   }
@@ -3527,6 +3939,19 @@ function trackApplyReplace() {
   if (!macrosPer100) macrosPer100 = { kcal:0, p:0, c:0, f:0 };
   const dc = ensureDayConsumption(trackModalCtx.dateISO);
   dc[trackModalCtx.mealType] = { status:"replaced", name, grams, macrosPer100, ts: Date.now() };
+  persistConsumption();
+  closeTrackModal();
+  refreshCurrentView();
+}
+function trackApplyMealPick(idx) {
+  if (!trackModalCtx) return;
+  const pool = window._trackPickerPool || [];
+  const picked = pool[idx];
+  if (!picked) return;
+  const ings = picked.side_dish ? [...(picked.ingredients||[]), ...(picked.side_dish.ingredients||[])] : (picked.ingredients||[]);
+  const ingredients = ings.map(i => ({ item: i.item, grams: i.grams, macrosPer100: getMacroPer100(i.item) }));
+  const dc = ensureDayConsumption(trackModalCtx.dateISO);
+  dc[trackModalCtx.mealType] = { status:"replaced", name: picked.name, ingredients, ts: Date.now() };
   persistConsumption();
   closeTrackModal();
   refreshCurrentView();
@@ -3629,11 +4054,13 @@ function quickTrainOpenModal() {
   document.getElementById("qtRunNote").value = "";
   document.getElementById("qtCfWod").value = "";
   document.getElementById("qtCfRounds").value = "";
+  document.getElementById("qtCfDuration").value = "";
   document.getElementById("qtCfFeel").value = "3";
   document.getElementById("qtCfNote").value = "";
   document.getElementById("qtClimbPlace").value = "";
   document.getElementById("qtClimbGrade").value = "";
   document.getElementById("qtClimbSends").value = "";
+  document.getElementById("qtClimbDuration").value = "";
   document.getElementById("qtClimbFeel").value = "3";
   document.getElementById("qtClimbNote").value = "";
   document.getElementById("quickTrainModalOverlay").style.display = "flex";
@@ -3675,21 +4102,23 @@ function quickSaveTraining() {
     const paceStr = paceMin > 0 ? `${Math.floor(paceMin)}:${String(Math.round((paceMin%1)*60)).padStart(2,"0")}` : "";
     trainLog.unshift({ id: Date.now(), type:"run", date: iso, km, time:timeStr, pace:paceStr, feel, surface, note });
   } else if (quickTrainType === "cf") {
-    const wod    = document.getElementById("qtCfWod").value.trim();
-    const rounds = document.getElementById("qtCfRounds").value.trim();
-    const rx     = document.getElementById("qtCfRx").value;
-    const feel   = document.getElementById("qtCfFeel").value;
-    const note   = document.getElementById("qtCfNote").value.trim();
+    const wod      = document.getElementById("qtCfWod").value.trim();
+    const rounds   = document.getElementById("qtCfRounds").value.trim();
+    const rx       = document.getElementById("qtCfRx").value;
+    const duration = document.getElementById("qtCfDuration").value.trim();
+    const feel     = document.getElementById("qtCfFeel").value;
+    const note     = document.getElementById("qtCfNote").value.trim();
     if (!wod) return flashInvalid("qtSaveBtn");
-    trainLog.unshift({ id: Date.now(), type:"cf", date: iso, wod, rounds, rx, feel, note });
+    trainLog.unshift({ id: Date.now(), type:"cf", date: iso, wod, rounds, rx, duration, feel, note });
   } else if (quickTrainType === "climb") {
     const place      = document.getElementById("qtClimbPlace").value.trim();
     const discipline = document.getElementById("qtClimbDiscipline").value;
     const grade      = document.getElementById("qtClimbGrade").value.trim();
     const sends      = document.getElementById("qtClimbSends").value.trim();
+    const duration   = document.getElementById("qtClimbDuration").value.trim();
     const feel       = document.getElementById("qtClimbFeel").value;
     const note       = document.getElementById("qtClimbNote").value.trim();
-    trainLog.unshift({ id: Date.now(), type:"climb", date: iso, place, discipline, grade, sends, feel, note });
+    trainLog.unshift({ id: Date.now(), type:"climb", date: iso, place, discipline, grade, sends, duration, feel, note });
   } else {
     return flashInvalid("qtSaveBtn");
   }
@@ -3745,7 +4174,7 @@ function dashMealRowHtml(dateISO, mealType, planned) {
 
   let detail = "";
   if (status === "modified") detail = `<div class="dash-meal-detail">${entry.ingredients.map(i=>`${i.item} ${i.grams}g`).join(" · ")}</div>`;
-  else if (status === "replaced") detail = `<div class="dash-meal-detail">${entry.grams}g · sostituisce il pasto previsto</div>`;
+  else if (status === "replaced") detail = `<div class="dash-meal-detail">${entry.ingredients ? entry.ingredients.map(i=>`${i.item} ${i.grams}g`).join(" · ") : entry.grams+"g"} · sostituisce il pasto previsto</div>`;
   else if (status === "skipped") detail = `<div class="dash-meal-detail">Pasto saltato — 0 kcal conteggiate</div>`;
 
   const actions = status === "planned"
@@ -3881,6 +4310,9 @@ function renderDashboard() {
     </div>`;
   }
 
+  // Riepilogo settimanale allenamenti (condiviso con il tab Training)
+  html += renderWeekSummaryCard();
+
   // Impostazioni Training Day / Rest Day
   html += `<button class="dash-settings-toggle" onclick="dashToggleSettings()">⚙️ Impostazioni target ${dashSettingsOpen ? '▲' : '▼'}</button>`;
   if (dashSettingsOpen) {
@@ -3894,6 +4326,11 @@ function renderDashboard() {
     } else {
       html += `<div style="font-size:10.5px;color:#475569">Target unico attivo: ${TARGETS.kcal} kcal · ${TARGETS.protein}g P · ${TARGETS.carbs}g C · ${TARGETS.fat}g G</div>`;
     }
+    html += `<div class="dash-target-grid-title">Obiettivi settimanali allenamento</div>
+      <div class="dash-target-grid">
+        <div class="field-group"><div class="field-label">Sessioni/settimana</div><input class="field-input" type="number" min="0" value="${appSettings.weeklyGoals.sessions}" onchange="dashUpdateWeeklyGoal('sessions',this.value)"></div>
+        <div class="field-group"><div class="field-label">Km corsa/settimana</div><input class="field-input" type="number" min="0" value="${appSettings.weeklyGoals.kmRun}" onchange="dashUpdateWeeklyGoal('kmRun',this.value)"></div>
+      </div>`;
     html += `</div>`;
   }
 
