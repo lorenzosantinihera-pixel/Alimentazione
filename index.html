@@ -773,6 +773,23 @@
   .food-suggestion { padding: 8px 12px; font-size: 12.5px; color: #dbe4f0; cursor: pointer; }
   .food-suggestion:hover { background: #1e3a5f; }
   .food-suggestion.manual { color: #4ade80; font-weight: 700; }
+
+  /* ── FRUTTO EXTRA A PRANZO/CENA ── */
+  .fruit-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .fruit-picker-item { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 9px;
+                        padding: 10px 6px; text-align: center; cursor: pointer; }
+  .fruit-picker-item:hover { background: #1e3a5f; }
+  .fruit-picker-item-name { font-size: 12px; font-weight: 700; color: #e2e8f0; }
+  .fruit-picker-item-macro { font-size: 9.5px; color: #64748b; margin-top: 2px; }
+  .fruit-chip { display: inline-flex; align-items: center; gap: 6px; background: #0f2010;
+                border: 1px solid #15803d; border-radius: 8px; padding: 6px 10px;
+                font-size: 12px; font-weight: 700; color: #4ade80; margin-top: 8px; }
+  .fruit-chip-remove { background: none; border: none; color: #4ade80; cursor: pointer;
+                        font-size: 13px; padding: 0 2px; }
+  .add-fruit-btn { display: inline-flex; align-items: center; gap: 5px; background: transparent;
+                   border: 1px dashed #15803d; border-radius: 8px; padding: 6px 10px;
+                   font-size: 11.5px; font-weight: 700; color: #4ade80; cursor: pointer; margin-top: 8px; }
+  .add-fruit-btn:hover { background: #0f2010; }
 </style>
 </head>
 <body>
@@ -1144,6 +1161,17 @@
 
     <button class="log-save-btn log-save-run" id="qtSaveBtn" style="display:none" onclick="quickSaveTraining()">✅ Salva allenamento</button>
     <button class="btn-modal-close" onclick="closeQuickTrainModal()">Chiudi</button>
+  </div>
+</div>
+
+<!-- FRUIT PICKER MODAL (aggiungi frutto a pranzo/cena nel piano) -->
+<div id="fruitPickerOverlay" class="modal-overlay" style="display:none" onclick="closeFruitPickerOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🍎 Aggiungi un frutto</div>
+    <div class="modal-subtitle">Scegli quale frutto abbinare a questo pasto</div>
+    <div class="fruit-picker-grid" id="fruitPickerGrid"></div>
+    <button class="btn-modal-close" onclick="closeFruitPicker()">Chiudi</button>
   </div>
 </div>
 
@@ -2111,8 +2139,8 @@ function generatePlan(seed) {
 
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
 const STORAGE_KEY = "mealplan_v3";
-function savePlan(plan, checked, activeTab, overrides, nameOverrides) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ plan, checked, activeTab, overrides, nameOverrides, ts: Date.now() })); }
+function savePlan(plan, checked, activeTab, overrides, nameOverrides, fruitAdditions) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ plan, checked, activeTab, overrides, nameOverrides, fruitAdditions, ts: Date.now() })); }
   catch(e) {}
 }
 function loadSaved() {
@@ -2135,9 +2163,10 @@ function saveCustomMeals(custom) {
 let customMeals = loadCustomMeals();
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
-let state = { plan: null, checked: {}, activeTab: "plan", overrides: {}, nameOverrides: {} };
+let state = { plan: null, checked: {}, activeTab: "plan", overrides: {}, nameOverrides: {}, fruitAdditions: {} };
 // overrides: { "dayIdx:mealType:ingIdx": { item, grams, macrosPer100 } }
 // nameOverrides: { "dayIdx:mealType": "Nuovo nome pasto" }
+// fruitAdditions: { "dayIdx:lunch"/"dayIdx:dinner": { item, grams } } — frutto extra aggiunto al pasto
 // mealType: "bf","snack","lunch","dinner","side"
 
 // ─── DISPENSA ────────────────────────────────────────────────────────────────
@@ -3525,6 +3554,7 @@ if (saved && saved.plan) {
   state.activeTab = saved.activeTab || "plan";
   state.overrides = saved.overrides || {};
   state.nameOverrides = saved.nameOverrides || {};
+  state.fruitAdditions = saved.fruitAdditions || {};
 }
 
 // ─── HELPER: NOME PASTO (con eventuale override) ─────────────────────────────
@@ -3580,6 +3610,27 @@ function sumMacrosWithOverrides(ings) {
   return { kcal:Math.round(r.kcal), p:Math.round(r.p*10)/10, c:Math.round(r.c*10)/10, f:Math.round(r.f*10)/10 };
 }
 
+const COMMON_FRUITS = [
+  { item:"Banana",  grams:120 },
+  { item:"Mela",    grams:180 },
+  { item:"Pesca",   grams:150 },
+  { item:"Pera",    grams:160 },
+  { item:"Arancia", grams:180 },
+  { item:"Kiwi",    grams:100 },
+  { item:"Fragole", grams:150 },
+  { item:"Uva",     grams:120 },
+  { item:"Ananas",  grams:150 },
+  { item:"Mirtilli",grams:100 },
+];
+function getFruitAddition(dayIdx, mealType) {
+  return state.fruitAdditions[`${dayIdx}:${mealType}`] || null;
+}
+function fruitAdditionMacros(dayIdx, mealType) {
+  const fa = getFruitAddition(dayIdx, mealType);
+  if (!fa) return { kcal:0, p:0, c:0, f:0 };
+  return getMacros(fa.item, fa.grams);
+}
+
 function recomputeDay(dayIdx) {
   const day = state.plan.meal_plan[dayIdx];
   const bfIngs    = getIngWithOverrides(dayIdx, "bf",     day.bf.ingredients);
@@ -3590,8 +3641,22 @@ function recomputeDay(dayIdx) {
 
   const bfMacros    = sumMacrosWithOverrides(bfIngs);
   const snackMacros = sumMacrosWithOverrides(snackIngs);
-  const lMacros     = sumMacrosWithOverrides([...lIngs, ...sideIngs]);
-  const dMacros     = sumMacrosWithOverrides(dIngs);
+  const lunchFruit  = fruitAdditionMacros(dayIdx, "lunch");
+  const dinnerFruit = fruitAdditionMacros(dayIdx, "dinner");
+  const lMacrosBase = sumMacrosWithOverrides([...lIngs, ...sideIngs]);
+  const dMacrosBase = sumMacrosWithOverrides(dIngs);
+  const lMacros = {
+    kcal: lMacrosBase.kcal + lunchFruit.kcal,
+    p: Math.round((lMacrosBase.p + lunchFruit.p) * 10) / 10,
+    c: Math.round((lMacrosBase.c + lunchFruit.c) * 10) / 10,
+    f: Math.round((lMacrosBase.f + lunchFruit.f) * 10) / 10,
+  };
+  const dMacros = {
+    kcal: dMacrosBase.kcal + dinnerFruit.kcal,
+    p: Math.round((dMacrosBase.p + dinnerFruit.p) * 10) / 10,
+    c: Math.round((dMacrosBase.c + dinnerFruit.c) * 10) / 10,
+    f: Math.round((dMacrosBase.f + dinnerFruit.f) * 10) / 10,
+  };
   const total = {
     kcal: bfMacros.kcal + snackMacros.kcal + lMacros.kcal + dMacros.kcal,
     p:  Math.round((bfMacros.p + snackMacros.p + lMacros.p + dMacros.p) * 10) / 10,
@@ -3824,6 +3889,12 @@ function trackOpenModal(dateISO, mealType) {
   else if (mealType === "snack") ings = getIngWithOverrides(di, "snack", day.snack.ingredients);
   else if (mealType === "lunch") ings = [...getIngWithOverrides(di, "lunch", day.lunch.ingredients), ...getIngWithOverrides(di, "side", day.lunch.side_dish.ingredients)];
   else if (mealType === "dinner") ings = getIngWithOverrides(di, "dinner", day.dinner.ingredients);
+
+  // include l'eventuale frutto extra aggiunto al piano, così resta conteggiato anche modificando le quantità
+  if (mealType === "lunch" || mealType === "dinner") {
+    const fa = getFruitAddition(di, mealType);
+    if (fa) ings = [...ings, { item: fa.item, grams: fa.grams, _macrosPer100: getMacroPer100(fa.item) }];
+  }
 
   document.getElementById("trackModalTitle").textContent = `${meta.icon} ${planned.name}`;
   document.getElementById("trackModalSubtitle").textContent = `${meta.label} · previsto per oggi`;
@@ -4481,7 +4552,7 @@ function applyAltReplacement(altIdx) {
   const p100 = getMacroPer100(alt.item);
   const key  = `${modalCtx.dayIdx}:${modalCtx.mealType}:${modalCtx.ingIdx}`;
   state.overrides[key] = { item: alt.item, grams: alt.grams, _macrosPer100: p100 };
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   closeModal();
   render();
 }
@@ -4512,7 +4583,7 @@ function applyManualReplacement() {
 
   const key = `${modalCtx.dayIdx}:${modalCtx.mealType}:${modalCtx.ingIdx}`;
   state.overrides[key] = { item: name, grams, _macrosPer100: macrosPer100 };
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   closeModal();
   render();
 }
@@ -4655,7 +4726,7 @@ function applyMealNameChange() {
 
   const key = `${mealModalCtx.dayIdx}:${mealModalCtx.mealType}`;
   state.nameOverrides[key] = newName;
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   closeMealModal();
   render();
 }
@@ -4750,7 +4821,7 @@ function applyMealPick(idx) {
   // Rimuovi eventuale name override
   delete state.nameOverrides[`${dayIdx}:${mealType}`];
 
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   closeMealModal();
   render();
 }
@@ -4817,7 +4888,7 @@ function swapMeal(dayIdx, mealType) {
   }
 
   delete state.nameOverrides[`${dayIdx}:${mealType}`];
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   render();
   showSwapToast(picked.name);
 }
@@ -4858,7 +4929,7 @@ function applyBreakfastAltByName(altName, dayIdx) {
   // Rimuove eventuale name override sulla colazione
   delete state.nameOverrides[`${dayIdx}:bf`];
 
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   closeMealModal();
   render();
 }
@@ -4905,6 +4976,54 @@ function macroPills(m) {
     <span class="macro-sep">·</span>
     <span class="macro-pill" style="color:#f87171">${Math.round(m.f)}G</span>
   </div>`;
+}
+
+// ─── FRUTTO EXTRA A PRANZO/CENA ──────────────────────────────────────────────
+let fruitPickerCtx = null; // { dayIdx, mealType }
+function openFruitPicker(dayIdx, mealType) {
+  fruitPickerCtx = { dayIdx, mealType };
+  const grid = document.getElementById("fruitPickerGrid");
+  grid.innerHTML = COMMON_FRUITS.map((f, i) => {
+    const m = getMacros(f.item, f.grams);
+    return `<div class="fruit-picker-item" onclick="applyFruitPick(${i})">
+      <div class="fruit-picker-item-name">${f.item}</div>
+      <div class="fruit-picker-item-macro">${f.grams}g · ${m.kcal} kcal</div>
+    </div>`;
+  }).join("");
+  document.getElementById("fruitPickerOverlay").style.display = "flex";
+}
+function closeFruitPicker() {
+  document.getElementById("fruitPickerOverlay").style.display = "none";
+  fruitPickerCtx = null;
+}
+function closeFruitPickerOutside(e) {
+  if (e.target === document.getElementById("fruitPickerOverlay")) closeFruitPicker();
+}
+function applyFruitPick(idx) {
+  if (!fruitPickerCtx) return;
+  const f = COMMON_FRUITS[idx];
+  const key = `${fruitPickerCtx.dayIdx}:${fruitPickerCtx.mealType}`;
+  state.fruitAdditions[key] = { item: f.item, grams: f.grams };
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
+  closeFruitPicker();
+  render();
+  if (macroSection === "dashboard") renderDashboard();
+}
+function removeFruitAddition(dayIdx, mealType) {
+  delete state.fruitAdditions[`${dayIdx}:${mealType}`];
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
+  render();
+  if (macroSection === "dashboard") renderDashboard();
+}
+function renderFruitAdditionUI(dayIdx, mealType) {
+  const fa = getFruitAddition(dayIdx, mealType);
+  if (fa) {
+    const m = getMacros(fa.item, fa.grams);
+    return `<div class="fruit-chip">🍎 ${fa.item} ${fa.grams}g · ${m.kcal} kcal
+      <button class="fruit-chip-remove" onclick="removeFruitAddition(${dayIdx},'${mealType}')" title="Rimuovi">✕</button>
+    </div>`;
+  }
+  return `<button class="add-fruit-btn" onclick="openFruitPicker(${dayIdx},'${mealType}')">🍎 + Aggiungi frutto</button>`;
 }
 
 function renderIngGrid(ings, colorClass, dayIdx, mealType) {
@@ -5124,6 +5243,7 @@ function render() {
                 ${renderContornoItems(sideIngs, di)}
               </div>
             </div>
+            ${renderFruitAdditionUI(di, "lunch")}
           </div>
           <!-- Cena -->
           <div class="meal-dinner">
@@ -5137,6 +5257,7 @@ function render() {
               ${macroPills(day.dMacros)}
             </div>
             ${renderIngGrid(dIngs, "ing-g-purple", di, "dinner")}
+            ${renderFruitAdditionUI(di, "dinner")}
           </div>
         </div>
       </div>`;
@@ -5298,7 +5419,7 @@ function render() {
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
 function setTab(tab) {
   state.activeTab = tab;
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   render();
 }
 
@@ -5351,7 +5472,7 @@ function toggleCheck(k) {
     }
   }
 
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   render();
 }
 
@@ -5609,7 +5730,7 @@ function importTrainingJSON() {
           state.checked      = parsed.planBackup.checked      || {};
           state.overrides    = parsed.planBackup.overrides    || {};
           state.nameOverrides= parsed.planBackup.nameOverrides|| {};
-          savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+          savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
           planRestored = true;
         }
 
@@ -5702,8 +5823,9 @@ document.getElementById("btnGenerate").addEventListener("click", () => {
   state.checked   = {};
   state.overrides = {};
   state.nameOverrides = {};
+  state.fruitAdditions = {};
   state.activeTab = "plan";
-  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides);
+  savePlan(state.plan, state.checked, state.activeTab, state.overrides, state.nameOverrides, state.fruitAdditions);
   render();
   if (macroSection === "dashboard") renderDashboard();
 });
