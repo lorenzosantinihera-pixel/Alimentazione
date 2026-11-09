@@ -237,6 +237,27 @@
   .cal-cell.has-climb  { background: #2a1a08; border: 1px solid #92400e; }
   .cal-cell.has-climb .cal-num { color: #f1f5f9; }
   .cal-cell { cursor: pointer; }
+  .cal-cell.has-plan:not(.has-run):not(.has-gym):not(.has-climb):not(.has-both):not(.today) { border: 1px dashed #475569; background: #0d131c; }
+  .cal-dot-plan { opacity: .95; font-weight: 900; }
+  /* programmazione allenamenti */
+  .plan-box { margin-bottom: 4px; }
+  .plan-label { font-size: 9.5px; font-weight: 800; color: #56647d; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 7px; }
+  .plan-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .plan-chip { padding: 6px 11px; border-radius: 20px; border: 1px dashed #334155; background: transparent;
+               color: #7b8aa3; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .plan-chip.on { border-style: solid; color: #f1f5f9; }
+  .plan-chip.on.pc-run   { background: #0f2a16; border-color: #22c55e; }
+  .plan-chip.on.pc-gym   { background: #16306a; border-color: #3b82f6; }
+  .plan-chip.on.pc-gymB  { background: #2a1a5e; border-color: #8b5cf6; }
+  .plan-chip.on.pc-climb { background: #2e1a08; border-color: #fb923c; }
+  .plan-chip.done { opacity: .72; }
+  .plan-hint { font-size: 11px; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
+  .plan-hint b { color: #e2e8f0; }
+  /* il modulo del giorno selezionato sale subito sotto i tab */
+  .train-body { display: flex; flex-direction: column; }
+  .train-body > * { min-width: 0; }
+  .train-body.day-mode > .edit-mode-banner { order: -2; }
+  .train-body.day-mode > .log-card { order: -1; }
   .cal-cell.selected { outline: 2px solid #2563eb; outline-offset: -1px; }
   .cal-day-detail { background: #0f1923; border: 1px solid #1e2030; border-radius: 10px;
                      padding: 12px 14px; margin-top: 12px; }
@@ -727,6 +748,25 @@
                         line-height: 1.5; margin-bottom: 12px; }
   .dash-training-msg.intense { border-left-color: #fb923c; }
   .dash-training-msg.light   { border-left-color: #4ade80; }
+  .dash-plan { background: #0f1923; border: 1px solid #1e3a5f; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+  .dash-plan-title { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 4px; }
+  .dash-plan-item + .dash-plan-item { border-top: 1px solid #1c2638; }
+  .dash-plan-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+  .dash-plan-ico { font-size: 20px; width: 26px; text-align: center; flex-shrink: 0; }
+  .dash-plan-name { font-size: 13.5px; font-weight: 800; color: #f1f5f9; }
+  .dash-plan-sub { font-size: 10.5px; color: #64748b; margin-top: 1px; }
+  .dash-plan-status { margin-left: auto; font-size: 10.5px; font-weight: 800; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .dash-plan-status.done { color: #4ade80; background: #052e16; border: 1px solid #15803d; }
+  .dash-plan-go { margin-left: auto; padding: 7px 12px; border-radius: 8px; border: 1px solid #2563eb; background: #16234a;
+                  color: #93c5fd; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .dash-plan-ex { margin: -2px 0 8px 36px; }
+  .dash-plan-ex summary { font-size: 11px; font-weight: 700; color: #60a5fa; cursor: pointer; padding: 2px 0; }
+  .dash-plan-ex ul { margin: 4px 0 0; padding: 0; list-style: none; }
+  .dash-plan-ex li { font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-top: 1px solid #172033; }
+  .dash-plan-ex li b { color: #93c5fd; font-weight: 700; white-space: nowrap; }
+  .dash-plan-empty { display: flex; align-items: center; gap: 10px; padding: 6px 0 2px; }
+  .dash-plan-empty-txt { font-size: 11.5px; color: #94a3b8; line-height: 1.5; }
+  .dash-plan-empty-txt b { color: #e2e8f0; }
   .dash-quicklog-btn { width: 100%; padding: 10px; border-radius: 9px; border: 1px dashed #3b3060;
                         background: transparent; color: #a78bfa; font-size: 12.5px; font-weight: 700;
                         cursor: pointer; margin-bottom: 12px; }
@@ -2577,7 +2617,7 @@ function closeGymImgOutside(ev) { if (ev.target === document.getElementById("gym
 function renderGymTab(gymLog, todayStr, editBanner, editBtn, delBtn) {
   const editing = editingSessionId !== null ? trainLog.find(s => s.id === editingSessionId && s.type === "gym") : null;
   if (editing && editing.workout) gymWorkout = editing.workout;
-  if (!gymWorkout) gymWorkout = nextGymWorkout();
+  if (!gymWorkout) gymWorkout = plannedGymWorkout(selectedCalDay) || nextGymWorkout();
   const wk   = GYM_WORKOUTS[gymWorkout];
   const last = lastGymSession(gymWorkout, editing ? editing.id : null);
   const countA = gymLog.filter(s => s.workout === "A").length;
@@ -2734,6 +2774,50 @@ let selectedCalDay = null; // "YYYY-MM-DD" del giorno selezionato nel calendario
 function loadTrainLog()  { try { return JSON.parse(localStorage.getItem(TRAIN_KEY) || "[]"); } catch(e) { return []; } }
 function saveTrainLog(l) { try { localStorage.setItem(TRAIN_KEY, JSON.stringify(l)); } catch(e) {} }
 let trainLog = loadTrainLog();
+
+// ─── PROGRAMMAZIONE ALLENAMENTI ──────────────────────────────────────────────
+// trainPlan: { "YYYY-MM-DD": ["run" | "gymA" | "gymB" | "climb", ...] }
+const PLAN_KEY = "mealplan_trainplan_v1";
+const PLAN_TYPES = {
+  run:   { icon:"🏃", label:"Corsa",       tab:"run" },
+  gymA:  { icon:"🏋️", label:"Forza A",     tab:"gym",   workout:"A" },
+  gymB:  { icon:"🏋️", label:"Forza B",     tab:"gym",   workout:"B" },
+  climb: { icon:"🧗", label:"Arrampicata", tab:"climb" },
+};
+function loadTrainPlan() {
+  try { const p = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}"); return (p && typeof p === "object" && !Array.isArray(p)) ? p : {}; }
+  catch (e) { return {}; }
+}
+function saveTrainPlan(p) { try { localStorage.setItem(PLAN_KEY, JSON.stringify(p)); } catch (e) {} }
+let trainPlan = loadTrainPlan();
+
+// un allenamento programmato è "fatto" se quel giorno esiste una sessione registrata dello stesso tipo
+function planItemDone(iso, key) {
+  const m = PLAN_TYPES[key];
+  if (!m) return false;
+  return trainLog.some(s => s.date === iso && (m.tab === "gym" ? (s.type === "gym" && s.workout === m.workout) : s.type === m.tab));
+}
+function plannedGymWorkout(iso) {
+  if (!iso) return null;
+  const items = (trainPlan[iso] || []).filter(k => PLAN_TYPES[k] && PLAN_TYPES[k].workout);
+  const k = items.find(x => !planItemDone(iso, x)) || items[0];
+  return k ? PLAN_TYPES[k].workout : null;
+}
+function togglePlan(iso, key) {
+  if (!PLAN_TYPES[key]) return;
+  const arr = trainPlan[iso] ? [...trainPlan[iso]] : [];
+  const i = arr.indexOf(key);
+  if (i >= 0) arr.splice(i, 1); else arr.push(key);
+  if (arr.length) trainPlan[iso] = arr; else delete trainPlan[iso];
+  saveTrainPlan(trainPlan);
+  editingSessionId = null;
+  if (i < 0) { // appena programmato: apre subito il modulo di quell'allenamento
+    const m = PLAN_TYPES[key];
+    trainTab = m.tab;
+    if (m.workout) gymWorkout = m.workout;
+  }
+  renderTraining();
+}
 // each entry: { id, type:"run"|"gym"|"climb", date:"YYYY-MM-DD", ...fields, note }
 // (le vecchie sessioni type:"cf" restano nei dati e nel calendario come storico, ma non c'è più il tab CrossFit)
 
@@ -3064,6 +3148,15 @@ function toggleCalendar() {
 }
 function selectCalDay(iso) {
   selectedCalDay = (selectedCalDay === iso) ? null : iso; // tap di nuovo sullo stesso giorno per deselezionare
+  editingSessionId = null; // cambiando giorno si esce dalla modifica, per non sovrascrivere una sessione con campi vuoti
+  if (selectedCalDay) {
+    const items = (trainPlan[selectedCalDay] || []).filter(k => PLAN_TYPES[k]);
+    const next = items.find(k => !planItemDone(selectedCalDay, k)) || items[0];
+    if (next) { // giorno con allenamento programmato: tab e scheda giusti, data già impostata
+      trainTab = PLAN_TYPES[next].tab;
+      if (PLAN_TYPES[next].workout) gymWorkout = PLAN_TYPES[next].workout;
+    }
+  }
   renderTraining();
 }
 
@@ -3075,6 +3168,7 @@ function renderTraining() {
   const gymLog = trainLog.filter(s => s.type === "gym");
   const climbLog = trainLog.filter(s => s.type === "climb");
   const todayStr = todayISO();
+  const formDate = selectedCalDay || todayStr; // data precompilata nei moduli
 
   // ── Calendario mensile ──
   const MONTH_NAMES = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
@@ -3095,20 +3189,22 @@ function renderTraining() {
     const hasGym = trainLog.some(s => (s.type==="gym" || s.type==="cf") && s.date===iso); // "cf" = vecchio storico CrossFit
     const hasClimb = trainLog.some(s => s.type==="climb" && s.date===iso);
     const activityCount = [hasRun, hasGym, hasClimb].filter(Boolean).length;
+    const planned = (trainPlan[iso] || []).filter(k => PLAN_TYPES[k]);
+    const pending = t => planned.some(k => PLAN_TYPES[k].tab === t && !planItemDone(iso, k));
+    const pRun = pending("run"), pGym = pending("gym"), pClimb = pending("climb");
     const isToday = iso === todayStr;
     const isSelected = iso === selectedCalDay;
     const cls = [
       "cal-cell cur-month",
       activityCount >= 2 ? "has-both" : hasRun ? "has-run" : hasGym ? "has-gym" : hasClimb ? "has-climb" : "",
+      (pRun || pGym || pClimb) ? "has-plan" : "",
       isToday ? "today" : "",
       isSelected ? "selected" : ""
     ].filter(Boolean).join(" ");
-    let dotHtml = "";
-    if (activityCount >= 2) {
-      dotHtml = [hasRun && `<span class="cal-dot cal-dot-run">●</span>`, hasGym && `<span class="cal-dot cal-dot-gym">●</span>`, hasClimb && `<span class="cal-dot cal-dot-climb">●</span>`].filter(Boolean).join("");
-    } else if (hasRun)   dotHtml = `<span class="cal-dot cal-dot-run">●</span>`;
-    else if (hasGym)     dotHtml = `<span class="cal-dot cal-dot-gym">●</span>`;
-    else if (hasClimb)   dotHtml = `<span class="cal-dot cal-dot-climb">●</span>`;
+    // ● = fatto · ○ = programmato e ancora da fare
+    const dotHtml = [["run", hasRun, pRun], ["gym", hasGym, pGym], ["climb", hasClimb, pClimb]]
+      .map(([t, done, plan]) => done ? `<span class="cal-dot cal-dot-${t}">●</span>`
+                               : plan ? `<span class="cal-dot cal-dot-${t} cal-dot-plan">○</span>` : "").join("");
     return `<div class="${cls}" onclick="selectCalDay('${iso}')"><span class="cal-num">${dayNum}</span>${dotHtml}</div>`;
   });
 
@@ -3124,14 +3220,38 @@ function renderTraining() {
     const daySessions = trainLog.filter(s => s.date === selectedCalDay);
     const dLabel = new Date(selectedCalDay + "T00:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
     const typeMeta = { run: { icon:"🏃", label:"Corsa", badge:"badge-run" }, gym: { icon:"🏋️", label:"Palestra", badge:"badge-gym" }, cf: { icon:"🏋️", label:"CrossFit (storico)", badge:"badge-gym" }, climb: { icon:"🧗", label:"Arrampicata", badge:"badge-climb" } };
+
+    // programma del giorno
+    const planItems = (trainPlan[selectedCalDay] || []).filter(k => PLAN_TYPES[k]);
+    const pendingItems = planItems.filter(k => !planItemDone(selectedCalDay, k));
+    const chipCls = { run:"pc-run", gymA:"pc-gym", gymB:"pc-gymB", climb:"pc-climb" };
+    const planChips = Object.entries(PLAN_TYPES).map(([k, m]) => {
+      const on = planItems.includes(k);
+      const done = on && planItemDone(selectedCalDay, k);
+      return `<button class="plan-chip ${chipCls[k]} ${on ? "on" : ""} ${done ? "done" : ""}" onclick="togglePlan('${selectedCalDay}','${k}')">${m.icon} ${m.label}${done ? " ✓" : ""}</button>`;
+    }).join("");
+    const planHint = !planItems.length
+      ? "Tocca per programmare un allenamento in questo giorno (anche nei giorni futuri)."
+      : pendingItems.length
+        ? `Da fare: <b>${pendingItems.map(k => PLAN_TYPES[k].label).join(" + ")}</b> · il modulo è qui sotto, con la data già impostata.`
+        : "Tutto fatto per questo giorno ✓";
+    const planHtml = `<div class="plan-box">
+      <div class="plan-label">Programma del giorno</div>
+      <div class="plan-chips">${planChips}</div>
+      <div class="plan-hint">${planHint}</div>
+    </div>`;
+
+    const isFuture = selectedCalDay > todayStr;
     if (daySessions.length === 0) {
       dayDetailHtml = `<div class="cal-day-detail">
         <div class="cal-day-detail-title">${dLabel}</div>
-        <div class="cal-day-empty">Nessun allenamento registrato questo giorno.</div>
+        ${planHtml}
+        ${isFuture ? "" : `<div class="cal-day-empty">Nessun allenamento registrato questo giorno.</div>`}
       </div>`;
     } else {
       dayDetailHtml = `<div class="cal-day-detail">
         <div class="cal-day-detail-title">${dLabel} · ${daySessions.length} allenament${daySessions.length>1?"i":"o"}</div>
+        ${planHtml}
         ${daySessions.map(s => {
           const meta = typeMeta[s.type];
           const feelStars = "⭐".repeat(parseInt(s.feel)||3);
@@ -3172,6 +3292,7 @@ function renderTraining() {
         <div class="cal-legend-item"><span style="color:#60a5fa">●</span> Palestra</div>
         <div class="cal-legend-item"><span style="color:#fb923c">●</span> Arrampicata</div>
         <div class="cal-legend-item"><span style="color:#c4b5fd">●</span> Più attività</div>
+        <div class="cal-legend-item"><span style="color:#94a3b8">○</span> Programmato</div>
       </div>
       ${dayDetailHtml}
     </div>` : ""}
@@ -3184,7 +3305,8 @@ function renderTraining() {
     <button class="train-tab ${trainTab==="gym"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('gym')">🏋️ Palestra</button>
     <button class="train-tab ${trainTab==="climb"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('climb')">🧗 Arrampicata</button>
     <button class="train-tab ${trainTab==="peso"?"train-tab-active":"train-tab-inactive"}" onclick="setTrainTab('peso')">⚖️ Peso</button>
-  </div>`;
+  </div>
+  <div class="train-body ${selectedCalDay ? "day-mode" : ""}">`;
 
   // helper: banner modalità modifica
   const editBanner = (type) => (editingSessionId !== null && trainTab === type) ? `<div class="edit-mode-banner">
@@ -3224,7 +3346,7 @@ function renderTraining() {
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
-          <input class="log-input" id="runDate" type="date" value="${todayStr}">
+          <input class="log-input" id="runDate" type="date" value="${formDate}">
         </div>
         <div>
           <div class="log-label">Distanza (km)</div>
@@ -3310,7 +3432,7 @@ function renderTraining() {
 
   // ── PALESTRA TAB (Forza A / Forza B) ──
   if (trainTab === "gym") {
-    html += renderGymTab(gymLog, todayStr, editBanner, editBtn, delBtn);
+    html += renderGymTab(gymLog, formDate, editBanner, editBtn, delBtn);
   }
 
   // ── ARRAMPICATA TAB ──
@@ -3344,7 +3466,7 @@ function renderTraining() {
       <div class="log-fields">
         <div class="log-field-full">
           <div class="log-label">Data</div>
-          <input class="log-input" id="climbDate" type="date" value="${todayStr}">
+          <input class="log-input" id="climbDate" type="date" value="${formDate}">
         </div>
         <div>
           <div class="log-label">Luogo / Palestra</div>
@@ -3540,6 +3662,7 @@ function renderTraining() {
   }
 
   // ── Render DOM then draw charts ──
+  html += `</div>`; // chiude .train-body
   destroyCharts();
   el.innerHTML = html;
 
@@ -4446,6 +4569,59 @@ function dashMealRowHtml(dateISO, mealType, planned) {
   </div>`;
 }
 
+// ─── ALLENAMENTO PROGRAMMATO (pagina Oggi) ───────────────────────────────────
+function renderDashPlan(dateISO) {
+  const items = (trainPlan[dateISO] || []).filter(k => PLAN_TYPES[k]);
+  if (!items.length) {
+    const future = Object.keys(trainPlan).filter(d => d > dateISO && (trainPlan[d] || []).some(k => PLAN_TYPES[k])).sort()[0];
+    let nextTxt = "";
+    if (future) {
+      const diff = Math.round((new Date(future + "T00:00:00") - new Date(dateISO + "T00:00:00")) / 86400000);
+      const when = diff === 1 ? "domani" : new Date(future + "T00:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+      nextTxt = `<br>Prossimo: <b>${trainPlan[future].filter(k => PLAN_TYPES[k]).map(k => PLAN_TYPES[k].label).join(" + ")}</b> · ${when}`;
+    }
+    return `<div class="dash-plan">
+      <div class="dash-plan-title">📅 Allenamento programmato</div>
+      <div class="dash-plan-empty">
+        <div class="dash-plan-empty-txt">Nessun allenamento programmato per oggi.${nextTxt}</div>
+        <button class="dash-plan-go" onclick="openPlannedWorkout('${dateISO}', null)">+ Programma</button>
+      </div>
+    </div>`;
+  }
+  const rows = items.map(k => {
+    const m = PLAN_TYPES[k];
+    const done = planItemDone(dateISO, k);
+    const wk = m.workout ? GYM_WORKOUTS[m.workout] : null;
+    const sub = wk ? `${wk.focus} · ${wk.time}` : "";
+    const ex = (wk && !done) ? `<details class="dash-plan-ex"><summary>Vedi esercizi</summary><ul>${
+      wk.exercises.map(e => `<li><span>${e.name.replace(/\s*\(.*?\)/g, "")}</span><b>${e.sets} × ${e.reps}${e.suffix ? " " + e.suffix : ""}</b></li>`).join("")
+    }</ul></details>` : "";
+    return `<div class="dash-plan-item">
+      <div class="dash-plan-row">
+        <span class="dash-plan-ico">${m.icon}</span>
+        <div><div class="dash-plan-name">${m.label}</div>${sub ? `<div class="dash-plan-sub">${sub}</div>` : ""}</div>
+        ${done ? `<span class="dash-plan-status done">✓ Fatto</span>`
+               : `<button class="dash-plan-go" onclick="openPlannedWorkout('${dateISO}', '${k}')">Registra →</button>`}
+      </div>${ex}
+    </div>`;
+  }).join("");
+  return `<div class="dash-plan"><div class="dash-plan-title">📅 Programmato oggi</div>${rows}</div>`;
+}
+// apre Training sul giorno indicato, con il modulo dell'allenamento programmato (o solo il giorno, se key è null)
+function openPlannedWorkout(iso, key) {
+  const m = key ? PLAN_TYPES[key] : null;
+  setMacro("train");
+  const d = new Date(iso + "T00:00:00");
+  calendarYear = d.getFullYear(); calendarMonth = d.getMonth(); calendarOpen = true;
+  selectedCalDay = iso; editingSessionId = null;
+  if (m) { trainTab = m.tab; if (m.workout) gymWorkout = m.workout; }
+  renderTraining();
+  setTimeout(() => {
+    const t = document.querySelector(".cal-day-detail") || document.querySelector(".train-tabs");
+    if (t && t.scrollIntoView) t.scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 60);
+}
+
 function renderDashboard() {
   const el = document.getElementById("dashboardContent");
   if (!el) return;
@@ -4459,6 +4635,14 @@ function renderDashboard() {
   const targets = getTargetsForDate(dateISO);
   const trend = computeWeightTrend();
   const di = dayIdxForDate(dateISO);
+  // allenamento programmato oggi ma non ancora registrato: l'intestazione non deve dire solo "Rest day"
+  const pendingToday = (trainPlan[dateISO] || []).filter(k => PLAN_TYPES[k] && !planItemDone(dateISO, k));
+  const planPending = !trainInfo.isTrainingDay && pendingToday.length > 0;
+  const headMsg = planPending
+    ? (appSettings.useDayTypeTargets
+        ? "Allenamento programmato, non ancora registrato. I target restano da Rest Day finché non lo registri."
+        : "Allenamento programmato, non ancora registrato.")
+    : trainInfo.message;
 
   let html = `<div class="dash-card">
     <div class="dash-header">
@@ -4466,7 +4650,7 @@ function renderDashboard() {
         <div class="dash-daylabel">${dayLabel}</div>
         <div class="dash-date">${dateLabel}</div>
         <span class="dash-daytype-badge ${trainInfo.isTrainingDay ? 'dash-daytype-training' : 'dash-daytype-rest'}">
-          ${trainInfo.isTrainingDay ? '🏋️ Training Day' : '😴 Rest Day'}
+          ${trainInfo.isTrainingDay ? '🏋️ Training Day' : planPending ? '📅 Allenamento da fare' : '😴 Rest Day'}
         </span>
       </div>
       <div class="dash-weight-mini">
@@ -4475,9 +4659,11 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div class="dash-training-msg ${trainInfo.intensity||''}">${trainInfo.message}${
+    <div class="dash-training-msg ${trainInfo.intensity||''}">${headMsg}${
       trainInfo.isTrainingDay ? ` <span style="color:#64748b">(${trainInfo.sessions.map(s=>s.type==='run'?'🏃 corsa':s.type==='climb'?'🧗 arrampicata':s.type==='gym'?('🏋️ forza'+(s.workout?' '+s.workout:'')):'🏋️ CrossFit').join(', ')})</span>` : ''
     }</div>
+
+    ${renderDashPlan(dateISO)}
 
     <button class="dash-quicklog-btn" onclick="quickTrainOpenModal()">🏋️ Registra allenamento di oggi</button>`;
 
@@ -5781,6 +5967,7 @@ function exportTrainingJSON() {
     exported_at: new Date().toISOString(),
     version: 3,
     training: trainLog,
+    trainPlan: trainPlan,
     weight: weightLog,
     consumption: consumptionLog,
     settings: appSettings,
@@ -5849,6 +6036,20 @@ function importTrainingJSON() {
         trainLog = [...trainLog, ...newSessions].sort((a, b) => b.date.localeCompare(a.date));
         saveTrainLog(trainLog);
 
+        // Merge programmazione allenamenti (unione per giorno)
+        let plansMerged = 0;
+        if (parsed.trainPlan && typeof parsed.trainPlan === "object" && !Array.isArray(parsed.trainPlan)) {
+          Object.entries(parsed.trainPlan).forEach(([d, arr]) => {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !Array.isArray(arr)) return;
+            const cur = new Set(trainPlan[d] || []);
+            const before = cur.size;
+            arr.filter(k => PLAN_TYPES[k]).forEach(k => cur.add(k));
+            if (cur.size) trainPlan[d] = [...cur];
+            plansMerged += cur.size - before;
+          });
+          saveTrainPlan(trainPlan);
+        }
+
         // Merge pesi (solo su file v2+)
         let newWeights = 0;
         if (Array.isArray(parsed.weight)) {
@@ -5903,6 +6104,7 @@ function importTrainingJSON() {
         }
 
         const parts = [`${newSessions.length} sessioni`];
+        if (plansMerged > 0) parts.push(`${plansMerged} allenamenti programmati`);
         if (newWeights > 0) parts.push(`${newWeights} misurazioni peso`);
         if (consumptionMerged) parts.push("consumo pasti");
         if (settingsRestored) parts.push("impostazioni target");
